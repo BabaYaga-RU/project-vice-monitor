@@ -332,9 +332,7 @@
         </div>
     </div>
 
-    <!-- INICIO_DADOS_INJECAO -->
-    <!-- Os dados serão injetados aqui pelo Python -->
-    <!-- FIM_DADOS_INJECAO -->
+    
 
     <script>
         // INICIO_LOGICA_DASHBOARD
@@ -535,5 +533,82 @@
         setInterval(initDashboard, 60000);
         // FIM_LOGICA_DASHBOARD
     </script>
+    <!-- INICIO_DADOS_INJECAO -->
+    <!-- Os dados serão injetados aqui pelo Python -->
+    <script>
+        // INICIO_LOGICA_DASHBOARD
+        // Esta seção será preenchida pelo Python com os dados processados
+        
+        let dashboardData = {
+  "github_io": {
+    "current_status": "ONLINE",
+    "uptime_monthly": 100.0,
+    "uptime_current_month": 100.0,
+    "uptime_24h": 100.0,
+    "avg_latency": 455.34,
+    "last_check": "2026-03-12T17:48:09.591162"
+  },
+  "codepulse": {
+    "current_status": "ONLINE",
+    "uptime_monthly": 100.0,
+    "uptime_current_month": 100.0,
+    "uptime_24h": 100.0,
+    "avg_latency": 447.76,
+    "last_check": "2026-03-12T17:48:09.984067"
+  },
+  "history": {
+    "github_io": [
+      {
+        "timestamp": "2026-03-12T17:45:35.930736",
+        "url": "https://pklavc.github.io/",
+        "status": "ONLINE",
+        "latency_ms": 461.4,
+        "http_code": 200
+      },
+      {
+        "timestamp": "2026-03-12T17:45:57.470494",
+        "url": "https://pklavc.github.io/",
+        "status": "ONLINE",
+        "latency_ms": 383.99,
+        "http_code": 200
+      },
+      {
+        "timestamp": "2026-03-12T17:46:30.482227",
+        "url": "https://pklavc.github.io/",
+        "status": "ONLINE",
+        "latency_ms": 414.6,
+        "http_code": 200
+      },
+      {
+        "timestamp": "2026-03-12T17:48:09.591162",
+        "url": "https://pklavc.github.io/",
+        "status": "ONLINE",
+        "latency_ms": 561.37,
+        "http_code": 200
+      }
+    ],
+    "codepulse": [
+      {
+        "timestamp": "2026-03-12T17:46:30.988090",
+        "url": "https://pklavc.github.io/codepulse-monorepo/",
+        "status": "ONLINE",
+        "latency_ms": 504.37,
+        "http_code": 200
+      },
+      {
+        "timestamp": "2026-03-12T17:48:09.984067",
+        "url": "https://pklavc.github.io/codepulse-monorepo/",
+        "status": "ONLINE",
+        "latency_ms": 391.16,
+        "http_code": 200
+      }
+    ]
+  },
+  "generated_at": "2026-03-12T17:48:09.985825"
+};
+        // FIM_LOGICA_DASHBOARD
+    </script>
+    <!-- FIM_DADOS_INJECAO -->
+
 </body>
 </html>

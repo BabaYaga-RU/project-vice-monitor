@@ -191,8 +191,13 @@ def inject_data_into_html(history):
     json_data = json.dumps(dashboard_data, indent=2)
     
     # Lê o HTML
-    with open(INDEX_FILE, 'r', encoding='utf-8') as f:
-        html_content = f.read()
+    try:
+        with open(INDEX_FILE, 'r', encoding='utf-8') as f:
+            html_content = f.read()
+    except UnicodeDecodeError:
+        # Tenta com encoding diferente se falhar
+        with open(INDEX_FILE, 'r', encoding='latin-1') as f:
+            html_content = f.read()
     
     # Remove bloco de dados existente se houver
     if "<!-- INICIO_DADOS_INJECAO -->" in html_content and "<!-- FIM_DADOS_INJECAO -->" in html_content:
@@ -202,13 +207,31 @@ def inject_data_into_html(history):
         end_pos = html_content.find(end_marker) + len(end_marker)
         html_content = html_content[:start_pos] + html_content[end_pos:]
     
-    # Insere novos dados
-    injection_point = html_content.find("<!-- INICIO_DADOS_INJECAO -->")
-    if injection_point == -1:
-        print("Erro: Marcador de injeção não encontrado no HTML")
-        return False
-    
-    new_data_block = f"""<!-- INICIO_DADOS_INJECAO -->
+    # Verifica se o marcador ainda existe (para injeção inicial)
+    if "<!-- INICIO_DADOS_INJECAO -->" not in html_content:
+        # Se não existir, adiciona antes do fechamento do body
+        if "</body>" in html_content:
+            insertion_point = html_content.find("</body>")
+            new_data_block = f"""    <!-- INICIO_DADOS_INJECAO -->
+    <!-- Os dados serão injetados aqui pelo Python -->
+    <script>
+        // INICIO_LOGICA_DASHBOARD
+        // Esta seção será preenchida pelo Python com os dados processados
+        
+        let dashboardData = {json_data};
+        // FIM_LOGICA_DASHBOARD
+    </script>
+    <!-- FIM_DADOS_INJECAO -->
+
+</body>"""
+            html_content = html_content[:insertion_point] + new_data_block + html_content[insertion_point + len("</body>"):]
+        else:
+            print("Erro: Marcador de injeção não encontrado no HTML")
+            return False
+    else:
+        # Insere novos dados
+        injection_point = html_content.find("<!-- INICIO_DADOS_INJECAO -->")
+        new_data_block = f"""<!-- INICIO_DADOS_INJECAO -->
     <!-- Os dados serão injetados aqui pelo Python -->
     <script>
         // INICIO_LOGICA_DASHBOARD
@@ -218,8 +241,8 @@ def inject_data_into_html(history):
         // FIM_LOGICA_DASHBOARD
     </script>
     <!-- FIM_DADOS_INJECAO -->"""
-    
-    html_content = html_content[:injection_point] + new_data_block + html_content[injection_point:]
+        
+        html_content = html_content[:injection_point] + new_data_block + html_content[injection_point:]
     
     # Salva o HTML atualizado
     with open(INDEX_FILE, 'w', encoding='utf-8') as f:
