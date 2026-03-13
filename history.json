@@ -154,6 +154,21 @@
         "security_headers": {},
         "error": "HTTPSConnectionPool(host='pklavc.github.io', port=443): Max retries exceeded with url: / (Caused by ConnectTimeoutError(<HTTPSConnection(host='pklavc.github.io', port=443) at 0x20032e6b770>, 'Connection to pklavc.github.io timed out. (connect timeout=10)'))",
         "engagement": {}
+      },
+      {
+        "timestamp": "2026-03-13T00:05:36.986971+00:00",
+        "url": "https://pklavc.github.io/",
+        "status": "ERROR",
+        "http_code": 0,
+        "total_time_ms": 0,
+        "dns_time_ms": 0,
+        "tcp_time_ms": 0,
+        "transfer_time_ms": 0,
+        "content_ok": false,
+        "found_keywords": [],
+        "security_headers": {},
+        "error": "HTTPSConnectionPool(host='pklavc.github.io', port=443): Max retries exceeded with url: / (Caused by ConnectTimeoutError(<HTTPSConnection(host='pklavc.github.io', port=443) at 0x23ec3e7b770>, 'Connection to pklavc.github.io timed out. (connect timeout=10)'))",
+        "engagement": {}
       }
     ],
     "github_api": [
@@ -271,6 +286,27 @@
         "dns_time_ms": 55.86,
         "tcp_time_ms": 2.71,
         "transfer_time_ms": 450.23,
+        "content_ok": true,
+        "found_keywords": [],
+        "security_headers": {
+          "strict-transport-security": true,
+          "x-content-type-options": true
+        },
+        "engagement": {
+          "stars": 5,
+          "forks": 0,
+          "open_issues": 0
+        }
+      },
+      {
+        "timestamp": "2026-03-13T00:06:17.038793+00:00",
+        "url": "https://api.github.com/repos/PkLavc/codepulse-monorepo",
+        "status": "ONLINE",
+        "http_code": 200,
+        "total_time_ms": 471.12,
+        "dns_time_ms": 68.15,
+        "tcp_time_ms": 18.2,
+        "transfer_time_ms": 384.77,
         "content_ok": true,
         "found_keywords": [],
         "security_headers": {
