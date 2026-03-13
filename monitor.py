@@ -8,6 +8,8 @@ import time
 import re
 from urllib.parse import urlparse
 
+GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN")
+
 # Advanced configuration
 SERVICES = {
     "github_pages": {
@@ -121,6 +123,21 @@ def analyze_security_headers(response, service_config):
         
     return security_checks
 
+
+def github_api_get(url, params=None):
+    """Fetch JSON from GitHub API with optional auth token."""
+    headers = {'User-Agent': 'UptimeMonitor/1.0'}
+    if GITHUB_TOKEN:
+        headers['Authorization'] = f'token {GITHUB_TOKEN}'
+
+    try:
+        resp = requests.get(url, headers=headers, timeout=10, params=params)
+        if resp.status_code == 200:
+            return resp.json()
+    except Exception:
+        pass
+    return None
+
 def check_service(service_key, service_config):
     """Perform advanced monitoring with detailed metrics"""
     timestamp = datetime.datetime.now(datetime.timezone.utc).isoformat()
@@ -130,10 +147,14 @@ def check_service(service_key, service_config):
         dns_time = measure_dns_resolution(service_config["url"])
         
         start_total = time.time()
+        headers = {'User-Agent': 'UptimeMonitor/1.0'}
+        if GITHUB_TOKEN:
+            headers['Authorization'] = f'token {GITHUB_TOKEN}'
+
         response = requests.get(
             service_config["url"], 
             timeout=10,
-            headers={'User-Agent': 'UptimeMonitor/1.0'}
+            headers=headers
         )
         total_time = (time.time() - start_total) * 1000
         
@@ -154,7 +175,21 @@ def check_service(service_key, service_config):
             )
             if not content_ok:
                 status = "CONTENT_ERROR"
-        
+
+            # Basic HTML structure metrics
+            html = response.text
+            record["html_size_kb"] = round(len(response.content) / 1024, 2)
+            record["num_images"] = len(re.findall(r'<img\b', html, re.I))
+            record["num_links"] = len(re.findall(r'<a\b', html, re.I))
+            record["num_scripts"] = len(re.findall(r'<script\b', html, re.I))
+            record["num_stylesheets"] = len(re.findall(r'<link[^>]+rel=["\\'"]stylesheet["\\'"]', html, re.I))
+
+            title_match = re.search(r'<title>(.*?)</title>', html, re.I | re.S)
+            record["page_title"] = title_match.group(1).strip() if title_match else None
+
+            meta_desc = re.search(r'<meta\s+name=["\\'"]description["\\'"]\s+content=["\\'"](.*?)["\\'"]', html, re.I)
+            record["meta_description"] = meta_desc.group(1).strip() if meta_desc else None
+
         # Security analysis
         if response.status_code == 200:
             security_headers = analyze_security_headers(response, service_config)
@@ -171,10 +206,19 @@ def check_service(service_key, service_config):
             "content_ok": content_ok,
             "found_keywords": found_keywords,
             "security_headers": security_headers,
-            "engagement": {}  # For GitHub API
+            "engagement": {},  # For GitHub API
+
+            # Website insights
+            "html_size_kb": 0,
+            "num_images": 0,
+            "num_links": 0,
+            "num_scripts": 0,
+            "num_stylesheets": 0,
+            "page_title": None,
+            "meta_description": None
         }
         
-        # Extract engagement data for CodePulse API
+        # Extract engagement and repo activity data for CodePulse API
         if service_key == "github_api" and response.status_code == 200:
             try:
                 data = response.json()
@@ -183,7 +227,38 @@ def check_service(service_key, service_config):
                     "forks": data.get("forks_count", 0),
                     "open_issues": data.get("open_issues_count", 0)
                 }
-            except:
+
+                # Repo activity metrics
+                owner_repo = None
+                match = re.search(r"/repos/([^/]+/[^/]+)", service_config["url"])
+                if match:
+                    owner_repo = match.group(1)
+
+                if owner_repo:
+                    # Open PRs count (search endpoint)
+                    pr_search = github_api_get(
+                        f"https://api.github.com/search/issues",
+                        params={"q": f"repo:{owner_repo} type:pr state:open"}
+                    )
+                    record["open_prs"] = pr_search.get("total_count", 0) if pr_search else 0
+
+                    # Recent commits (commit activity)
+                    commit_activity = github_api_get(f"https://api.github.com/repos/{owner_repo}/stats/commit_activity")
+                    if isinstance(commit_activity, list) and len(commit_activity) > 0:
+                        # GitHub returns last 52 weeks of activity
+                        record["commit_activity"] = commit_activity
+                        record["commits_last_30d"] = sum(w.get("total", 0) for w in commit_activity[-4:])
+                    else:
+                        record["commit_activity"] = []
+                        record["commits_last_30d"] = 0
+
+                    # Last commit timestamp
+                    last_commit = github_api_get(f"https://api.github.com/repos/{owner_repo}/commits", params={"per_page": 1})
+                    if isinstance(last_commit, list) and len(last_commit) > 0:
+                        record["last_commit_date"] = last_commit[0].get("commit", {}).get("committer", {}).get("date")
+                    else:
+                        record["last_commit_date"] = None
+            except Exception:
                 pass
         
     except Exception as e:

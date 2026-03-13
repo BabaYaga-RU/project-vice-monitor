@@ -502,6 +502,35 @@
                         <div class="metric-sublabel">Maior Latência</div>
                     </div>
                 </div>
+
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-value" id="github-pages-html-size">--</div>
+                        <div class="metric-label">HTML Size</div>
+                        <div class="metric-sublabel">KB</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="github-pages-images">--</div>
+                        <div class="metric-label">Imagens</div>
+                        <div class="metric-sublabel">Quantidade</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="github-pages-links">--</div>
+                        <div class="metric-label">Links</div>
+                        <div class="metric-sublabel">Quantidade</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="github-pages-scripts">--</div>
+                        <div class="metric-label">Scripts</div>
+                        <div class="metric-sublabel">Quantidade</div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 1rem; padding: 1rem; background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 12px;">
+                    <div style="font-weight: 600; margin-bottom: 0.5rem;">Meta</div>
+                    <div style="font-size: 0.85rem; color: var(--text-secondary);">Título: <span id="github-pages-title">--</span></div>
+                    <div style="font-size: 0.85rem; color: var(--text-secondary);">Descrição: <span id="github-pages-description">--</span></div>
+                </div>
             </div>
 
             <!-- GitHub API Card -->
@@ -557,9 +586,32 @@
                         <div class="metric-sublabel">Abertas</div>
                     </div>
                     <div class="metric-card">
+                        <div class="metric-value" id="github-api-prs">--</div>
+                        <div class="metric-label">Pull Requests</div>
+                        <div class="metric-sublabel">Abertos</div>
+                    </div>
+                </div>
+
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-value" id="github-api-commits-30d">--</div>
+                        <div class="metric-label">Commits 30d</div>
+                        <div class="metric-sublabel">Últimos 30 dias</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="github-api-last-commit">--</div>
+                        <div class="metric-label">Último commit</div>
+                        <div class="metric-sublabel">Data</div>
+                    </div>
+                    <div class="metric-card">
                         <div class="metric-value" id="github-api-peak">--</div>
                         <div class="metric-label">Horário Pico</div>
                         <div class="metric-sublabel">Maior Latência</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="github-api-blank">--</div>
+                        <div class="metric-label">---</div>
+                        <div class="metric-sublabel">---</div>
                     </div>
                 </div>
             </div>
@@ -598,6 +650,14 @@
                     <div class="chart-header">Tamanho da Página (KB)</div>
                     <div class="chart-container">
                         <canvas id="page-size-chart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Commit Activity Chart -->
+                <div class="chart-card">
+                    <div class="chart-header">Commits (últimas semanas)</div>
+                    <div class="chart-container">
+                        <canvas id="commit-activity-chart"></canvas>
                     </div>
                 </div>
 
@@ -783,16 +843,39 @@
             if (tcpEl) tcpEl.textContent = perf.avg_tcp_time != null ? `${Math.round(perf.avg_tcp_time)}ms` : 'No data';
             if (transferEl) transferEl.textContent = perf.avg_transfer_time != null ? `${Math.round(perf.avg_transfer_time)}ms` : 'No data';
 
+            // GitHub Pages additional metrics
+            if (prefix === 'github-pages') {
+                const htmlSizeEl = document.getElementById('github-pages-html-size');
+                const imagesEl = document.getElementById('github-pages-images');
+                const linksEl = document.getElementById('github-pages-links');
+                const scriptsEl = document.getElementById('github-pages-scripts');
+                const titleEl = document.getElementById('github-pages-title');
+                const descEl = document.getElementById('github-pages-description');
+
+                if (htmlSizeEl) htmlSizeEl.textContent = serviceData.html_size_kb != null ? `${serviceData.html_size_kb} KB` : '--';
+                if (imagesEl) imagesEl.textContent = serviceData.num_images != null ? serviceData.num_images : '--';
+                if (linksEl) linksEl.textContent = serviceData.num_links != null ? serviceData.num_links : '--';
+                if (scriptsEl) scriptsEl.textContent = serviceData.num_scripts != null ? serviceData.num_scripts : '--';
+                if (titleEl) titleEl.textContent = serviceData.page_title || '--';
+                if (descEl) descEl.textContent = serviceData.meta_description || '--';
+            }
+
             // Engagement Metrics (API only)
             if (prefix === 'github-api' && serviceData.engagement) {
                 const eng = serviceData.engagement;
                 const starsEl = document.getElementById('github-api-stars');
                 const forksEl = document.getElementById('github-api-forks');
                 const issuesEl = document.getElementById('github-api-issues');
+                const prsEl = document.getElementById('github-api-prs');
+                const commitsEl = document.getElementById('github-api-commits-30d');
+                const lastCommitEl = document.getElementById('github-api-last-commit');
 
                 if (starsEl) starsEl.textContent = eng.stars || 0;
                 if (forksEl) forksEl.textContent = eng.forks || 0;
                 if (issuesEl) issuesEl.textContent = eng.open_issues || 0;
+                if (prsEl) prsEl.textContent = serviceData.open_prs != null ? serviceData.open_prs : '--';
+                if (commitsEl) commitsEl.textContent = serviceData.commits_last_30d != null ? serviceData.commits_last_30d : '--';
+                if (lastCommitEl) lastCommitEl.textContent = serviceData.last_commit_date ? new Date(serviceData.last_commit_date).toLocaleString('pt-BR') : '--';
             }
         }
 
