@@ -78,9 +78,7 @@ PR_URL=$(gh pr create --title "$PR_TITLE" \
 - Security headers analysis
 - Deep health checks
 
-**Dashboard:** [index.html](./index.html)
-
-🚀 SRE Achievement: Automated observability update completed." \
+**Dashboard:** [index.html](./index.html)" \
                       --base main --head $BRANCH --fill)
 
 echo "Merging PR: $PR_URL"
