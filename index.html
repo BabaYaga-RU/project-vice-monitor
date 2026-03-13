@@ -592,6 +592,22 @@
                         <canvas id="engagement-chart"></canvas>
                     </div>
                 </div>
+
+                <!-- Page Size Trend Chart -->
+                <div class="chart-card">
+                    <div class="chart-header">Tamanho da Página (KB)</div>
+                    <div class="chart-container">
+                        <canvas id="page-size-chart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Incident Count Chart -->
+                <div class="chart-card">
+                    <div class="chart-header">Incidentes nas últimas 24h</div>
+                    <div class="chart-container">
+                        <canvas id="incidents-chart"></canvas>
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -741,45 +757,31 @@
                 }
             }
 
-            // Try to use the injected historical records (if available)
-            const historyKey = prefix.replace(/-/g, '_');
-            const serviceHistory = data && data.history && data.history[historyKey] ? data.history[historyKey] : [];
-
-            // SLA Metrics
-            const sla24h = calculateSLA(serviceHistory);
-            const sla7d = calculateSLA(serviceHistory);
-            const sla30d = calculateSLA(serviceHistory);
+            // SLA Metrics (use precomputed values from monitor.py)
+            const sla24h = serviceData.sla_24h ?? null;
+            const sla7d = serviceData.sla_7d ?? null;
+            const sla30d = serviceData.sla_30d ?? null;
 
             const sla24El = document.getElementById(`${prefix}-sla-24h`);
             const sla7El = document.getElementById(`${prefix}-sla-7d`);
             const sla30El = document.getElementById(`${prefix}-sla-30d`);
-            const slaHasData = serviceHistory && serviceHistory.length > 0;
 
-            if (sla24El) sla24El.textContent = slaHasData ? `${sla24h}%` : 'No data';
-            if (sla7El) sla7El.textContent = slaHasData ? `${sla7d}%` : 'No data';
-            if (sla30El) sla30El.textContent = slaHasData ? `${sla30d}%` : 'No data';
+            if (sla24El) sla24El.textContent = sla24h !== null ? `${sla24h}%` : 'No data';
+            if (sla7El) sla7El.textContent = sla7d !== null ? `${sla7d}%` : 'No data';
+            if (sla30El) sla30El.textContent = sla30d !== null ? `${sla30d}%` : 'No data';
 
-            // Performance Metrics
+            // Performance Metrics (use precomputed performance values)
+            const perf = serviceData.performance || {};
             const latencyEl = document.getElementById(`${prefix}-latency`);
-            if (latencyEl) latencyEl.textContent = slaHasData ? `${calculateLatency(serviceHistory)}ms` : 'No data';
+            if (latencyEl) latencyEl.textContent = perf.avg_latency != null ? `${Math.round(perf.avg_latency)}ms` : 'No data';
 
-            // Performance breakdown metrics (if present)
-            if (slaHasData) {
-                const validChecks = serviceHistory.filter(item => item.total_time_ms > 0);
-                if (validChecks.length > 0) {
-                    const avgDns = Math.round(validChecks.reduce((sum, item) => sum + item.dns_time_ms, 0) / validChecks.length);
-                    const avgTcp = Math.round(validChecks.reduce((sum, item) => sum + item.tcp_time_ms, 0) / validChecks.length);
-                    const avgTransfer = Math.round(validChecks.reduce((sum, item) => sum + item.transfer_time_ms, 0) / validChecks.length);
+            const dnsEl = document.getElementById(`${prefix}-dns`);
+            const tcpEl = document.getElementById(`${prefix}-tcp`);
+            const transferEl = document.getElementById(`${prefix}-transfer`);
 
-                    const dnsEl = document.getElementById(`${prefix}-dns`);
-                    const tcpEl = document.getElementById(`${prefix}-tcp`);
-                    const transferEl = document.getElementById(`${prefix}-transfer`);
-
-                    if (dnsEl) dnsEl.textContent = `${avgDns}ms`;
-                    if (tcpEl) tcpEl.textContent = `${avgTcp}ms`;
-                    if (transferEl) transferEl.textContent = `${avgTransfer}ms`;
-                }
-            }
+            if (dnsEl) dnsEl.textContent = perf.avg_dns_time != null ? `${Math.round(perf.avg_dns_time)}ms` : 'No data';
+            if (tcpEl) tcpEl.textContent = perf.avg_tcp_time != null ? `${Math.round(perf.avg_tcp_time)}ms` : 'No data';
+            if (transferEl) transferEl.textContent = perf.avg_transfer_time != null ? `${Math.round(perf.avg_transfer_time)}ms` : 'No data';
 
             // Engagement Metrics (API only)
             if (prefix === 'github-api' && serviceData.engagement) {
@@ -934,16 +936,16 @@
                 });
             }
 
-            // Update Uptime SLA Chart
+            // Update Uptime SLA Chart (use precomputed SLA values)
             const slaCtx = document.getElementById('uptime-sla-chart');
-            if (slaCtx && data.history) {
+            if (slaCtx && data.services) {
                 if (window.__charts.sla) {
                     window.__charts.sla.destroy();
                 }
 
-                const githubPagesSLA = calculateSLA(data.history.github_pages);
-                const githubApiSLA = calculateSLA(data.history.github_api);
-                
+                const githubPagesSLA = data.services.github_pages?.sla_24h || 0;
+                const githubApiSLA = data.services.github_api?.sla_24h || 0;
+
                 window.__charts.sla = new Chart(slaCtx, {
                     type: 'doughnut',
                     data: {
@@ -974,7 +976,7 @@
                     window.__charts.engagement.destroy();
                 }
 
-                const githubApi = data.services.codepulse;
+                const githubApi = data.services.github_api;
                 if (githubApi && githubApi.engagement) {
                     const { stars, forks, open_issues } = githubApi.engagement;
                     
@@ -1012,6 +1014,98 @@
                         }
                     });
                 }
+            }
+
+            // Page Size History Chart
+            const pageSizeCtx = document.getElementById('page-size-chart');
+            if (pageSizeCtx && data.page_size_history) {
+                if (window.__charts.pageSize) {
+                    window.__charts.pageSize.destroy();
+                }
+
+                const history = data.page_size_history.slice(-24); // last 24 entries
+                const labels = history.map(item => new Date(item.timestamp).toLocaleString());
+                const sizes = history.map(item => item.size_kb);
+
+                window.__charts.pageSize = new Chart(pageSizeCtx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Tamanho da página (KB)',
+                            data: sizes,
+                            borderColor: '#f59e0b',
+                            backgroundColor: 'rgba(245, 158, 11, 0.2)',
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                labels: { color: '#94a3b8' }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: { color: '#64748b', callback: v => `${v} KB` },
+                                grid: { color: '#334155' }
+                            },
+                            x: {
+                                ticks: { color: '#64748b' },
+                                grid: { color: '#334155' }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Incidents by Service (last 24h)
+            const incidentsCtx = document.getElementById('incidents-chart');
+            if (incidentsCtx && data.summary && data.summary.incidents_last_24h) {
+                if (window.__charts.incidents) {
+                    window.__charts.incidents.destroy();
+                }
+
+                const labels = Object.keys(data.summary.incidents_last_24h);
+                const values = labels.map(k => data.summary.incidents_last_24h[k] || 0);
+
+                window.__charts.incidents = new Chart(incidentsCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Incidentes 24h',
+                            data: values,
+                            backgroundColor: labels.map(() => 'rgba(239, 68, 68, 0.7)'),
+                            borderWidth: 0,
+                            borderRadius: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                labels: { color: '#94a3b8' }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: { color: '#64748b' },
+                                grid: { color: '#334155' }
+                            },
+                            x: {
+                                ticks: { color: '#64748b' },
+                                grid: { color: '#334155' }
+                            }
+                        }
+                    }
+                });
             }
         }
 

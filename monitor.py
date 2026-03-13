@@ -454,6 +454,7 @@ def inject_data_into_html(history, summary=None):
         "incident_log": generate_incident_log(history),
         "badge": generate_shields_badge(history),
         "history": history["services"],
+        "page_size_history": history.get("page_size_history", []),
         "generated_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
         "summary": summary or {}
     }
