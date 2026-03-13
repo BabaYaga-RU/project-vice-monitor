@@ -5,23 +5,23 @@ function updateDashboard() {
     const data = window.dashboardData;
 
     if (!data || !data.services) {
-        console.log('Aguardando dados...');
-        setTimeout(updateDashboard, 100); // Retry after 100ms
+        console.log('⚠️ Dashboard data not found - please run the monitoring script first');
+        console.log('💡 Tip: Execute "python monitor.py" to generate the required data');
         return;
     }
 
-    // Update Global Status
-    const globalStatus = document.getElementById('global-status');
-    const githubStatus = data.services.github_pages.current_status;
-    const apiStatus = data.services.github_api.current_status;
-
-    if (githubStatus === 'ONLINE' && apiStatus === 'ONLINE') {
-        globalStatus.textContent = 'SISTEMA OPERACIONAL';
-        globalStatus.className = 'badge online';
-    } else {
-        globalStatus.textContent = 'INCIDENTE DETECTADO';
-        globalStatus.className = 'badge offline';
-    }
+        // Update Global Status
+        const globalStatus = document.getElementById('global-status');
+        const githubStatus = data.services.github_pages.current_status;
+        const apiStatus = data.services.github_api.current_status;
+        
+        if (githubStatus === 'ONLINE' && apiStatus === 'ONLINE') {
+            globalStatus.textContent = 'SYSTEMS OPERATIONAL';
+            globalStatus.className = 'badge online';
+        } else {
+            globalStatus.textContent = 'INCIDENT DETECTED';
+            globalStatus.className = 'badge offline';
+        }
 
     // Update GitHub Pages
     updateServiceCard('github-pages', data.services.github_pages);
@@ -38,9 +38,9 @@ function updateDashboard() {
     // Update Last Update
     const lastUpdate = document.getElementById('last-update');
     const lastUpdateBadge = document.getElementById('last-update-badge');
-    const updateTime = new Date(data.generated_at).toLocaleString('pt-BR');
+    const updateTime = new Date(data.generated_at).toLocaleString('en-US');
 
-    lastUpdate.textContent = `Última atualização: ${updateTime}`;
+    lastUpdate.textContent = `Last update: ${updateTime}`;
     lastUpdateBadge.textContent = updateTime;
 }
 
@@ -68,9 +68,9 @@ function updateServiceCard(prefix, serviceData) {
     const sla7d = serviceData.sla_7d || 0;
     const sla30d = serviceData.sla_30d || 0;
 
-    document.getElementById(`${prefix}-sla-24h`).textContent = sla24h === 0 && data.history ? 'Calculando...' : `${sla24h}%`;
-    document.getElementById(`${prefix}-sla-7d`).textContent = sla7d === 0 && data.history ? 'Calculando...' : `${sla7d}%`;
-    document.getElementById(`${prefix}-sla-30d`).textContent = sla30d === 0 && data.history ? 'Calculando...' : `${sla30d}%`;
+    document.getElementById(`${prefix}-sla-24h`).textContent = sla24h === 0 && data.history ? 'Calculating...' : `${sla24h}%`;
+    document.getElementById(`${prefix}-sla-7d`).textContent = sla7d === 0 && data.history ? 'Calculating...' : `${sla7d}%`;
+    document.getElementById(`${prefix}-sla-30d`).textContent = sla30d === 0 && data.history ? 'Calculating...' : `${sla30d}%`;
 
     // Performance Metrics
     const perf = serviceData.performance;
@@ -99,7 +99,7 @@ function updateIncidentLog(incidents) {
         tbody.innerHTML = `
             <tr>
                 <td colspan="5" style="text-align: center; color: var(--text-tertiary); padding: 2rem;">
-                    Nenhum incidente registrado
+                    No incidents registered
                 </td>
             </tr>
         `;
@@ -116,8 +116,8 @@ function updateIncidentLog(incidents) {
         row.innerHTML = `
             <td>${incident.service}</td>
             <td><span class="status-pill ${statusClass}">${incident.status}</span></td>
-            <td>${new Date(incident.start_time).toLocaleString('pt-BR')}</td>
-            <td>${incident.end_time ? new Date(incident.end_time).toLocaleString('pt-BR') : 'Em andamento'}</td>
+            <td>${new Date(incident.start_time).toLocaleString('en-US')}</td>
+            <td>${incident.end_time ? new Date(incident.end_time).toLocaleString('en-US') : 'In Progress'}</td>
             <td>${incident.duration}</td>
         `;
 
@@ -129,7 +129,7 @@ function updateCharts(data) {
     if (!data.history) return;
 
     // Process history data for charts
-    const githubHistory = data.history.github_io || [];
+    const githubHistory = data.history.github_pages || [];
     const apiHistory = data.history.github_api || [];
 
     // Uptime Chart (last 24 hours)
@@ -337,7 +337,7 @@ function updatePageSizeChart(pageSizeHistory) {
     const ctx = document.getElementById('page-size-chart');
     if (!ctx) return;
 
-    const labels = pageSizeHistory.map(p => new Date(p.timestamp).toLocaleDateString('pt-BR'));
+    const labels = pageSizeHistory.map(p => new Date(p.timestamp).toLocaleDateString('en-US'));
     const sizes = pageSizeHistory.map(p => p.size_kb);
 
     if (charts.pageSize) {

@@ -111,10 +111,10 @@ def deep_health_check(url, response, keywords):
     except Exception:
         return False, []
 
-def analyze_security_headers(response):
+def analyze_security_headers(response, service_config):
     """Analyze presence of security headers"""
     security_checks = {}
-    required_headers = SERVICES["github_pages"]["security_headers"]
+    required_headers = service_config["security_headers"]
     
     for header in required_headers:
         security_checks[header] = header.lower() in response.headers
@@ -157,7 +157,7 @@ def check_service(service_key, service_config):
         
         # Security analysis
         if response.status_code == 200:
-            security_headers = analyze_security_headers(response)
+            security_headers = analyze_security_headers(response, service_config)
         
         record = {
             "timestamp": timestamp,
@@ -174,7 +174,7 @@ def check_service(service_key, service_config):
             "engagement": {}  # For GitHub API
         }
         
-        # Extract engagement data for GitHub API
+        # Extract engagement data for CodePulse API
         if service_key == "github_api" and response.status_code == 200:
             try:
                 data = response.json()
@@ -440,82 +440,40 @@ def generate_shields_badge(history):
     return badge_data
 
 def inject_data_into_html(history):
-    """Inject processed data into index.html"""
+    """Injeta os dados diretamente no script do index.html"""
     if not os.path.exists(INDEX_FILE):
-        print(f"Erro: Arquivo {INDEX_FILE} não encontrado")
         return False
     
-    # Process data for all services
+    # Processa os dados exatamente como o script.js espera
     processed_data = {}
     for service_key in SERVICES.keys():
         processed_data[service_key] = process_service_data(history, service_key)
     
-    # Gera log de incidentes
-    incident_log = generate_incident_log(history)
-    
-    # Gera badge Shields.io
-    badge_data = generate_shields_badge(history)
-    
-    # Prepare data for injection
     dashboard_data = {
         "services": processed_data,
-        "incident_log": incident_log,
-        "badge": badge_data,
+        "incident_log": generate_incident_log(history),
+        "badge": generate_shields_badge(history),
         "history": history["services"],
         "generated_at": datetime.datetime.now(datetime.timezone.utc).isoformat()
     }
     
-    # Convert to JSON
     json_data = json.dumps(dashboard_data, indent=2)
     
-    # Lê o HTML
-    try:
-        with open(INDEX_FILE, 'r', encoding='utf-8') as f:
-            html_content = f.read()
-    except UnicodeDecodeError:
-        with open(INDEX_FILE, 'r', encoding='latin-1') as f:
-            html_content = f.read()
+    with open(INDEX_FILE, 'r', encoding='utf-8') as f:
+        content = f.read()
     
-    # Remove existing data block if present
-    if "<!-- INICIO_DADOS_INJECAO -->" in html_content and "<!-- FIM_DADOS_INJECAO -->" in html_content:
-        start_marker = "<!-- INICIO_DADOS_INJECAO -->"
-        end_marker = "<!-- FIM_DADOS_INJECAO -->"
-        start_pos = html_content.find(start_marker)
-        end_pos = html_content.find(end_marker) + len(end_marker)
-        html_content = html_content[:start_pos] + html_content[end_pos:]
+    # Substitui o conteúdo da tag script com ID 'dashboard-data'
+    pattern = r'<script id="dashboard-data">.*?</script>'
+    replacement = f'<script id="dashboard-data">window.dashboardData = {json_data};</script>'
     
-    # Check if marker still exists (for initial injection)
-    if "<!-- INICIO_DADOS_INJECAO -->" not in html_content:
-        if "</body>" in html_content:
-            insertion_point = html_content.find("</body>")
-            new_data_block = f"""    <!-- INICIO_DADOS_INJECAO -->
-    <!-- Observability data injected by monitor.py -->
-    <script>
-        window.dashboardData = {json_data};
-    </script>
-    <!-- FIM_DADOS_INJECAO -->
-
-</body>"""
-            html_content = html_content[:insertion_point] + new_data_block + html_content[insertion_point + len("</body>"):]
-        else:
-            print("Erro: Marcador de injeção não encontrado no HTML")
-            return False
+    if re.search(pattern, content, re.DOTALL):
+        new_content = re.sub(pattern, replacement, content, flags=re.DOTALL)
     else:
-        # Insert new data
-        injection_point = html_content.find("<!-- INICIO_DADOS_INJECAO -->")
-        new_data_block = f"""<!-- INICIO_DADOS_INJECAO -->
-    <!-- Observability data injected by monitor.py -->
-    <script>
-        window.dashboardData = {json_data};
-    </script>
-    <!-- FIM_DADOS_INJECAO -->"""
+        # Se a tag não existir, insere antes do fechamento do body
+        new_content = content.replace('</body>', f'{replacement}\n</body>')
         
-        html_content = html_content[:injection_point] + new_data_block + html_content[injection_point:]
-    
-    # Save updated HTML
     with open(INDEX_FILE, 'w', encoding='utf-8') as f:
-        f.write(html_content)
-    
+        f.write(new_content)
     return True
 
 def check_page_size(url="https://pklavc.github.io/codepulse-monorepo/"):

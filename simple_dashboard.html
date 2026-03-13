@@ -1,5 +1,152 @@
-{
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Dashboard - PkLavc</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .card {
+            background: white;
+            padding: 20px;
+            margin: 10px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .status-online { color: #28a745; font-weight: bold; }
+        .status-offline { color: #dc3545; font-weight: bold; }
+        .status-warning { color: #ffc107; font-weight: bold; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 8px; border-bottom: 1px solid #ddd; text-align: left; }
+        .metric { font-size: 24px; font-weight: bold; color: #333; }
+        .label { font-size: 12px; color: #666; text-transform: uppercase; }
+    </style>
+</head>
+<body>
+    <h1>SRE Dashboard - Simple View</h1>
+    
+    <div class="card">
+        <h2>Status Global</h2>
+        <div id="global-status" class="metric">Carregando...</div>
+    </div>
+
+    <div class="card">
+        <h2>GitHub Pages</h2>
+        <div class="status-online" id="github-status">Status: Carregando...</div>
+        <div class="label">SLA 24h: <span id="github-sla-24h">--</span>%</div>
+        <div class="label">SLA 7d: <span id="github-sla-7d">--</span>%</div>
+        <div class="label">SLA 30d: <span id="github-sla-30d">--</span>%</div>
+        <div class="label">Latência Média: <span id="github-latency">--</span>ms</div>
+        <div class="label">Última Checagem: <span id="github-last-check">--</span></div>
+    </div>
+
+    <div class="card">
+        <h2>CodePulse Monorepo</h2>
+        <div class="status-online" id="api-status">Status: Carregando...</div>
+        <div class="label">SLA 24h: <span id="api-sla-24h">--</span>%</div>
+        <div class="label">SLA 7d: <span id="api-sla-7d">--</span>%</div>
+        <div class="label">SLA 30d: <span id="api-sla-30d">--</span>%</div>
+        <div class="label">Latência Média: <span id="api-latency">--</span>ms</div>
+        <div class="label">Stars: <span id="api-stars">--</span></div>
+        <div class="label">Forks: <span id="api-forks">--</span></div>
+        <div class="label">Issues: <span id="api-issues">--</span></div>
+        <div class="label">Última Checagem: <span id="api-last-check">--</span></div>
+    </div>
+
+    <div class="card">
+        <h2>Incidentes</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Serviço</th>
+                    <th>Status</th>
+                    <th>Início</th>
+                    <th>Fim</th>
+                    <th>Duração</th>
+                </tr>
+            </thead>
+            <tbody id="incident-table">
+                <tr><td colspan="5">Carregando incidentes...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <h2>Última Atualização</h2>
+        <div id="last-update">Carregando...</div>
+    </div>
+
+    <!-- Dados injetados pelo monitor.py -->
+    <script id="dashboard-data">window.dashboardData = {
   "services": {
+    "github_pages": {
+      "current_status": "ONLINE",
+      "sla_24h": 90.0,
+      "sla_7d": 90.0,
+      "sla_30d": 90.0,
+      "performance": {
+        "avg_latency": 575.68,
+        "avg_dns_time": 20.65,
+        "avg_tcp_time": 43.4,
+        "avg_transfer_time": 511.63,
+        "peak_hour": "21:25",
+        "slowest_response": 822.13,
+        "fastest_response": 374.13
+      },
+      "last_check": "2026-03-13T21:25:03.675150+00:00",
+      "engagement": {}
+    },
+    "github_api": {
+      "current_status": "ONLINE",
+      "sla_24h": 90.0,
+      "sla_7d": 90.0,
+      "sla_30d": 90.0,
+      "performance": {
+        "avg_latency": 717.04,
+        "avg_dns_time": 32.8,
+        "avg_tcp_time": 52.61,
+        "avg_transfer_time": 631.63,
+        "peak_hour": "19:53",
+        "slowest_response": 920.98,
+        "fastest_response": 622.48
+      },
+      "last_check": "2026-03-13T21:25:04.590978+00:00",
+      "engagement": {
+        "stars": 5,
+        "forks": 0,
+        "open_issues": 0
+      }
+    }
+  },
+  "incident_log": [
+    {
+      "service": "github_api",
+      "start_time": "2026-03-13T14:20:52.031967+00:00",
+      "end_time": "2026-03-13T14:24:58.842953+00:00",
+      "status": "ERROR",
+      "duration": "0:04:06"
+    },
+    {
+      "service": "github_pages",
+      "start_time": "2026-03-13T14:20:51.397395+00:00",
+      "end_time": "2026-03-13T14:24:58.317823+00:00",
+      "status": "ERROR",
+      "duration": "0:04:06"
+    }
+  ],
+  "badge": {
+    "schemaVersion": 1,
+    "label": "Uptime",
+    "message": "90.0%",
+    "color": "red"
+  },
+  "history": {
     "github_pages": [
       {
         "timestamp": "2026-03-13T14:20:51.397395+00:00",
@@ -413,47 +560,92 @@
       }
     ]
   },
-  "created_at": "2026-03-13T14:20:51.397335+00:00",
-  "page_size_history": [
-    {
-      "timestamp": "2026-03-13T14:20:53.619998+00:00",
-      "size_kb": 22.97
-    },
-    {
-      "timestamp": "2026-03-13T14:25:00.391317+00:00",
-      "size_kb": 22.97
-    },
-    {
-      "timestamp": "2026-03-13T14:27:17.323796+00:00",
-      "size_kb": 22.97
-    },
-    {
-      "timestamp": "2026-03-13T15:11:21.758478+00:00",
-      "size_kb": 22.97
-    },
-    {
-      "timestamp": "2026-03-13T19:07:03.652079+00:00",
-      "size_kb": 22.97
-    },
-    {
-      "timestamp": "2026-03-13T19:48:53.298338+00:00",
-      "size_kb": 22.97
-    },
-    {
-      "timestamp": "2026-03-13T19:53:56.751399+00:00",
-      "size_kb": 22.97
-    },
-    {
-      "timestamp": "2026-03-13T19:55:07.812962+00:00",
-      "size_kb": 22.97
-    },
-    {
-      "timestamp": "2026-03-13T20:05:40.394289+00:00",
-      "size_kb": 22.97
-    },
-    {
-      "timestamp": "2026-03-13T21:25:05.942233+00:00",
-      "size_kb": 22.97
-    }
-  ]
-}
+  "generated_at": "2026-03-13T21:25:05.944469+00:00"
+};</script>
+
+    <script>
+        function updateDashboard() {
+            const data = window.dashboardData;
+            
+            if (!data || !data.services) {
+                console.log('Aguardando dados...');
+                return;
+            }
+
+            // Update Global Status
+            const globalStatus = document.getElementById('global-status');
+            const githubStatus = data.services.github_pages.current_status;
+            const apiStatus = data.services.github_api.current_status;
+            
+            if (githubStatus === 'ONLINE' && apiStatus === 'ONLINE') {
+                globalStatus.textContent = 'SYSTEMS OPERATIONAL';
+                globalStatus.className = 'metric status-online';
+            } else {
+                globalStatus.textContent = 'INCIDENT DETECTED';
+                globalStatus.className = 'metric status-offline';
+            }
+
+            // Update GitHub Pages
+            const github = data.services.github_pages;
+            document.getElementById('github-status').textContent = 'Status: ' + github.current_status;
+            document.getElementById('github-status').className = 'status-' + (github.current_status === 'ONLINE' ? 'online' : github.current_status === 'OFFLINE' ? 'offline' : 'warning');
+            document.getElementById('github-sla-24h').textContent = github.sla_24h || 0;
+            document.getElementById('github-sla-7d').textContent = github.sla_7d || 0;
+            document.getElementById('github-sla-30d').textContent = github.sla_30d || 0;
+            document.getElementById('github-latency').textContent = github.performance ? Math.round(github.performance.avg_latency) : 0;
+            document.getElementById('github-last-check').textContent = new Date(github.last_check).toLocaleString('pt-BR');
+
+            // Update GitHub API
+            const api = data.services.github_api;
+            document.getElementById('api-status').textContent = 'Status: ' + api.current_status;
+            document.getElementById('api-status').className = 'status-' + (api.current_status === 'ONLINE' ? 'online' : api.current_status === 'OFFLINE' ? 'offline' : 'warning');
+            document.getElementById('api-sla-24h').textContent = api.sla_24h || 0;
+            document.getElementById('api-sla-7d').textContent = api.sla_7d || 0;
+            document.getElementById('api-sla-30d').textContent = api.sla_30d || 0;
+            document.getElementById('api-latency').textContent = api.performance ? Math.round(api.performance.avg_latency) : 0;
+            document.getElementById('api-stars').textContent = api.engagement ? api.engagement.stars : 0;
+            document.getElementById('api-forks').textContent = api.engagement ? api.engagement.forks : 0;
+            document.getElementById('api-issues').textContent = api.engagement ? api.engagement.open_issues : 0;
+            document.getElementById('api-last-check').textContent = new Date(api.last_check).toLocaleString('pt-BR');
+
+            // Update Incident Log
+            const tbody = document.getElementById('incident-table');
+            tbody.innerHTML = '';
+
+            if (data.incident_log && data.incident_log.length > 0) {
+                data.incident_log.forEach(incident => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${incident.service}</td>
+                        <td class="status-${incident.status === 'ONLINE' ? 'online' : incident.status === 'OFFLINE' ? 'offline' : 'warning'}">${incident.status}</td>
+                        <td>${new Date(incident.start_time).toLocaleString('pt-BR')}</td>
+                        <td>${incident.end_time ? new Date(incident.end_time).toLocaleString('pt-BR') : 'Em Progresso'}</td>
+                        <td>${incident.duration}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            } else {
+                tbody.innerHTML = '<tr><td colspan="5">Nenhum incidente registrado</td></tr>';
+            }
+
+            // Update Last Update
+            document.getElementById('last-update').textContent = new Date(data.generated_at).toLocaleString('pt-BR');
+        }
+
+        // Initialize Dashboard
+        document.addEventListener('DOMContentLoaded', () => {
+            updateDashboard();
+        });
+
+        // Força a atualização assim que o DOM e os dados estiverem prontos
+        window.addEventListener('DOMContentLoaded', () => {
+            if (window.dashboardData) {
+                console.log("Dados detectados, iniciando dashboard...");
+                updateDashboard(); 
+            } else {
+                console.error("Erro: window.dashboardData não encontrado.");
+            }
+        });
+    </script>
+</body>
+</html>
