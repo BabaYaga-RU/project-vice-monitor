@@ -18,5 +18,5 @@ jobs:
         
       - name: Auto PR and Merge
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.PAT_SHARK }}
         run: bash workflow.sh
