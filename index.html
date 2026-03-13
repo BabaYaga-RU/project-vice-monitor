@@ -432,22 +432,22 @@
 
                 <div class="metrics-grid">
                     <div class="metric-card">
-                        <div class="metric-value" id="github-sla-24h">--</div>
+                        <div class="metric-value" id="github-pages-sla-24h">--</div>
                         <div class="metric-label">SLA 24h</div>
                         <div class="metric-sublabel">Disponibilidade</div>
                     </div>
                     <div class="metric-card">
-                        <div class="metric-value" id="github-sla-7d">--</div>
+                        <div class="metric-value" id="github-pages-sla-7d">--</div>
                         <div class="metric-label">SLA 7d</div>
                         <div class="metric-sublabel">Semana</div>
                     </div>
                     <div class="metric-card">
-                        <div class="metric-value" id="github-sla-30d">--</div>
+                        <div class="metric-value" id="github-pages-sla-30d">--</div>
                         <div class="metric-label">SLA 30d</div>
                         <div class="metric-sublabel">Mês</div>
                     </div>
                     <div class="metric-card">
-                        <div class="metric-value" id="github-latency">--</div>
+                        <div class="metric-value" id="github-pages-latency">--</div>
                         <div class="metric-label">Latência Média</div>
                         <div class="metric-sublabel">24h</div>
                     </div>
@@ -455,22 +455,22 @@
 
                 <div class="metrics-grid">
                     <div class="metric-card">
-                        <div class="metric-value" id="github-dns">--</div>
+                        <div class="metric-value" id="github-pages-dns">--</div>
                         <div class="metric-label">DNS Time</div>
                         <div class="metric-sublabel">Resolução</div>
                     </div>
                     <div class="metric-card">
-                        <div class="metric-value" id="github-tcp">--</div>
+                        <div class="metric-value" id="github-pages-tcp">--</div>
                         <div class="metric-label">TCP Time</div>
                         <div class="metric-sublabel">Conexão</div>
                     </div>
                     <div class="metric-card">
-                        <div class="metric-value" id="github-transfer">--</div>
+                        <div class="metric-value" id="github-pages-transfer">--</div>
                         <div class="metric-label">Transfer Time</div>
                         <div class="metric-sublabel">Download</div>
                     </div>
                     <div class="metric-card">
-                        <div class="metric-value" id="github-peak">--</div>
+                        <div class="metric-value" id="github-pages-peak">--</div>
                         <div class="metric-label">Horário Pico</div>
                         <div class="metric-sublabel">Maior Latência</div>
                     </div>
@@ -492,22 +492,22 @@
 
                 <div class="metrics-grid">
                     <div class="metric-card">
-                        <div class="metric-value" id="api-sla-24h">--</div>
+                        <div class="metric-value" id="github-api-sla-24h">--</div>
                         <div class="metric-label">SLA 24h</div>
                         <div class="metric-sublabel">Disponibilidade</div>
                     </div>
                     <div class="metric-card">
-                        <div class="metric-value" id="api-sla-7d">--</div>
+                        <div class="metric-value" id="github-api-sla-7d">--</div>
                         <div class="metric-label">SLA 7d</div>
                         <div class="metric-sublabel">Semana</div>
                     </div>
                     <div class="metric-card">
-                        <div class="metric-value" id="api-sla-30d">--</div>
+                        <div class="metric-value" id="github-api-sla-30d">--</div>
                         <div class="metric-label">SLA 30d</div>
                         <div class="metric-sublabel">Mês</div>
                     </div>
                     <div class="metric-card">
-                        <div class="metric-value" id="api-latency">--</div>
+                        <div class="metric-value" id="github-api-latency">--</div>
                         <div class="metric-label">Latência Média</div>
                         <div class="metric-sublabel">24h</div>
                     </div>
@@ -530,7 +530,7 @@
                         <div class="metric-sublabel">Abertas</div>
                     </div>
                     <div class="metric-card">
-                        <div class="metric-value" id="api-peak">--</div>
+                        <div class="metric-value" id="github-api-peak">--</div>
                         <div class="metric-label">Horário Pico</div>
                         <div class="metric-sublabel">Maior Latência</div>
                     </div>
@@ -662,57 +662,71 @@
         }
 
         function updateServiceCard(prefix, serviceData) {
-            // Status Indicator
+            // Ensure DOM elements exist before manipulating them
             const statusEl = document.getElementById(`${prefix}-status`);
             const badgeEl = document.getElementById(`${prefix}-badge`);
-            
-            if (serviceData.current_status === 'ONLINE') {
-                statusEl.className = 'status-indicator';
-                badgeEl.className = 'badge online';
-                badgeEl.textContent = 'ONLINE';
-            } else if (serviceData.current_status === 'OFFLINE') {
-                statusEl.className = 'status-indicator offline';
-                badgeEl.className = 'badge offline';
-                badgeEl.textContent = 'OFFLINE';
-            } else {
-                statusEl.className = 'status-indicator warning';
-                badgeEl.className = 'badge warning';
-                badgeEl.textContent = 'WARNING';
+            if (statusEl && badgeEl) {
+                if (serviceData.current_status === 'ONLINE') {
+                    statusEl.className = 'status-indicator';
+                    badgeEl.className = 'badge online';
+                    badgeEl.textContent = 'ONLINE';
+                } else if (serviceData.current_status === 'OFFLINE') {
+                    statusEl.className = 'status-indicator offline';
+                    badgeEl.className = 'badge offline';
+                    badgeEl.textContent = 'OFFLINE';
+                } else {
+                    statusEl.className = 'status-indicator warning';
+                    badgeEl.className = 'badge warning';
+                    badgeEl.textContent = 'WARNING';
+                }
             }
 
             // SLA Metrics
             const sla24h = calculateSLA(serviceData.history);
             const sla7d = calculateSLA(serviceData.history);
             const sla30d = calculateSLA(serviceData.history);
-            
-            document.getElementById(`${prefix}-sla-24h`).textContent = serviceData.history && serviceData.history.length > 0 ? `${sla24h}%` : 'No data';
-            document.getElementById(`${prefix}-sla-7d`).textContent = serviceData.history && serviceData.history.length > 0 ? `${sla7d}%` : 'No data';
-            document.getElementById(`${prefix}-sla-30d`).textContent = serviceData.history && serviceData.history.length > 0 ? `${sla30d}%` : 'No data';
+
+            const sla24El = document.getElementById(`${prefix}-sla-24h`);
+            const sla7El = document.getElementById(`${prefix}-sla-7d`);
+            const sla30El = document.getElementById(`${prefix}-sla-30d`);
+            const slaHasData = serviceData.history && serviceData.history.length > 0;
+
+            if (sla24El) sla24El.textContent = slaHasData ? `${sla24h}%` : 'No data';
+            if (sla7El) sla7El.textContent = slaHasData ? `${sla7d}%` : 'No data';
+            if (sla30El) sla30El.textContent = slaHasData ? `${sla30d}%` : 'No data';
 
             // Performance Metrics
-            const latency = calculateLatency(serviceData.history);
-            document.getElementById(`${prefix}-latency`).textContent = serviceData.history && serviceData.history.length > 0 ? `${latency}ms` : 'No data';
-            
-            // Performance breakdown metrics
-            if (serviceData.history && serviceData.history.length > 0) {
+            const latencyEl = document.getElementById(`${prefix}-latency`);
+            if (latencyEl) latencyEl.textContent = slaHasData ? `${calculateLatency(serviceData.history)}ms` : 'No data';
+
+            // Performance breakdown metrics (if present)
+            if (slaHasData) {
                 const validChecks = serviceData.history.filter(item => item.total_time_ms > 0);
                 if (validChecks.length > 0) {
                     const avgDns = Math.round(validChecks.reduce((sum, item) => sum + item.dns_time_ms, 0) / validChecks.length);
                     const avgTcp = Math.round(validChecks.reduce((sum, item) => sum + item.tcp_time_ms, 0) / validChecks.length);
                     const avgTransfer = Math.round(validChecks.reduce((sum, item) => sum + item.transfer_time_ms, 0) / validChecks.length);
-                    
-                    document.getElementById(`${prefix}-dns`).textContent = `${avgDns}ms`;
-                    document.getElementById(`${prefix}-tcp`).textContent = `${avgTcp}ms`;
-                    document.getElementById(`${prefix}-transfer`).textContent = `${avgTransfer}ms`;
+
+                    const dnsEl = document.getElementById(`${prefix}-dns`);
+                    const tcpEl = document.getElementById(`${prefix}-tcp`);
+                    const transferEl = document.getElementById(`${prefix}-transfer`);
+
+                    if (dnsEl) dnsEl.textContent = `${avgDns}ms`;
+                    if (tcpEl) tcpEl.textContent = `${avgTcp}ms`;
+                    if (transferEl) transferEl.textContent = `${avgTransfer}ms`;
                 }
             }
-            
+
             // Engagement Metrics (API only)
             if (prefix === 'github-api' && serviceData.engagement) {
                 const eng = serviceData.engagement;
-                document.getElementById('github-api-stars').textContent = eng.stars || 0;
-                document.getElementById('github-api-forks').textContent = eng.forks || 0;
-                document.getElementById('github-api-issues').textContent = eng.open_issues || 0;
+                const starsEl = document.getElementById('github-api-stars');
+                const forksEl = document.getElementById('github-api-forks');
+                const issuesEl = document.getElementById('github-api-issues');
+
+                if (starsEl) starsEl.textContent = eng.stars || 0;
+                if (forksEl) forksEl.textContent = eng.forks || 0;
+                if (issuesEl) issuesEl.textContent = eng.open_issues || 0;
             }
         }
 
@@ -1471,5 +1485,4 @@
     <!-- FIM_DADOS_INJECAO -->
 
 </body>
-    <script src="assets/script.js"></script>
 </html>

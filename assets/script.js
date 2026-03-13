@@ -10,24 +10,24 @@ function updateDashboard() {
         return;
     }
 
-        // Update Global Status
-        const globalStatus = document.getElementById('global-status');
-        const githubStatus = data.services.github_pages.current_status;
-        const apiStatus = data.services.github_api.current_status;
-        
-        if (githubStatus === 'ONLINE' && apiStatus === 'ONLINE') {
-            globalStatus.textContent = 'SYSTEMS OPERATIONAL';
-            globalStatus.className = 'badge online';
-        } else {
-            globalStatus.textContent = 'INCIDENT DETECTED';
-            globalStatus.className = 'badge offline';
-        }
+    // Update Global Status
+    const globalStatus = document.getElementById('global-status');
+    const githubStatus = data.services.github_pages.current_status;
+    const apiStatus = data.services.github_api.current_status;
+
+    if (githubStatus === 'ONLINE' && apiStatus === 'ONLINE') {
+        globalStatus.textContent = 'SYSTEMS OPERATIONAL';
+        globalStatus.className = 'badge online';
+    } else {
+        globalStatus.textContent = 'INCIDENT DETECTED';
+        globalStatus.className = 'badge offline';
+    }
 
     // Update GitHub Pages
-    updateServiceCard('github-pages', data.services.github_pages);
+    updateServiceCard('github-pages', data.services.github_pages, data);
 
     // Update GitHub API
-    updateServiceCard('github-api', data.services.github_api);
+    updateServiceCard('github-api', data.services.github_api, data);
 
     // Update Incident Log
     updateIncidentLog(data.incident_log);
@@ -44,7 +44,7 @@ function updateDashboard() {
     lastUpdateBadge.textContent = updateTime;
 }
 
-function updateServiceCard(prefix, serviceData) {
+function updateServiceCard(prefix, serviceData, data) {
     // Status Indicator
     const statusEl = document.getElementById(`${prefix}-status`);
     const badgeEl = document.getElementById(`${prefix}-badge`);
@@ -68,9 +68,9 @@ function updateServiceCard(prefix, serviceData) {
     const sla7d = serviceData.sla_7d || 0;
     const sla30d = serviceData.sla_30d || 0;
 
-    document.getElementById(`${prefix}-sla-24h`).textContent = sla24h === 0 && data.history ? 'Calculating...' : `${sla24h}%`;
-    document.getElementById(`${prefix}-sla-7d`).textContent = sla7d === 0 && data.history ? 'Calculating...' : `${sla7d}%`;
-    document.getElementById(`${prefix}-sla-30d`).textContent = sla30d === 0 && data.history ? 'Calculating...' : `${sla30d}%`;
+    document.getElementById(`${prefix}-sla-24h`).textContent = sla24h === 0 && data && data.history ? 'Calculating...' : `${sla24h}%`;
+    document.getElementById(`${prefix}-sla-7d`).textContent = sla7d === 0 && data && data.history ? 'Calculating...' : `${sla7d}%`;
+    document.getElementById(`${prefix}-sla-30d`).textContent = sla30d === 0 && data && data.history ? 'Calculating...' : `${sla30d}%`;
 
     // Performance Metrics
     const perf = serviceData.performance;
@@ -85,9 +85,9 @@ function updateServiceCard(prefix, serviceData) {
     // Engagement Metrics (API only)
     if (prefix === 'github-api' && serviceData.engagement) {
         const eng = serviceData.engagement;
-        document.getElementById('api-stars').textContent = eng.stars || 0;
-        document.getElementById('api-forks').textContent = eng.forks || 0;
-        document.getElementById('api-issues').textContent = eng.open_issues || 0;
+        document.getElementById('github-api-stars').textContent = eng.stars || 0;
+        document.getElementById('github-api-forks').textContent = eng.forks || 0;
+        document.getElementById('github-api-issues').textContent = eng.open_issues || 0;
     }
 }
 
