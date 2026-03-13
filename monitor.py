@@ -348,6 +348,10 @@ def process_service_data(history, service_key):
     sla_7d = calculate_uptime_percentage(records, time_filters["last_7d"])
     sla_30d = calculate_uptime_percentage(records, time_filters["last_30d"])
     
+    # Status atual (precisa ser definido antes da lógica de initial state)
+    last_record = records[-1]
+    current_status = last_record["status"]
+    
     # Initial State Logic: Se histórico pequeno, assume 100% se teste atual OK
     if len(records) < 10:  # Menos de 10 registros
         if current_status == "ONLINE":
@@ -356,9 +360,7 @@ def process_service_data(history, service_key):
     # Calcula métricas de performance
     performance = calculate_performance_metrics(records, time_filters["last_24h"])
     
-    # Status atual
-    last_record = records[-1]
-    current_status = last_record["status"]
+    # Status atual (já definido acima)
     last_check = last_record["timestamp"]
     
     # Engajamento (para API GitHub)
