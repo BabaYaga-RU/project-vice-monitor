@@ -171,3 +171,5 @@ To contribute improvements:
 Patrick Araujo | Software Engineer
 - Email: patrickajm@gmail.com
 - GitHub: [PkLavc](https://github.com/PkLavc)
+
+[![GitHub Sponsors](https://img.shields.io/badge/Sponsor%20me-%23ea4aaa?style=for-the-badge&logo=github-sponsors&logoColor=white)](https://github.com/sponsors/PkLavc)
