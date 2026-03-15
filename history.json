@@ -477,6 +477,21 @@
           "x-content-type-options": false
         },
         "engagement": {}
+      },
+      {
+        "timestamp": "2026-03-15T13:14:07.928738+00:00",
+        "url": "https://pklavc.github.io/",
+        "status": "ERROR",
+        "http_code": 0,
+        "total_time_ms": 0,
+        "dns_time_ms": 0,
+        "tcp_time_ms": 0,
+        "transfer_time_ms": 0,
+        "content_ok": false,
+        "found_keywords": [],
+        "security_headers": {},
+        "error": "cannot access local variable 'record' where it is not associated with a value",
+        "engagement": {}
       }
     ],
     "github_api": [
@@ -956,6 +971,38 @@
           "forks": 0,
           "open_issues": 0
         }
+      },
+      {
+        "timestamp": "2026-03-15T13:14:08.040710+00:00",
+        "url": "https://api.github.com/repos/PkLavc/codepulse-monorepo",
+        "status": "ONLINE",
+        "http_code": 200,
+        "total_time_ms": 142.13,
+        "dns_time_ms": 2.74,
+        "tcp_time_ms": 22.98,
+        "transfer_time_ms": 116.41,
+        "content_ok": true,
+        "found_keywords": [],
+        "security_headers": {
+          "strict-transport-security": true,
+          "x-content-type-options": true
+        },
+        "engagement": {
+          "stars": 5,
+          "forks": 0,
+          "open_issues": 0
+        },
+        "html_size_kb": 0,
+        "num_images": 0,
+        "num_links": 0,
+        "num_scripts": 0,
+        "num_stylesheets": 0,
+        "page_title": null,
+        "meta_description": null,
+        "open_prs": 0,
+        "commit_activity": [],
+        "commits_last_30d": 0,
+        "last_commit_date": "2026-03-13T13:56:46Z"
       }
     ]
   },
@@ -1051,6 +1098,10 @@
     },
     {
       "timestamp": "2026-03-13T22:50:23.969387+00:00",
+      "size_kb": 22.97
+    },
+    {
+      "timestamp": "2026-03-15T13:14:08.840945+00:00",
       "size_kb": 22.97
     }
   ]
