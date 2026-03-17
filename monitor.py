@@ -705,43 +705,9 @@ def generate_shields_badge(history):
     return badge_data
 
 def inject_data_into_html(history, summary=None):
-    """Injeta os dados diretamente no script do index.html"""
-    if not os.path.exists(INDEX_FILE):
-        return False
-    
-    # Processa os dados exatamente como o script.js espera
-    processed_data = {}
-    for service_key in SERVICES.keys():
-        processed_data[service_key] = process_service_data(history, service_key)
-    
-    dashboard_data = {
-        "services": processed_data,
-        "incident_log": generate_incident_log(history),
-        "badge": generate_shields_badge(history),
-        "history": history["services"],
-        "page_size_history": history.get("page_size_history", []),
-        "generated_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
-        "summary": summary or {}
-    }
-    
-    # Use ensure_ascii=False to properly handle Unicode characters
-    json_data = json.dumps(dashboard_data, indent=2, ensure_ascii=False)
-    
-    with open(INDEX_FILE, 'r', encoding='utf-8') as f:
-        content = f.read()
-    
-    # Substitui o conteúdo da tag script com ID 'dashboard-data'
-    pattern = r'<script id="dashboard-data">.*?</script>'
-    replacement = f'<script id="dashboard-data">window.dashboardData = {json_data};</script>'
-    
-    if re.search(pattern, content, re.DOTALL):
-        new_content = re.sub(pattern, replacement, content, flags=re.DOTALL)
-    else:
-        # Se a tag não existir, insere antes do fechamento do body
-        new_content = content.replace('</body>', f'{replacement}\n</body>')
-        
-    with open(INDEX_FILE, 'w', encoding='utf-8') as f:
-        f.write(new_content)
+    """Esta função foi desativada para manter o index.html estático.
+    O index.html agora lê os dados do arquivo JSON data/dashboard-data.json"""
+    print("INFO: Skipping HTML injection to keep index.html static")
     return True
 
 def save_dashboard_data_to_json(history, summary=None):
