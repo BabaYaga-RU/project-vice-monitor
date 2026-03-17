@@ -75,6 +75,21 @@
         "security_headers": {},
         "error": "name 'history' is not defined",
         "engagement": {}
+      },
+      {
+        "timestamp": "2026-03-17T04:56:08.816729+00:00",
+        "url": "https://www.rockstargames.com/VI/",
+        "status": "ERROR",
+        "http_code": 0,
+        "total_time_ms": 0,
+        "dns_time_ms": 0,
+        "tcp_time_ms": 0,
+        "transfer_time_ms": 0,
+        "content_ok": false,
+        "found_keywords": [],
+        "security_headers": {},
+        "error": "name 'history' is not defined",
+        "engagement": {}
       }
     ],
     "rockstar_newswire": [
@@ -140,6 +155,21 @@
       },
       {
         "timestamp": "2026-03-17T04:52:17.059179+00:00",
+        "url": "https://www.rockstargames.com/newswire",
+        "status": "ERROR",
+        "http_code": 0,
+        "total_time_ms": 0,
+        "dns_time_ms": 0,
+        "tcp_time_ms": 0,
+        "transfer_time_ms": 0,
+        "content_ok": false,
+        "found_keywords": [],
+        "security_headers": {},
+        "error": "name 'history' is not defined",
+        "engagement": {}
+      },
+      {
+        "timestamp": "2026-03-17T04:56:09.172617+00:00",
         "url": "https://www.rockstargames.com/newswire",
         "status": "ERROR",
         "http_code": 0,
@@ -229,6 +259,21 @@
         "security_headers": {},
         "error": "name 'history' is not defined",
         "engagement": {}
+      },
+      {
+        "timestamp": "2026-03-17T04:56:09.323828+00:00",
+        "url": "https://www.playstation.com/en-us/games/grand-theft-auto-vi/",
+        "status": "ERROR",
+        "http_code": 0,
+        "total_time_ms": 0,
+        "dns_time_ms": 0,
+        "tcp_time_ms": 0,
+        "transfer_time_ms": 0,
+        "content_ok": false,
+        "found_keywords": [],
+        "security_headers": {},
+        "error": "name 'history' is not defined",
+        "engagement": {}
       }
     ],
     "xbox_store": [
@@ -294,6 +339,21 @@
       },
       {
         "timestamp": "2026-03-17T04:52:17.726403+00:00",
+        "url": "https://www.xbox.com/en-US/games/store/grand-theft-auto-vi/9NL3WWNZLZZN",
+        "status": "ERROR",
+        "http_code": 0,
+        "total_time_ms": 0,
+        "dns_time_ms": 0,
+        "tcp_time_ms": 0,
+        "transfer_time_ms": 0,
+        "content_ok": false,
+        "found_keywords": [],
+        "security_headers": {},
+        "error": "name 'history' is not defined",
+        "engagement": {}
+      },
+      {
+        "timestamp": "2026-03-17T04:56:09.908851+00:00",
         "url": "https://www.xbox.com/en-US/games/store/grand-theft-auto-vi/9NL3WWNZLZZN",
         "status": "ERROR",
         "http_code": 0,
