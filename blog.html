@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GTA VI Intelligence Blog - Content Updates & Security Analysis</title>
+    <meta name="description" content="Chronological log of GTA VI website content changes, hash updates, and security analysis. Real-time monitoring of Rockstar Games updates.">
+    <meta name="keywords" content="gta vi, gta 6, grand theft auto vi, rockstar games, content updates, hash analysis, security monitoring, intelligence updates">
+    
+    <!-- OpenGraph Meta Tags for Social Sharing -->
+    <meta property="og:title" content="GTA VI Intelligence Blog - Content Updates & Security Analysis">
+    <meta property="og:description" content="Real-time monitoring and analysis of GTA VI website content changes">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://uptime-monitor.example.com/blog.html">
+    <meta property="og:image" content="https://uptime-monitor.example.com/assets/gta-vi.png">
+    <meta property="og:site_name" content="Rockstar Surveillance">
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="GTA VI Intelligence Blog">
+    <meta name="twitter:description" content="Real-time content monitoring and analysis">
+    <meta name="twitter:image" content="https://uptime-monitor.example.com/assets/gta-vi.png">
+    
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #111827;
+            --panel-bg: #0b1220;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-tertiary: #64748b;
+            --accent-color: #38bdf8;
+            --success-color: #22c55e;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --border-color: #1f2937;
+            --grid-line: #334155;
+            --hover-bg: #1f2937;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(180deg, #0f172a 0%, #0b1220 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Header with Navigation */
+        .header {
+            background: linear-gradient(135deg, #0b1220 0%, #111827 100%);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1.5rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .brand-logo {
+            width: 40px;
+            height: 40px;
+            background: radial-gradient(circle, var(--accent-color), transparent 70%);
+            border-radius: 50%;
+            box-shadow: 0 0 20px var(--accent-color), 0 0 40px rgba(56, 189, 248, 0.3);
+            animation: pulse 3s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.7); }
+            70% { box-shadow: 0 0 0 20px rgba(56, 189, 248, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0); }
+        }
+
+        .brand-info h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            background: linear-gradient(135deg, var(--accent-color), #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .brand-info p {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: var(--panel-bg);
+            color: var(--text-primary);
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background: var(--hover-bg);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-color), #a78bfa);
+            border: none;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            filter: brightness(1.1);
+        }
+
+        /* Main Content */
+        .blog-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem 4rem 2rem;
+        }
+
+        .blog-header {
+            margin-bottom: 3rem;
+            text-align: center;
+        }
+
+        .blog-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--accent-color), #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .blog-header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        /* Blog Posts Grid */
+        .blog-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        .blog-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .blog-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent-color), #a78bfa);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .blog-card:hover::before {
+            opacity: 1;
+        }
+
+        .blog-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+        }
+
+        .blog-meta {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .blog-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-secure { background: rgba(34, 197, 94, 0.2); color: var(--success-color); }
+        .status-warning { background: rgba(245, 158, 11, 0.2); color: var(--warning-color); }
+
+        .blog-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .blog-content {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+
+        .blog-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: var(--panel-bg);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .detail-label {
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .detail-value {
+            font-size: 0.9rem;
+            color: var(--text-primary);
+            font-family: 'Courier New', monospace;
+            word-break: break-all;
+        }
+
+        .hash-value {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            background: rgba(0, 0, 0, 0.3);
+            padding: 0.5rem;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            font-family: 'Courier New', monospace;
+            word-break: break-all;
+        }
+
+        .service-tag {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: rgba(56, 189, 248, 0.2);
+            color: var(--accent-color);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            margin-bottom: 1rem;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 4rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-state h3 {
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .blog-container {
+                padding: 0 1rem 3rem 1rem;
+            }
+            
+            .blog-header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="brand">
+                <div class="brand-logo"></div>
+                <div class="brand-info">
+                    <h1>GTA VI Intelligence Blog</h1>
+                    <p>Content Updates & Security Analysis</p>
+                </div>
+            </div>
+            <div class="nav-buttons">
+                <a href="index.html" class="btn btn-primary">← Back to Live Dashboard</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Blog Content -->
+    <main class="blog-container">
+        <div class="blog-header">
+            <h1>Intelligence Updates</h1>
+            <p>Chronological log of content changes detected across GTA VI monitoring services. Each entry represents a hash change indicating potential updates, new content, or modifications to monitored websites.</p>
+        </div>
+
+        <div class="blog-grid" id="blog-posts">
+            <div class="loading">
+                <div class="loading">Loading intelligence updates...</div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer-container" style="text-align: center; padding: 20px; margin-top: 40px; border-top: 1px solid #333;">
+        <p>© 2026 Patrick Araujo • 
+           <span class="github-dev-badge" style="background: #238636; color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.8em;">Member of <b>GitHub Developer Program</b></span>
+        </p>
+        <p>
+            <a href="https://github.com/PkLavc" target="_blank" style="color: #58a6ff; text-decoration: none;">GitHub Profile</a> • 
+            <a href="https://github.com/PkLavc/project-vice-monitor" target="_blank" style="color: #58a6ff; text-decoration: none;">Source Code (Project Vice Monitor)</a>
+        </p>
+        <p style="font-size: 0.85em; color: #8b949e;">🚀 Automated observability system with integrated CI/CD | SRE Driven</p>
+    </footer>
+
+    <script>
+        // Load and display intelligence updates from history.json
+        async function loadIntelligenceUpdates() {
+            try {
+                const response = await fetch('history.json');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const history = await response.json();
+                const blogPostsContainer = document.getElementById('blog-posts');
+                const intelligenceUpdates = [];
+                
+                // Extract intelligence updates from all services
+                for (const [serviceKey, serviceConfig] of Object.entries({
+                    'gta_vi_official': { name: 'GTA VI Official', url: 'https://www.rockstargames.com/VI/' },
+                    'rockstar_newswire': { name: 'Rockstar Newswire', url: 'https://www.rockstargames.com/newswire' },
+                    'playstation_store': { name: 'PlayStation Store', url: 'https://www.playstation.com/en-us/games/grand-theft-auto-vi/' },
+                    'xbox_store': { name: 'Xbox Store', url: 'https://www.xbox.com/en-US/games/store/grand-theft-auto-vi/9NL3WWNZLZZN' }
+                })) {
+                    const records = history.services[serviceKey] || [];
+                    
+                    // Filter for intelligence updates
+                    const updates = records.filter(record => 
+                        record.status === 'INTELLIGENCE_UPDATE' || 
+                        record.intelligence_update === true
+                    );
+                    
+                    updates.forEach(record => {
+                        intelligenceUpdates.push({
+                            ...record,
+                            serviceKey,
+                            serviceName: serviceConfig.name,
+                            serviceUrl: serviceConfig.url
+                        });
+                    });
+                }
+                
+                // Sort by timestamp (newest first)
+                intelligenceUpdates.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                
+                // Clear loading message
+                blogPostsContainer.innerHTML = '';
+                
+                if (intelligenceUpdates.length === 0) {
+                    blogPostsContainer.innerHTML = `
+                        <div class="empty-state">
+                            <h3>No Intelligence Updates Found</h3>
+                            <p>Currently no content changes have been detected. Monitoring is active and will log updates as they occur.</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // Generate blog posts
+                intelligenceUpdates.forEach(update => {
+                    const timestamp = new Date(update.timestamp);
+                    const formattedDate = timestamp.toLocaleString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        timeZoneName: 'short'
+                    });
+                    
+                    const securityStatus = update.status === 'INTELLIGENCE_UPDATE' ? 'SECURE' : 'WARNING';
+                    const statusClass = securityStatus === 'SECURE' ? 'status-secure' : 'status-warning';
+                    
+                    const blogPost = document.createElement('div');
+                    blogPost.className = 'blog-card';
+                    blogPost.innerHTML = `
+                        <div class="blog-meta">
+                            <span class="blog-meta-item">
+                                <span class="status-badge ${statusClass}">${securityStatus}</span>
+                            </span>
+                            <span class="blog-meta-item">
+                                <span style="color: var(--accent-color)">•</span> ${formattedDate}
+                            </span>
+                            <span class="blog-meta-item">
+                                <span style="color: var(--accent-color)">•</span> ${update.total_time_ms || 0}ms response
+                            </span>
+                        </div>
+                        
+                        <div class="service-tag">${update.serviceName}</div>
+                        
+                        <h2 class="blog-title">Content Change Detected - ${update.serviceName}</h2>
+                        
+                        <div class="blog-content">
+                            <p><strong>Summary:</strong> Content change detected on ${update.serviceName}. The page content has been modified, indicating a potential update or change in the monitored service.</p>
+                            
+                            <p><strong>Security Analysis:</strong> The change has been flagged as <strong>${securityStatus}</strong> based on the monitoring system's assessment.</p>
+                            
+                            <p><strong>Next Steps:</strong> Monitor this service for any additional changes or updates that may follow this intelligence update.</p>
+                        </div>
+                        
+                        <div class="blog-details">
+                            <div class="detail-item">
+                                <span class="detail-label">Detection Time</span>
+                                <span class="detail-value">${formattedDate}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Service Type</span>
+                                <span class="detail-value">Website</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Content Size</span>
+                                <span class="detail-value">${update.html_size_kb || 0} KB</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Response Time</span>
+                                <span class="detail-value">${update.total_time_ms || 0} ms</span>
+                            </div>
+                        </div>
+                        
+                        <div class="detail-item">
+                            <span class="detail-label">Hash SHA-256</span>
+                            <div class="hash-value">${update.content_hash || 'N/A'}</div>
+                        </div>
+                        
+                        <div class="blog-meta" style="margin-top: 1rem; border-top: 1px solid var(--border-color); padding-top: 1rem;">
+                            <span class="blog-meta-item">
+                                <span style="color: var(--accent-color)">URL:</span> ${update.serviceUrl}
+                            </span>
+                        </div>
+                    `;
+                    
+                    blogPostsContainer.appendChild(blogPost);
+                });
+                
+            } catch (error) {
+                console.error('Error loading intelligence updates:', error);
+                document.getElementById('blog-posts').innerHTML = `
+                    <div class="empty-state">
+                        <h3>Error Loading Updates</h3>
+                        <p>Failed to load intelligence updates. Please check if history.json exists and is accessible.</p>
+                        <p style="font-size: 0.9rem; color: var(--warning-color); margin-top: 1rem;">Error: ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Initialize blog
+        document.addEventListener('DOMContentLoaded', () => {
+            loadIntelligenceUpdates();
+            
+            // Refresh every 5 minutes
+            setInterval(loadIntelligenceUpdates, 5 * 60 * 1000);
+        });
+    </script>
+</body>
+</html>
