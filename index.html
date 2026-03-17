@@ -441,8 +441,8 @@
                 </div>
             </div>
             <div class="status-overview">
-                <span class="badge online" id="global-status">SYSTEM OPERATIONAL</span>
-                <span class="badge" id="last-update-badge">Atualizando...</span>
+                <span class="badge online" id="global-status">LOADING...</span>
+                <span class="badge" id="last-update-badge">Carregando...</span>
                 <a href="blog.html" class="btn btn-primary">Intelligence Blog →</a>
             </div>
         </div>
@@ -963,25 +963,11 @@
                 globalStatus.className = 'badge offline';
             }
 
-        // Update GTA VI Official
-        if (data.services.gta_vi_official) {
+            // Update Service Cards
             updateServiceCard('gta-vi-official', data.services.gta_vi_official, data);
-        }
-        
-        // Update Rockstar Newswire
-        if (data.services.rockstar_newswire) {
             updateServiceCard('rockstar-newswire', data.services.rockstar_newswire, data);
-        }
-
-        // Update PlayStation Store
-        if (data.services.playstation_store) {
             updateServiceCard('playstation-store', data.services.playstation_store, data);
-        }
-
-        // Update Xbox Store
-        if (data.services.xbox_store) {
             updateServiceCard('xbox-store', data.services.xbox_store, data);
-        }
 
             // Update Incident Log
             updateIncidentLog(data.incident_log);
@@ -990,26 +976,15 @@
             updateCharts(data);
 
             // Update Last Update
-            const lastUpdate = document.getElementById('last-update');
+            // Removed `lastUpdate` as it's not present in HTML
             const lastUpdateBadge = document.getElementById('last-update-badge');
             const updateTime = new Date(data.generated_at).toLocaleString('en-US');
             
-            lastUpdate.textContent = `Last update: ${updateTime}`;
             lastUpdateBadge.textContent = updateTime;
-        }
 
-        function calculateSLA(history) {
-            if (!history || history.length === 0) return 0;
-            const onlineCount = history.filter(item => item.status === 'ONLINE').length;
-            return Math.round((onlineCount / history.length) * 100);
-        }
-
-        function calculateLatency(history) {
-            if (!history || history.length === 0) return 0;
-            const validLatencies = history.filter(item => item.total_time_ms > 0);
-            if (validLatencies.length === 0) return 0;
-            const sum = validLatencies.reduce((acc, item) => acc + item.total_time_ms, 0);
-            return Math.round(sum / validLatencies.length);
+            // Hide loading indicator once data is loaded
+            const loadingIndicator = document.getElementById('loading-indicator');
+            if (loadingIndicator) loadingIndicator.style.display = 'none';
         }
 
         function updateSummary(summary) {
@@ -1086,7 +1061,7 @@
             if (tcpEl) tcpEl.textContent = perf.avg_tcp_time != null ? `${Math.round(perf.avg_tcp_time)}ms` : 'No data';
             if (transferEl) transferEl.textContent = perf.avg_transfer_time != null ? `${Math.round(perf.avg_transfer_time)}ms` : 'No data';
 
-            // GitHub Pages additional metrics
+            // Website Metrics (HTML content analysis)
             if (prefix === 'gta-vi-official') {
                 const htmlSizeEl = document.getElementById('gta-vi-official-html-size');
                 const imagesEl = document.getElementById('gta-vi-official-images');
@@ -1103,41 +1078,6 @@
                 if (descEl) descEl.textContent = serviceData.meta_description || '--';
             }
 
-            // PlayStation Store additional metrics
-            if (prefix === 'playstation-store') {
-                const htmlSizeEl = document.getElementById('playstation-store-html-size');
-                const imagesEl = document.getElementById('playstation-store-images');
-                const linksEl = document.getElementById('playstation-store-links');
-                const scriptsEl = document.getElementById('playstation-store-scripts');
-                const titleEl = document.getElementById('playstation-store-title');
-                const descEl = document.getElementById('playstation-store-description');
-
-                if (htmlSizeEl) htmlSizeEl.textContent = serviceData.html_size_kb != null ? `${serviceData.html_size_kb} KB` : '--';
-                if (imagesEl) imagesEl.textContent = serviceData.num_images != null ? serviceData.num_images : '--';
-                if (linksEl) linksEl.textContent = serviceData.num_links != null ? serviceData.num_links : '--';
-                if (scriptsEl) scriptsEl.textContent = serviceData.num_scripts != null ? serviceData.num_scripts : '--';
-                if (titleEl) titleEl.textContent = serviceData.page_title || '--';
-                if (descEl) descEl.textContent = serviceData.meta_description || '--';
-            }
-
-            // Xbox Store additional metrics
-            if (prefix === 'xbox-store') {
-                const htmlSizeEl = document.getElementById('xbox-store-html-size');
-                const imagesEl = document.getElementById('xbox-store-images');
-                const linksEl = document.getElementById('xbox-store-links');
-                const scriptsEl = document.getElementById('xbox-store-scripts');
-                const titleEl = document.getElementById('xbox-store-title');
-                const descEl = document.getElementById('xbox-store-description');
-
-                if (htmlSizeEl) htmlSizeEl.textContent = serviceData.html_size_kb != null ? `${serviceData.html_size_kb} KB` : '--';
-                if (imagesEl) imagesEl.textContent = serviceData.num_images != null ? serviceData.num_images : '--';
-                if (linksEl) linksEl.textContent = serviceData.num_links != null ? serviceData.num_links : '--';
-                if (scriptsEl) scriptsEl.textContent = serviceData.num_scripts != null ? serviceData.num_scripts : '--';
-                if (titleEl) titleEl.textContent = serviceData.page_title || '--';
-                if (descEl) descEl.textContent = serviceData.meta_description || '--';
-            }
-
-            // Website Metrics (HTML content analysis)
             if (prefix === 'rockstar-newswire') {
                 const htmlSizeEl = document.getElementById('rockstar-newswire-html-size');
                 const imagesEl = document.getElementById('rockstar-newswire-images');
@@ -1160,6 +1100,38 @@
                 if (tcpEl) tcpEl.textContent = serviceData.performance?.avg_tcp_time != null ? `${Math.round(serviceData.performance.avg_tcp_time)}ms` : '--';
                 if (transferEl) transferEl.textContent = serviceData.performance?.avg_transfer_time != null ? `${Math.round(serviceData.performance.avg_transfer_time)}ms` : '--';
                 if (peakEl) peakEl.textContent = serviceData.performance?.peak_hour || '--';
+            }
+
+            if (prefix === 'playstation-store') {
+                const htmlSizeEl = document.getElementById('playstation-store-html-size');
+                const imagesEl = document.getElementById('playstation-store-images');
+                const linksEl = document.getElementById('playstation-store-links');
+                const scriptsEl = document.getElementById('playstation-store-scripts');
+                const titleEl = document.getElementById('playstation-store-title');
+                const descEl = document.getElementById('playstation-store-description');
+
+                if (htmlSizeEl) htmlSizeEl.textContent = serviceData.html_size_kb != null ? `${serviceData.html_size_kb} KB` : '--';
+                if (imagesEl) imagesEl.textContent = serviceData.num_images != null ? serviceData.num_images : '--';
+                if (linksEl) linksEl.textContent = serviceData.num_links != null ? serviceData.num_links : '--';
+                if (scriptsEl) scriptsEl.textContent = serviceData.num_scripts != null ? serviceData.num_scripts : '--';
+                if (titleEl) titleEl.textContent = serviceData.page_title || '--';
+                if (descEl) descEl.textContent = serviceData.meta_description || '--';
+            }
+
+            if (prefix === 'xbox-store') {
+                const htmlSizeEl = document.getElementById('xbox-store-html-size');
+                const imagesEl = document.getElementById('xbox-store-images');
+                const linksEl = document.getElementById('xbox-store-links');
+                const scriptsEl = document.getElementById('xbox-store-scripts');
+                const titleEl = document.getElementById('xbox-store-title');
+                const descEl = document.getElementById('xbox-store-description');
+
+                if (htmlSizeEl) htmlSizeEl.textContent = serviceData.html_size_kb != null ? `${serviceData.html_size_kb} KB` : '--';
+                if (imagesEl) imagesEl.textContent = serviceData.num_images != null ? serviceData.num_images : '--';
+                if (linksEl) linksEl.textContent = serviceData.num_links != null ? serviceData.num_links : '--';
+                if (scriptsEl) scriptsEl.textContent = serviceData.num_scripts != null ? serviceData.num_scripts : '--';
+                if (titleEl) titleEl.textContent = serviceData.page_title || '--';
+                if (descEl) descEl.textContent = serviceData.meta_description || '--';
             }
         }
 
@@ -1634,18 +1606,33 @@
 
     <!-- Load data from external JSON file -->
     <script>
+        // Global variable to store the interval ID
+        window.__dashboardUpdateInterval = null;
+
         // Load data from external JSON file
         async function loadDashboardData() {
             try {
-                const response = await fetch('data/dashboard-data.json');
+                // Show loading indicator before fetch
+                const loadingIndicator = document.getElementById(\'loading-indicator\');
+                if (loadingIndicator) loadingIndicator.style.display = \'inline-block\';
+
+                const response = await fetch(\'data/dashboard-data.json\');
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 window.dashboardData = await response.json();
-                console.log('Dados carregados com sucesso do arquivo JSON');
+                console.log(\'Dados carregados com sucesso do arquivo JSON\');
                 updateDashboard();
             } catch (error) {
-                console.error('Erro ao carregar dados do arquivo JSON:', error);
+                console.error(\'Erro ao carregar dados do arquivo JSON:\', error);
+                // Update UI to reflect error
+                document.getElementById(\'global-status\').textContent = \'DATA UNAVAILABLE\';
+                document.getElementById(\'global-status\').className = \'badge offline\';
+                document.getElementById(\'last-update-badge\').textContent = \'Failed to load\';
+
+                const loadingIndicator = document.getElementById(\'loading-indicator\');
+                if (loadingIndicator) loadingIndicator.style.display = \'none\';
+
                 // Fallback to empty data if file loading fails
                 window.dashboardData = {
                     services: {},
@@ -1660,17 +1647,21 @@
                         intelligence_updates: []
                     }
                 };
-                updateDashboard();
+                updateDashboard(); // Render with fallback data
             }
         }
 
         // Initialize Dashboard with external data loading
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener(\'DOMContentLoaded\', () => {
             loadDashboardData();
-            // Update every 60 seconds
-            setInterval(loadDashboardData, 60000);
+            // Store the interval ID for potential clearing
+            window.__dashboardUpdateInterval = setInterval(loadDashboardData, 60000);
         });
     </script>
+
+    <div id="loading-indicator" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 9999; background: rgba(0,0,0,0.7); padding: 20px 30px; border-radius: 10px; color: white; font-weight: bold;">
+        <span class="loading"></span> Loading Data...
+    </div>
 
 </body>
 </html>

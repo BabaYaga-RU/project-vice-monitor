@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Data Test</title>
+</head>
+<body>
+    <h1>Dashboard Data from JSON</h1>
+    <pre id="json-output"></pre>
+
+    <script>
+        async function loadAndDisplayJson() {
+            try {
+                const response = await fetch("data/dashboard-data.json");
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                document.getElementById("json-output").textContent = JSON.stringify(data, null, 2);
+                console.log("Data loaded successfully into tst_return.html");
+            } catch (error) {
+                document.getElementById("json-output").textContent = "Error loading JSON: " + error.message;
+                console.error("Error loading JSON in tst_return.html:", error);
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", loadAndDisplayJson);
+    </script>
+</body>
+</html>
