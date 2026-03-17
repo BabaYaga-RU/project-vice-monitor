@@ -119,7 +119,13 @@ def measure_tcp_connection(url):
 def deep_health_check(url, response, keywords):
     """Check if HTML content contains specified keywords"""
     try:
-        content = response.text.lower()
+        # Handle encoding issues
+        content = response.text
+        if content:
+            content = content.lower()
+        else:
+            content = ""
+        
         found_keywords = []
         for keyword in keywords:
             if keyword.lower() in content:
@@ -197,7 +203,7 @@ def safe_request(url, headers=None, timeout=15, max_retries=3):
     
     return None
 
-def check_service(service_key, service_config):
+def check_service(service_key, service_config, history=None):
     """Perform advanced monitoring with detailed metrics"""
     timestamp = datetime.datetime.now(datetime.timezone.utc).isoformat()
     
@@ -273,11 +279,12 @@ def check_service(service_key, service_config):
             content_hash = calculate_content_hash(response.content)
             
             # Check for intelligence updates
-            is_update, update_msg = detect_intelligence_update(history, service_key, content_hash)
-            if is_update:
-                intelligence_update = True
-                status = "INTELLIGENCE_UPDATE"
-                print(f"[ALERT] Intelligence Update on {service_config['name']}: {update_msg}")
+            if history:
+                is_update, update_msg = detect_intelligence_update(history, service_key, content_hash)
+                if is_update:
+                    intelligence_update = True
+                    status = "INTELLIGENCE_UPDATE"
+                    print(f"[ALERT] Intelligence Update on {service_config['name']}: {update_msg}")
 
             # HTML size analysis
             html_size_kb = round(len(response.content) / 1024, 2)
@@ -637,7 +644,8 @@ def inject_data_into_html(history, summary=None):
         "summary": summary or {}
     }
     
-    json_data = json.dumps(dashboard_data, indent=2)
+    # Use ensure_ascii=False to properly handle Unicode characters
+    json_data = json.dumps(dashboard_data, indent=2, ensure_ascii=False)
     
     with open(INDEX_FILE, 'r', encoding='utf-8') as f:
         content = f.read()
@@ -687,7 +695,7 @@ def main():
     for service_key, service_config in SERVICES.items():
         print(f"Monitorando {service_config['name']}...")
         try:
-            record = check_service(service_key, service_config)
+            record = check_service(service_key, service_config, history)
             add_record_to_history(history, service_key, record)
             service_results[service_key] = record
 
@@ -773,7 +781,7 @@ def main():
     
     # Check if alert is needed
     try:
-        if should_alert_services(history) or summary.get("intelligence_updates", []):
+        if should_alert_services(history) or (summary and summary.get("intelligence_updates", [])):
             print("ALERT: Incident or Intelligence Update detected!")
         else:
             print("Monitoring completed successfully - all services online")
