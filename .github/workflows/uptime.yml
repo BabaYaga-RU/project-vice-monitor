@@ -36,10 +36,14 @@ jobs:
           python monitor.py
           echo "MONITOR_EXIT_CODE=$?" >> $GITHUB_ENV
           
+      - name: Generate static blog
+        run: |
+          python generate_static_blog.py
+          
       - name: Check for changes
         id: changes
         run: |
-          if git diff --exit-code history.json index.html uptime-badge.json; then
+          if git diff --exit-code history.json index.html uptime-badge.json blog.html blog/*.html; then
             echo "CHANGES=false" >> $GITHUB_OUTPUT
           else
             echo "CHANGES=true" >> $GITHUB_OUTPUT

@@ -21,7 +21,7 @@ Track Grand Theft Auto VI development through official channels including Rockst
 ## Repository Layout
 
 ```
-uptime-monitor/
+gta-vi-tracker/
 ├── monitor.py              # Main monitoring script with intelligence analysis
 ├── workflow.sh             # Automated workflow execution script
 ├── .github/workflows/      # GitHub Actions workflows for scheduled monitoring
@@ -33,6 +33,12 @@ uptime-monitor/
 ├── uptime-badge.json       # Status badge configuration
 ├── data/
 │   └── status.json         # Current service status snapshot
+├── blog.html               # Static blog with intelligence updates
+├── blog/                   # Individual blog post files
+│   ├── update-*.html       # Individual intelligence update posts
+│   └── update-*.json       # Blog post metadata
+├── robots.txt              # Search engine configuration
+├── sitemap.xml             # Site map for search engines
 └── README.md               # System documentation
 ```
 

@@ -184,6 +184,314 @@ def detect_intelligence_update(history, service_key, new_hash):
     
     return False, None
 
+def generate_static_blog():
+    """Generate static blog.html with embedded intelligence updates"""
+    try:
+        # Load history data
+        with open('history.json', 'r', encoding='utf-8') as f:
+            history = json.load(f)
+        
+        # Generate blog entries
+        blog_entries = []
+        
+        # Process each service
+        for service_key, service_config in SERVICES.items():
+            records = history.get('services', {}).get(service_key, [])
+            
+            # Filter for intelligence updates
+            intelligence_updates = [
+                record for record in records 
+                if record.get('status') == 'INTELLIGENCE_UPDATE' or record.get('intelligence_update') == True
+            ]
+            
+            for update in intelligence_updates:
+                # Parse timestamp with regex for compatibility
+                import re
+                match = re.match(r'(\d{4}-\d{2}-\d{2})T(\d{2}):(\d{2}):(\d{2})\+(\d{2}):(\d{2})', update['timestamp'])
+                if match:
+                    date_part = match.group(1)
+                    time_parts = match.group(2, 3, 4)
+                    formatted_date = f"{date_part} {time_parts[0]}:{time_parts[1]}:{time_parts[2]} UTC"
+                else:
+                    # Fallback for simple format
+                    formatted_date = update['timestamp'].replace('T', ' ').replace('+00:00', ' UTC')
+                
+                security_status = 'SECURE' if update.get('status') == 'INTELLIGENCE_UPDATE' else 'WARNING'
+                status_class = 'status-secure' if security_status == 'SECURE' else 'status-warning'
+                
+                blog_entry = {
+                    'timestamp': formatted_date,
+                    'service_name': service_config['name'],
+                    'service_url': service_config['url'],
+                    'security_status': security_status,
+                    'status_class': status_class,
+                    'total_time_ms': update.get('total_time_ms', 0),
+                    'html_size_kb': update.get('html_size_kb', 0),
+                    'content_hash': update.get('content_hash', 'N/A')
+                }
+                blog_entries.append(blog_entry)
+        
+        # Sort by timestamp (newest first)
+        blog_entries.sort(key=lambda x: x['timestamp'], reverse=True)
+        
+        # Generate static HTML content
+        blog_posts_html = ''
+        
+        if not blog_entries:
+            blog_posts_html = '''
+                <div class="empty-state">
+                    <h3>No Intelligence Updates Found</h3>
+                    <p>Currently no content changes have been detected. Monitoring is active and will log updates as they occur.</p>
+                </div>
+            '''
+        else:
+            for entry in blog_entries:
+                blog_posts_html += f'''
+                <div class="blog-card">
+                    <div class="blog-meta">
+                        <span class="blog-meta-item">
+                            <span class="status-badge {entry['status_class']}">{entry['security_status']}</span>
+                        </span>
+                        <span class="blog-meta-item">
+                            <span style="color: var(--accent-color)">•</span> {entry['timestamp']}
+                        </span>
+                        <span class="blog-meta-item">
+                            <span style="color: var(--accent-color)">•</span> {entry['total_time_ms']}ms response
+                        </span>
+                    </div>
+                    
+                    <div class="service-tag">{entry['service_name']}</div>
+                    
+                    <h2 class="blog-title">Content Change Detected - {entry['service_name']}</h2>
+                    
+                    <div class="blog-content">
+                        <p><strong>Summary:</strong> Content change detected on {entry['service_name']}. The page content has been modified, indicating a potential update or change in the monitored service.</p>
+                        
+                        <p><strong>Security Analysis:</strong> The change has been flagged as <strong>{entry['security_status']}</strong> based on the monitoring system's assessment.</p>
+                        
+                        <p><strong>Next Steps:</strong> Monitor this service for any additional changes or updates that may follow this intelligence update.</p>
+                    </div>
+                    
+                    <div class="blog-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Detection Time</span>
+                            <span class="detail-value">{entry['timestamp']}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Service Type</span>
+                            <span class="detail-value">Website</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Content Size</span>
+                            <span class="detail-value">{entry['html_size_kb']} KB</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Response Time</span>
+                            <span class="detail-value">{entry['total_time_ms']} ms</span>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-item">
+                        <span class="detail-label">Hash SHA-256</span>
+                        <div class="hash-value">{entry['content_hash']}</div>
+                    </div>
+                    
+                    <div class="blog-meta" style="margin-top: 1rem; border-top: 1px solid var(--border-color); padding-top: 1rem;">
+                        <span class="blog-meta-item">
+                            <span style="color: var(--accent-color)">URL:</span> {entry['service_url']}
+                        </span>
+                    </div>
+                </div>
+                '''
+        
+        # Read current blog.html template
+        with open('blog.html', 'r', encoding='utf-8') as f:
+            blog_content = f.read()
+        
+        # Replace the blog posts section
+        new_blog_content = blog_content.replace(
+            '<div class="blog-grid" id="blog-posts">\n            <!-- Blog entries will be loaded here -->\n        </div>',
+            f'<div class="blog-grid">\n{blog_posts_html}\n        </div>'
+        )
+        
+        # Remove the JavaScript loading script
+        new_blog_content = new_blog_content.replace(
+            '''<script>
+        // Load and display intelligence updates from history.json
+        async function loadIntelligenceUpdates() {
+            try {
+                let history;
+                
+                // Try multiple approaches to load the data
+                try {
+                    // Approach 1: Direct fetch
+                    const response = await fetch('history.json');
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    history = await response.json();
+                } catch (fetchError) {
+                    console.warn('Fetch failed, trying alternative approach:', fetchError);
+                    
+                    // Approach 2: Try with cache busting
+                    const response = await fetch('history.json?' + Date.now());
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    history = await response.json();
+                }
+                const blogPostsContainer = document.getElementById('blog-posts');
+                const intelligenceUpdates = [];
+                
+                // Extract intelligence updates from all services
+                for (const [serviceKey, serviceConfig] of Object.entries({
+                    'gta_vi_official': { name: 'GTA VI Official', url: 'https://www.rockstargames.com/VI/' },
+                    'rockstar_newswire': { name: 'Rockstar Newswire', url: 'https://www.rockstargames.com/newswire' },
+                    'playstation_store': { name: 'PlayStation Store', url: 'https://www.playstation.com/en-us/games/grand-theft-auto-vi/' },
+                    'xbox_store': { name: 'Xbox Store', url: 'https://www.xbox.com/en-US/games/store/grand-theft-auto-vi/9NL3WWNZLZZN' }
+                })) {
+                    const records = history.services[serviceKey] || [];
+                    
+                    // Filter for intelligence updates
+                    const updates = records.filter(record => 
+                        record.status === 'INTELLIGENCE_UPDATE' || 
+                        record.intelligence_update === true
+                    );
+                    
+                    updates.forEach(record => {
+                        intelligenceUpdates.push({
+                            ...record,
+                            serviceKey,
+                            serviceName: serviceConfig.name,
+                            serviceUrl: serviceConfig.url
+                        });
+                    });
+                }
+                
+                // Sort by timestamp (newest first)
+                intelligenceUpdates.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                
+                // Clear loading message
+                blogPostsContainer.innerHTML = '';
+                
+                if (intelligenceUpdates.length === 0) {
+                    blogPostsContainer.innerHTML = `
+                        <div class="empty-state">
+                            <h3>No Intelligence Updates Found</h3>
+                            <p>Currently no content changes have been detected. Monitoring is active and will log updates as they occur.</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                        // Generate blog posts
+                intelligenceUpdates.forEach(update => {
+                    const timestamp = new Date(update.timestamp);
+                    const formattedDate = timestamp.toLocaleString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        timeZoneName: 'short'
+                    });
+                    
+                    const securityStatus = update.status === 'INTELLIGENCE_UPDATE' ? 'SECURE' : 'WARNING';
+                    const statusClass = securityStatus === 'SECURE' ? 'status-secure' : 'status-warning';
+                    
+                    const blogPost = document.createElement('div');
+                    blogPost.className = 'blog-card';
+                    blogPost.innerHTML = `
+                        <div class="blog-meta">
+                            <span class="blog-meta-item">
+                                <span class="status-badge ${statusClass}">${securityStatus}</span>
+                            </span>
+                            <span class="blog-meta-item">
+                                <span style="color: var(--accent-color)">•</span> ${formattedDate}
+                            </span>
+                            <span class="blog-meta-item">
+                                <span style="color: var(--accent-color)">•</span> ${update.total_time_ms || 0}ms response
+                            </span>
+                        </div>
+                        
+                        <div class="service-tag">${update.serviceName}</div>
+                        
+                        <h2 class="blog-title">Content Change Detected - ${update.serviceName}</h2>
+                        
+                        <div class="blog-content">
+                            <p><strong>Summary:</strong> Content change detected on ${update.serviceName}. The page content has been modified, indicating a potential update or change in the monitored service.</p>
+                            
+                            <p><strong>Security Analysis:</strong> The change has been flagged as <strong>${securityStatus}</strong> based on the monitoring system's assessment.</p>
+                            
+                            <p><strong>Next Steps:</strong> Monitor this service for any additional changes or updates that may follow this intelligence update.</p>
+                        </div>
+                        
+                        <div class="blog-details">
+                            <div class="detail-item">
+                                <span class="detail-label">Detection Time</span>
+                                <span class="detail-value">${formattedDate}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Service Type</span>
+                                <span class="detail-value">Website</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Content Size</span>
+                                <span class="detail-value">${update.html_size_kb || 0} KB</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Response Time</span>
+                                <span class="detail-value">${update.total_time_ms || 0} ms</span>
+                            </div>
+                        </div>
+                        
+                        <div class="detail-item">
+                            <span class="detail-label">Hash SHA-256</span>
+                            <div class="hash-value">${update.content_hash || 'N/A'}</div>
+                        </div>
+                        
+                        <div class="blog-meta" style="margin-top: 1rem; border-top: 1px solid var(--border-color); padding-top: 1rem;">
+                            <span class="blog-meta-item">
+                                <span style="color: var(--accent-color)">URL:</span> ${update.serviceUrl}
+                            </span>
+                        </div>
+                    `;
+                    
+                    blogPostsContainer.appendChild(blogPost);
+                });
+                
+            } catch (error) {
+                console.error('Error loading intelligence updates:', error);
+                document.getElementById('blog-posts').innerHTML = `
+                    <div class="empty-state">
+                        <h3>Error Loading Updates</h3>
+                        <p>Failed to load intelligence updates. Please check if history.json exists and is accessible.</p>
+                        <p style="font-size: 0.9rem; color: var(--warning-color); margin-top: 1rem;">Error: ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Initialize blog
+        document.addEventListener('DOMContentLoaded', () => {
+            loadIntelligenceUpdates();
+            
+            // Refresh every 5 minutes
+            setInterval(loadIntelligenceUpdates, 5 * 60 * 1000);
+        });
+    </script>''',
+            ''
+        )
+        
+        # Write updated blog.html
+        with open('blog.html', 'w', encoding='utf-8') as f:
+            f.write(new_blog_content)
+            
+        print(f"Static blog.html generated with {len(blog_entries)} intelligence updates")
+        
+    except Exception as e:
+        print(f"Error generating static blog: {e}")
+
 def generate_blog_entry(record, service_config):
     """Generate a blog entry for INTELLIGENCE_UPDATE"""
     try:
@@ -193,9 +501,31 @@ def generate_blog_entry(record, service_config):
             os.makedirs(blog_dir)
         
         # Generate filename with timestamp
-        timestamp = datetime.datetime.fromisoformat(record["timestamp"])
-        filename = f"update-{timestamp.strftime('%Y-%m-%d-%H-%M')}.html"
+        # Parse timestamp with regex for compatibility
+        import re
+        match = re.match(r'(\d{4}-\d{2}-\d{2})T(\d{2}):(\d{2}):(\d{2})\+(\d{2}):(\d{2})', record["timestamp"])
+        if match:
+            date_part = match.group(1)
+            time_parts = match.group(2, 3, 4)
+            filename = f"update-{date_part}-{time_parts[0]}-{time_parts[1]}-{time_parts[2]}.html"
+        else:
+            # Fallback for simple format
+            filename = f"update-{record['timestamp'].replace('T', '-').replace(':', '-').replace('+00:00', '')}.html"
         filepath = os.path.join(blog_dir, filename)
+        
+        # Parse timestamp for blog generation
+        # Parse timestamp with regex for compatibility
+        import re
+        match = re.match(r'(\d{4}-\d{2}-\d{2})T(\d{2}):(\d{2}):(\d{2})\+(\d{2}):(\d{2})', record["timestamp"])
+        if match:
+            date_part = match.group(1)
+            time_parts = match.group(2, 3, 4)
+            timestamp_str = f"{date_part} {time_parts[0]}:{time_parts[1]}:{time_parts[2]} UTC"
+            timestamp_formatted = f"{date_part} {time_parts[0]}:{time_parts[1]} UTC"
+        else:
+            # Fallback for simple format
+            timestamp_str = record["timestamp"].replace('T', ' ').replace('+00:00', ' UTC')
+            timestamp_formatted = timestamp_str
         
         # Determine security status
         security_status = "SECURE" if record.get("status") == "INTELLIGENCE_UPDATE" else "WARNING"
@@ -324,10 +654,10 @@ def generate_blog_entry(record, service_config):
                 <div class="post-header">
                     <div class="post-meta">
                         <span class="status-badge status-secure">SECURE</span>
-                        <span>📅 {timestamp.strftime('%Y-%m-%d %H:%M:%S UTC')}</span>
+                        <span>📅 {timestamp_str}</span>
                         <span>🌐 {service_config['name']}</span>
                     </div>
-                    <h1 class="post-title">Intelligence Update - {timestamp.strftime('%B %d, %Y at %H:%M UTC')}</h1>
+                    <h1 class="post-title">Intelligence Update - {timestamp_formatted}</h1>
                     <p class="post-subtitle">Content change detected on {service_config['name']}</p>
                 </div>
 
@@ -339,7 +669,7 @@ def generate_blog_entry(record, service_config):
                     <div class="metric-grid">
                         <div class="metric-card">
                             <div class="metric-label">Detection Time</div>
-                            <div class="metric-value">{timestamp.strftime('%Y-%m-%d %H:%M:%S UTC')}</div>
+                            <div class="metric-value">{timestamp_str}</div>
                         </div>
                         <div class="metric-card">
                             <div class="metric-label">Service Type</div>
@@ -391,7 +721,7 @@ def generate_blog_entry(record, service_config):
         
         # Create JSON with event date
         json_data = {
-            "date": timestamp.isoformat(),
+            "date": timestamp_str,
             "service": service_config['name'],
             "url": service_config['url'],
             "status": security_status,
@@ -418,6 +748,20 @@ def generate_blog_entry(record, service_config):
 def update_blog_html(record, service_config, timestamp, filename):
     """Update blog.html to include the new entry at the top of the list"""
     try:
+        # Parse timestamp for blog update
+        # Parse timestamp with regex for compatibility
+        import re
+        match = re.match(r'(\d{4}-\d{2}-\d{2})T(\d{2}):(\d{2}):(\d{2})\+(\d{2}):(\d{2})', record["timestamp"])
+        if match:
+            date_part = match.group(1)
+            time_parts = match.group(2, 3, 4)
+            timestamp_str = f"{date_part} {time_parts[0]}:{time_parts[1]}:{time_parts[2]} UTC"
+            timestamp_formatted = f"{date_part} {time_parts[0]}:{time_parts[1]} UTC"
+        else:
+            # Fallback for simple format
+            timestamp_str = record["timestamp"].replace('T', ' ').replace('+00:00', ' UTC')
+            timestamp_formatted = timestamp_str
+        
         # Read current blog.html
         with open('blog.html', 'r', encoding='utf-8') as f:
             blog_content = f.read()
@@ -427,10 +771,10 @@ def update_blog_html(record, service_config, timestamp, filename):
                     <div class="blog-card">
                         <div class="blog-meta">
                             <span class="status-pill status-secure">SECURE</span>
-                            <span>📅 {timestamp.strftime('%Y-%m-%d %H:%M:%S UTC')}</span>
+                            <span>📅 {timestamp_str}</span>
                             <span>🌐 {service_config['name']}</span>
                         </div>
-                        <h3 class="blog-title">Intelligence Update - {timestamp.strftime('%B %d, %Y at %H:%M UTC')}</h3>
+                        <h3 class="blog-title">Intelligence Update - {timestamp_formatted}</h3>
                         <p class="blog-excerpt">
                             Content change detected on {service_config['name']}. 
                             Response time: {record.get('total_time_ms', 0)}ms, 
@@ -577,19 +921,11 @@ def check_service(service_key, service_config, history=None):
                     status = "INTELLIGENCE_UPDATE"
                     print(f"[ALERT] Intelligence Update on {service_config['name']}: {update_msg}")
                     
-                    # Generate blog entry for intelligence update
+                    # Generate static blog entry for intelligence update
                     try:
-                        # Create a temporary record with the intelligence update info
-                        temp_record = {
-                            "timestamp": timestamp,
-                            "content_hash": content_hash,
-                            "status": "INTELLIGENCE_UPDATE",
-                            "total_time_ms": round(total_time, 2),
-                            "html_size_kb": html_size_kb if html_size_kb is not None else 0
-                        }
-                        generate_blog_entry(temp_record, service_config)
+                        generate_static_blog()
                     except Exception as e:
-                        print(f"[WARN] Failed to generate blog entry: {e}")
+                        print(f"[WARN] Failed to generate static blog: {e}")
 
             # HTML size analysis
             html_size_kb = round(len(response.content) / 1024, 2)

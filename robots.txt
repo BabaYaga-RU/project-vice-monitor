@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
-Sitemap: https://pklavc.github.io/project-vice-monitor/sitemap.xml
+Sitemap: https://pklavc.github.io/gta-vi-tracker/sitemap.xml
 Sitemap: https://gta-vi-tracker.onrender.com/sitemap.xml
