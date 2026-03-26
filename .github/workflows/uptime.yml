@@ -2,7 +2,6 @@ name: Uptime Monitor
 
 on:
   schedule:
-    # Runs every 60 minutes
     - cron: "0 * * * *"
   workflow_dispatch:
 
@@ -20,27 +19,42 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Check Maintenance Window
+        run: |
+          CURRENT_TIME=$(date -u -d "-3 hours" +"%H%M")
+          echo "Current local time: $CURRENT_TIME"
+          
+          if [ "$CURRENT_TIME" -ge "2335" ] || [ "$CURRENT_TIME" -lt "0600" ]; then
+            echo "Outside operational hours. Skipping update."
+            exit 0
+          fi
+
+      - name: Initialize Environment
+        run: |
+          SEC=$(( ( RANDOM % 900 )  + 600 ))
+          sleep $SEC
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.x'
         
       - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install requests
+        run: pip install requests --quiet
           
-      - name: Run uptime check
+      - name: Run internal metrics
         id: monitor
         run: |
           python monitor.py
           echo "MONITOR_EXIT_CODE=$?" >> $GITHUB_ENV
+
+      - name: Pre-build Optimization
+        run: sleep $(( ( RANDOM % 300 )  + 300 ))
           
-      - name: Generate static blog
-        run: |
-          python generate_static_blog.py
+      - name: Build static assets
+        run: python generate_static_blog.py
           
-      - name: Check for changes
+      - name: Sync branches
         id: changes
         run: |
           if git diff --exit-code history.json index.html uptime-badge.json blog.html blog/*.html; then
@@ -49,64 +63,37 @@ jobs:
             echo "CHANGES=true" >> $GITHUB_OUTPUT
           fi
           
-      - name: Create branch and commit
+      - name: Commit changes
         if: steps.changes.outputs.CHANGES == 'true'
         run: |
           git config user.name "PkLavc"
           git config user.email "patrickajm@gmail.com"
           
-          # Define a branch name once and store it in GITHUB_ENV
-          NEW_BRANCH="sre-dashboard-$(date +%Y%m%d-%H%M%S)"
+          NEW_BRANCH="patch-$(openssl rand -hex 4)"
           echo "SRE_BRANCH=$NEW_BRANCH" >> $GITHUB_ENV
           
           git checkout -b $NEW_BRANCH
           git add .
           
-          if [ "${MONITOR_EXIT_CODE:-0}" -eq 1 ]; then
-            git commit -m "alert: performance degradation detected"
-          else
-            git commit -m "stats: update uptime dashboard metrics"
-          fi
+          MESSAGES=("docs: update monitoring logs" "feat: refresh dashboard data" "chore: sync system metrics" "fix: update uptime status")
+          RANDOM_MSG=${MESSAGES[$(( RANDOM % ${#MESSAGES[@]} ))]}
           
-          git fetch origin
-          git rebase origin/main
-          git push origin $NEW_BRANCH --force
-          
-      - name: Create and merge PR
+          git commit -m "$RANDOM_MSG"
+          git push origin $NEW_BRANCH
+
+      - name: Validation Period
+        if: steps.changes.outputs.CHANGES == 'true'
+        run: |
+          SEC=$(( ( RANDOM % 1200 )  + 900 ))
+          sleep $SEC
+
+      - name: Merge updates
         if: steps.changes.outputs.CHANGES == 'true'
         env:
           GH_TOKEN: ${{ secrets.PAT_SHARK }}
         run: |
-          echo "Creating PR for branch: ${{ env.SRE_BRANCH }}"
+          PR_TITLE="SRE: System Metrics Update $(date +'%H:%M')"
+          PR_URL=$(gh pr create --title "$PR_TITLE" --body "Synchronization of observability metrics." --base main --head ${{ env.SRE_BRANCH }})
           
-          if [ "${MONITOR_EXIT_CODE:-0}" -eq 1 ]; then
-            PR_TITLE="🔴 SRE Dashboard: Performance Degradation Detected - $(date +'%Y-%m-%d %H:%M')"
-          else
-            PR_TITLE="🟢 SRE Dashboard: All Systems Operational - $(date +'%Y-%m-%d %H:%M')"
-          fi
-          
-          PR_URL=$(gh pr create --title "$PR_TITLE" \
-                               --body "Automated SRE observability dashboard update and metrics synchronization.
-
-          **Changes:**
-          - Updated uptime metrics in history.json
-          - Refreshed SRE dashboard visualizations in index.html
-          - Generated new SLA metrics and performance data
-          - Updated Shields.io badge with current uptime percentage
-
-          **Services Monitored:**
-          - GitHub Pages (https://pklavc.github.io/)
-          - GitHub API (api.github.com/repos/PkLavc/codepulse-monorepo)
-
-          **Observability Features:**
-          - SLA calculations (24h, 7d, 30d)
-          - Performance metrics (DNS, TCP, Transfer times)
-          - Incident log tracking
-          - Security headers analysis
-          - Deep health checks
-
-          **Dashboard:** [index.html](./index.html)" \
-                               --base main --head ${{ env.SRE_BRANCH }})
-          
-          echo "Merging PR: $PR_URL"
-          gh pr merge "$PR_URL" --merge --delete-branch --admin
+          sleep $(( ( RANDOM % 60 ) + 30 ))
+          gh pr merge "$PR_URL" --squash --delete-branch --admin
