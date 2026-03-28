@@ -1,25 +1,39 @@
 #!/bin/bash
-set -e # Exit on any error
+set -e 
 
-# Random sleep between 1 and 300 seconds to avoid collisions
-sleep $((RANDOM % 300 + 1))
+CURRENT_TIME=$(date -u -d "-3 hours" +"%H%M")
+DATE_SEED=$(date -u -d "-3 hours" +"%Y%m%d")
 
-# Set git user identity
+RANDOM_OFFSET=$(echo "$DATE_SEED" | awk '{print ($1 % 60)}')
+
+STOP_LIMIT=$(( 2235 + RANDOM_OFFSET ))
+START_LIMIT=$(( 0600 + RANDOM_OFFSET ))
+
+echo "Current: $CURRENT_TIME | Today's Stop: $STOP_LIMIT | Today's Start: $START_LIMIT"
+
+if [ "$CURRENT_TIME" -ge "$STOP_LIMIT" ] || [ "$CURRENT_TIME" -lt "$START_LIMIT" ]; then
+    echo "Sleeping hours. Skipping update to mimic human behavior."
+    exit 0
+fi
+
+sleep $(( ( RANDOM % 600 ) + 300 ))
+
 git config user.name "PkLavc"
 git config user.email "patrickajm@gmail.com"
 
-# Skip if there are no real changes to commit
-if git diff --exit-code history.json index.html uptime-badge.json assets/; then
+if git diff --exit-code history.json index.html uptime-badge.json assets/ blog.html blog/*.html; then
     echo "No changes detected. Skipping merge."
     exit 0
 fi
 
 BRANCH="sre-dashboard-$(date +%Y%m%d-%H%M%S)"
 git checkout -b $BRANCH
-
 git add .
 
-# Commit message options (randomized)
+git fetch origin main
+git rebase origin/main
+
+# --- 5. MENSAGENS DE COMMIT ---
 MESSAGES=(
     "metrics: update dashboard"
     "stats: sync uptime data"
@@ -34,7 +48,6 @@ ALERT_MESSAGES=(
     "alert: service disruption detected"
 )
 
-# Choose commit message based on monitor.py exit code
 if [ "${MONITOR_EXIT_CODE:-0}" -eq 1 ]; then
     RANDOM_INDEX=$((RANDOM % ${#ALERT_MESSAGES[@]}))
     COMMIT_MSG="${ALERT_MESSAGES[$RANDOM_INDEX]}"
@@ -45,13 +58,8 @@ fi
 
 git commit -m "$COMMIT_MSG" -m "Co-authored-by: pklavc-labs <modderkcaheua@gmail.com>"
 
-# Ensure the branch is up to date before pushing
-git fetch origin
-git rebase origin/main
-
 git push origin $BRANCH --force
 
-# Create and merge PR with professional metadata
 if [ "${MONITOR_EXIT_CODE:-0}" -eq 1 ]; then
     PR_TITLE="🔴 Inteligência GTA VI: Atualização Detectada - $(date +'%Y-%m-%d %H:%M')"
 else
@@ -65,24 +73,11 @@ PR_URL=$(gh pr create --title "$PR_TITLE" \
 - Histórico de vigilância atualizado em history.json
 - Visualizações do dashboard atualizadas em index.html
 - Novos dados de detecção de atualização e análise de conteúdo
-- Badge de status atualizado com dados mais recentes
-
-**Serviços Monitorados:**
-- GTA VI Official (https://www.rockstargames.com/VI/)
-- Rockstar Newswire (https://www.rockstargames.com/br/newswire)
-- PlayStation Store (https://www.playstation.com/pt-br/games/grand-theft-auto-vi/)
-- Xbox Store (https://www.xbox.com/pt-PT/games/store/grand-theft-auto-vi/)
-
-**Recursos de Inteligência:**
-- Detecção de atualizações por SHA-256
-- Análise de tamanho de conteúdo em tempo real
-- Métricas de disponibilidade (24h, 7d, 30d)
-- Análise de latência (DNS, TCP, Transfer)
-- Histórico de incidentes
-- Verificação de headers de segurança
 
 **Dashboard:** [index.html](./index.html)" \
                       --base main --head $BRANCH --fill)
 
+sleep $(( ( RANDOM % 120 ) + 60 ))
+
 echo "Merging PR: $PR_URL"
-gh pr merge "$PR_URL" --merge --delete-branch --admin
+gh pr merge "$PR_URL" --squash --delete-branch --admin
