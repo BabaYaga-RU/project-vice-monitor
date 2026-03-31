@@ -1,8 +1,13 @@
 #!/usr/bin/env python3
 import json
+import os
 
 def generate_static_blog():
     # Carregar o history.json
+    if not os.path.exists('blog'):
+        os.makedirs('blog')
+        print("Diretório 'blog' criado com sucesso.")
+        
     with open('history.json', 'r', encoding='utf-8') as f:
         history = json.load(f)
 
