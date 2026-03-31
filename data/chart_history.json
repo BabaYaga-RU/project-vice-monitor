@@ -23,7 +23,11 @@
     "17:33",
     "19:34",
     "21:07",
+<<<<<<< Updated upstream
     "22:15"
+=======
+    "23:00"
+>>>>>>> Stashed changes
   ],
   "gta6_latency": [
     332.89,
@@ -49,7 +53,11 @@
     292.15,
     275.26,
     278.01,
+<<<<<<< Updated upstream
     322.4
+=======
+    308.75
+>>>>>>> Stashed changes
   ],
   "news_latency": [
     161.86,
@@ -75,7 +83,11 @@
     159.81,
     159.1,
     152.97,
+<<<<<<< Updated upstream
     161.45
+=======
+    170.73
+>>>>>>> Stashed changes
   ],
   "ps_latency": [
     317.9,
@@ -101,7 +113,11 @@
     297.27,
     289.98,
     277.84,
+<<<<<<< Updated upstream
     285.18
+=======
+    309.41
+>>>>>>> Stashed changes
   ],
   "xbox_latency": [
     569.08,
@@ -127,6 +143,10 @@
     424.09,
     415.98,
     404.34,
+<<<<<<< Updated upstream
     403.47
+=======
+    416.73
+>>>>>>> Stashed changes
   ]
 }
