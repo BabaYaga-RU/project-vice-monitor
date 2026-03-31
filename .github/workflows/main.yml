@@ -22,11 +22,13 @@ jobs:
 
       - name: Random Start Delay
         run: |
+          # Delay para evitar padrões de bot muito óbvios
           DELAY=$(( ( RANDOM % 903 ) + 2700 ))
           sleep $DELAY
 
       - name: Run Check
         run: |
+          # Limpa qualquer resíduo e roda o monitor
           git reset --hard HEAD
           python monitor.py
         
@@ -39,9 +41,20 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.PAT_SHARK }}
         run: |
+          # 1. Adiciona e commita localmente PRIMEIRO
+          # Isso evita o erro de "dirty index" durante o rebase
           git add .
-          git stash || true
+          if ! git diff-index --quiet HEAD; then
+            git commit -m "fix: update uptime status and monitor data"
+          else
+            echo "Nenhuma mudança detectada nos logs."
+          fi
+
+          # 2. Sincroniza com o repositório remoto
+          # -X ours: Em caso de conflito nos JSONs, mantém a sua versão local (a mais nova)
           git pull --rebase origin main -X ours
-          git stash pop || true
-          
+
+          # 3. Executa o script de workflow
+          # Certifique-se de que o workflow.sh use 'gh pr create' para a badge Pull Shark
+          chmod +x workflow.sh
           bash workflow.sh
