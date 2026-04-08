@@ -6,15 +6,15 @@
       "sla_7d": 100.0,
       "sla_30d": 100.0,
       "performance": {
-        "avg_latency": 270.54,
-        "avg_dns_time": 80.04,
-        "avg_tcp_time": 13.8,
-        "avg_transfer_time": 176.71,
+        "avg_latency": 270.07,
+        "avg_dns_time": 80.02,
+        "avg_tcp_time": 13.16,
+        "avg_transfer_time": 176.88,
         "peak_hour": "17:27",
         "slowest_response": 537.13,
         "fastest_response": 109.82
       },
-      "last_check": "2026-04-08T09:28:47.716832+00:00",
+      "last_check": "2026-04-08T11:26:31.929411+00:00",
       "engagement": {},
       "html_size_kb": 576.88,
       "num_images": 52,
@@ -29,15 +29,15 @@
       "sla_7d": 100.0,
       "sla_30d": 100.0,
       "performance": {
-        "avg_latency": 103.19,
+        "avg_latency": 99.7,
         "avg_dns_time": 0.41,
-        "avg_tcp_time": 14.76,
-        "avg_transfer_time": 88.02,
+        "avg_tcp_time": 14.23,
+        "avg_transfer_time": 85.07,
         "peak_hour": "19:32",
         "slowest_response": 187.91,
         "fastest_response": 40.31
       },
-      "last_check": "2026-04-08T09:28:48.197821+00:00",
+      "last_check": "2026-04-08T11:26:32.157010+00:00",
       "engagement": {},
       "html_size_kb": 5.23,
       "num_images": 0,
@@ -52,17 +52,17 @@
       "sla_7d": 100.0,
       "sla_30d": 100.0,
       "performance": {
-        "avg_latency": 388.36,
-        "avg_dns_time": 88.92,
-        "avg_tcp_time": 12.51,
-        "avg_transfer_time": 286.93,
+        "avg_latency": 379.16,
+        "avg_dns_time": 79.6,
+        "avg_tcp_time": 11.76,
+        "avg_transfer_time": 287.8,
         "peak_hour": "03:39",
         "slowest_response": 837.48,
         "fastest_response": 90.28
       },
-      "last_check": "2026-04-08T09:28:48.357953+00:00",
+      "last_check": "2026-04-08T11:26:32.212759+00:00",
       "engagement": {},
-      "html_size_kb": 202.31,
+      "html_size_kb": 202.3,
       "num_images": 23,
       "num_links": 80,
       "num_scripts": 36,
@@ -75,15 +75,15 @@
       "sla_7d": 100.0,
       "sla_30d": 100.0,
       "performance": {
-        "avg_latency": 568.36,
-        "avg_dns_time": 59.8,
-        "avg_tcp_time": 16.21,
-        "avg_transfer_time": 492.35,
+        "avg_latency": 545.22,
+        "avg_dns_time": 52.93,
+        "avg_tcp_time": 15.76,
+        "avg_transfer_time": 476.52,
         "peak_hour": "21:15",
         "slowest_response": 1164.72,
         "fastest_response": 292.29
       },
-      "last_check": "2026-04-08T09:28:48.746038+00:00",
+      "last_check": "2026-04-08T11:26:32.403914+00:00",
       "engagement": {},
       "html_size_kb": 379.71,
       "num_images": 5,
@@ -687,6 +687,38 @@
         "dns_time_ms": 147.17,
         "tcp_time_ms": 25.57,
         "transfer_time_ms": 119.83,
+        "content_ok": true,
+        "found_keywords": [
+          "Grand Theft Auto",
+          "Rockstar"
+        ],
+        "security_headers": {
+          "strict-transport-security": true,
+          "x-content-type-options": false,
+          "content-security-policy": false,
+          "x-frame-options": false,
+          "referrer-policy": false
+        },
+        "engagement": {},
+        "content_hash": "0e9c5871f7b9344ceb135fb3951c0f35a0bb4fdefa18705f02dca0671c6fd78a",
+        "intelligence_update": false,
+        "html_size_kb": 576.88,
+        "num_images": 52,
+        "num_links": 9,
+        "num_scripts": 113,
+        "num_stylesheets": 40,
+        "page_title": "Grand Theft Auto VI - Rockstar Games",
+        "meta_description": "Vice City, USA. Jason and Lucia have always known the deck is stacked against them. But when an easy score goes wrong, they find themselves on the darkest side of the sunniest place in America, in the middle of a criminal conspiracy stretching across the state of Leonida — forced to rely on each other more than ever if they want to make it out alive."
+      },
+      {
+        "timestamp": "2026-04-08T11:26:31.929411+00:00",
+        "url": "https://www.rockstargames.com/VI/",
+        "status": "ONLINE",
+        "http_code": 200,
+        "total_time_ms": 156.56,
+        "dns_time_ms": 53.79,
+        "tcp_time_ms": 1.78,
+        "transfer_time_ms": 100.99,
         "content_ok": true,
         "found_keywords": [
           "Grand Theft Auto",
@@ -1338,6 +1370,39 @@
         "num_stylesheets": 0,
         "page_title": "Newswire - Rockstar Games",
         "meta_description": "The official destination for Rockstar game announcements and updates, trailer launches, screenshot unveilings, events, soundtrack details, community creations and a lot more."
+      },
+      {
+        "timestamp": "2026-04-08T11:26:32.157010+00:00",
+        "url": "https://www.rockstargames.com/newswire",
+        "status": "ONLINE",
+        "http_code": 200,
+        "total_time_ms": 49.78,
+        "dns_time_ms": 0.32,
+        "tcp_time_ms": 2.31,
+        "transfer_time_ms": 47.15,
+        "content_ok": true,
+        "found_keywords": [
+          "Rockstar",
+          "News",
+          "GTA"
+        ],
+        "security_headers": {
+          "strict-transport-security": true,
+          "x-content-type-options": false,
+          "content-security-policy": false,
+          "x-frame-options": false,
+          "referrer-policy": true
+        },
+        "engagement": {},
+        "content_hash": "94cf9c983e6a4a0ab4bbc230ebeb1c7cfc9b5f41a9001d704b87c4057605d2be",
+        "intelligence_update": false,
+        "html_size_kb": 5.23,
+        "num_images": 0,
+        "num_links": 0,
+        "num_scripts": 4,
+        "num_stylesheets": 0,
+        "page_title": "Newswire - Rockstar Games",
+        "meta_description": "The official destination for Rockstar game announcements and updates, trailer launches, screenshot unveilings, events, soundtrack details, community creations and a lot more."
       }
     ],
     "playstation_store": [
@@ -1942,6 +2007,38 @@
         "content_hash": "7b7cc0f949ff0135c838df091c355907055a52e9ac72fca9f180d62d9df2efe9",
         "intelligence_update": true,
         "html_size_kb": 202.31,
+        "num_images": 23,
+        "num_links": 80,
+        "num_scripts": 36,
+        "num_stylesheets": 6,
+        "page_title": "Grand Theft Auto VI - PS5 Games | PlayStation (US)",
+        "meta_description": "Add Grand Theft Auto VI to your Wishlist at PlayStation Store now. Experience the biggest, most immersive evolution of the Grand Theft Auto series yet."
+      },
+      {
+        "timestamp": "2026-04-08T11:26:32.212759+00:00",
+        "url": "https://www.playstation.com/en-us/games/grand-theft-auto-vi/",
+        "status": "INTELLIGENCE_UPDATE",
+        "http_code": 200,
+        "total_time_ms": 154.15,
+        "dns_time_ms": 27.45,
+        "tcp_time_ms": 1.9,
+        "transfer_time_ms": 124.8,
+        "content_ok": true,
+        "found_keywords": [
+          "Grand Theft Auto",
+          "PlayStation"
+        ],
+        "security_headers": {
+          "strict-transport-security": true,
+          "x-content-type-options": true,
+          "content-security-policy": false,
+          "x-frame-options": true,
+          "referrer-policy": true
+        },
+        "engagement": {},
+        "content_hash": "769015d835b18572f8ce90f81d84e5a660d38b3dda2361bd0bce5d69039b2f4f",
+        "intelligence_update": true,
+        "html_size_kb": 202.3,
         "num_images": 23,
         "num_links": 80,
         "num_scripts": 36,
@@ -2558,13 +2655,45 @@
         "num_stylesheets": 6,
         "page_title": "Your Privacy Choices Opt-Out Icon",
         "meta_description": null
+      },
+      {
+        "timestamp": "2026-04-08T11:26:32.403914+00:00",
+        "url": "https://www.xbox.com/en-US/games/store/grand-theft-auto-vi/9NL3WWNZLZZN",
+        "status": "INTELLIGENCE_UPDATE",
+        "http_code": 200,
+        "total_time_ms": 341.43,
+        "dns_time_ms": 3.41,
+        "tcp_time_ms": 1.95,
+        "transfer_time_ms": 336.07,
+        "content_ok": true,
+        "found_keywords": [
+          "Grand Theft Auto",
+          "Xbox"
+        ],
+        "security_headers": {
+          "strict-transport-security": true,
+          "x-content-type-options": true,
+          "content-security-policy": false,
+          "x-frame-options": true,
+          "referrer-policy": false
+        },
+        "engagement": {},
+        "content_hash": "5e272ed380113bddb347374f2ac6b4f7bde3b95af38c804b20c65cd509a32923",
+        "intelligence_update": true,
+        "html_size_kb": 379.71,
+        "num_images": 5,
+        "num_links": 155,
+        "num_scripts": 22,
+        "num_stylesheets": 6,
+        "page_title": "Your Privacy Choices Opt-Out Icon",
+        "meta_description": null
       }
     ]
   },
   "page_size_history": [],
-  "generated_at": "2026-04-08T09:28:49.261842+00:00",
+  "generated_at": "2026-04-08T11:26:32.766549+00:00",
   "summary": {
-    "run_duration_seconds": 1.55,
+    "run_duration_seconds": 0.84,
     "incidents_last_24h": {
       "gta_vi_official": 0,
       "rockstar_newswire": 0,
@@ -2573,20 +2702,20 @@
     },
     "avg_latency_last_24h": {
       "gta_vi_official": 270,
-      "rockstar_newswire": 103,
-      "playstation_store": 388,
-      "xbox_store": 568
+      "rockstar_newswire": 99,
+      "playstation_store": 379,
+      "xbox_store": 545
     },
     "intelligence_updates": [
       {
         "service": "playstation_store",
-        "count": 9,
-        "latest": "2026-04-08T09:28:48.357953+00:00"
+        "count": 10,
+        "latest": "2026-04-08T11:26:32.212759+00:00"
       },
       {
         "service": "xbox_store",
-        "count": 14,
-        "latest": "2026-04-08T09:28:48.746038+00:00"
+        "count": 13,
+        "latest": "2026-04-08T11:26:32.403914+00:00"
       }
     ]
   }
