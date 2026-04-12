@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intelligence Update - PlayStation Store - GTA VI</title>
+    <meta name="description" content="Intelligence update for PlayStation Store - content change detected on 2026-04-12T21:07:33.038560+00:00">
+    <meta name="keywords" content="gta vi, gta 6, grand theft auto vi, rockstar games, content updates, hash analysis, security monitoring, intelligence updates">
+    
+    <!-- OpenGraph Meta Tags for Social Sharing -->
+    <meta property="og:title" content="Intelligence Update - PlayStation Store">
+    <meta property="og:description" content="Content change detected on PlayStation Store at 2026-04-12T21:07:33.038560+00:00">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="../blog/update-2026-04-12-21-07-33.038560+00-00.html">
+    <meta property="og:image" content="https://uptime-monitor.example.com/assets/gta-vi.png">
+    <meta property="og:site_name" content="Rockstar Surveillance">
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Intelligence Update - PlayStation Store">
+    <meta name="twitter:description" content="Content change detected on PlayStation Store">
+    <meta name="twitter:image" content="https://uptime-monitor.example.com/assets/gta-vi.png">
+    
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #111827;
+            --panel-bg: #0b1220;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-tertiary: #64748b;
+            --accent-color: #38bdf8;
+            --success-color: #22c55e;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --border-color: #1f2937;
+            --grid-line: #334155;
+            --hover-bg: #1f2937;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(180deg, #0f172a 0%, #0b1220 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Header with Navigation */
+        .header {
+            background: linear-gradient(135deg, #0b1220 0%, #111827 100%);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1.5rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .brand-logo {
+            width: 40px;
+            height: 40px;
+            background: radial-gradient(circle, var(--accent-color), transparent 70%);
+            border-radius: 50%;
+            box-shadow: 0 0 20px var(--accent-color), 0 0 40px rgba(56, 189, 248, 0.3);
+            animation: pulse 3s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.7); }
+            70% { box-shadow: 0 0 0 20px rgba(56, 189, 248, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0); }
+        }
+
+        .brand-info h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            background: linear-gradient(135deg, var(--accent-color), #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .brand-info p {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: var(--panel-bg);
+            color: var(--text-primary);
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background: var(--hover-bg);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-color), #a78bfa);
+            border: none;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            filter: brightness(1.1);
+        }
+
+        /* Main Content */
+        .blog-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem 4rem 2rem;
+        }
+
+        .blog-header {
+            margin-bottom: 3rem;
+            text-align: center;
+        }
+
+        .blog-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--accent-color), #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .blog-header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        /* Blog Post Content */
+        .blog-post {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .blog-post::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent-color), #a78bfa);
+            opacity: 1;
+        }
+
+        .post-meta {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .post-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-secure { background: rgba(34, 197, 94, 0.2); color: var(--success-color); }
+        .status-warning { background: rgba(245, 158, 11, 0.2); color: var(--warning-color); }
+
+        .post-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--text-primary);
+            line-height: 1.2;
+        }
+
+        .post-subtitle {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            font-style: italic;
+        }
+
+        .post-content {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+
+        .post-content h2 {
+            color: var(--text-primary);
+            margin: 2rem 0 1rem 0;
+            font-size: 1.5rem;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 0.5rem;
+        }
+
+        .post-content h3 {
+            color: var(--text-primary);
+            margin: 1.5rem 0 1rem 0;
+            font-size: 1.25rem;
+        }
+
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .metric-card {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            padding: 1.5rem;
+            border-radius: 8px;
+        }
+
+        .metric-label {
+            color: var(--text-tertiary);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-value {
+            color: var(--text-primary);
+            font-size: 1.1rem;
+            font-weight: 600;
+            font-family: 'Courier New', monospace;
+        }
+
+        .note-box {
+            margin-top: 2rem;
+            padding: 1rem;
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            border-left: 4px solid var(--accent-color);
+        }
+
+        .note-box strong {
+            color: var(--text-primary);
+        }
+
+        .post-actions {
+            margin-top: 3rem;
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .back-link {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: var(--panel-bg);
+            color: var(--text-primary);
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .back-link:hover {
+            background: var(--hover-bg);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .visit-service {
+            background: linear-gradient(135deg, var(--accent-color), #a78bfa);
+            border: none;
+            color: white;
+        }
+
+        .visit-service:hover {
+            filter: brightness(1.1);
+        }
+
+        /* Footer */
+        .footer-container {
+            text-align: center;
+            padding: 20px;
+            margin-top: 40px;
+            border-top: 1px solid #333;
+            background: linear-gradient(180deg, #0b1220 0%, #0f172a 100%);
+        }
+
+        .footer-container p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        .footer-container a {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .footer-container a:hover {
+            color: white;
+            text-decoration: underline;
+        }
+
+        .sponsor-badge {
+            background: linear-gradient(135deg, #38bdf8, #a78bfa);
+            color: white;
+            padding: 0.25rem 1rem;
+            border-radius: 999px;
+            font-weight: 700;
+            text-decoration: none;
+            border: 2px solid rgba(255,255,255,0.3);
+            box-shadow: 0 4px 15px rgba(56, 189, 248, 0.3);
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.85rem;
+            margin-left: 0.5rem;
+            display: inline-block;
+        }
+
+        .sponsor-badge:hover {
+            filter: brightness(1.1);
+            transform: translateY(-1px);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .blog-container {
+                padding: 0 1rem 3rem 1rem;
+            }
+            
+            .post-title {
+                font-size: 1.5rem;
+            }
+            
+            .post-actions {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="brand">
+                <div class="brand-logo"></div>
+                <div class="brand-info">
+                    <h1>GTA VI Intelligence Blog</h1>
+                    <p>Content Updates & Security Analysis</p>
+                </div>
+            </div>
+            <div class="nav-buttons">
+                <a href="../index.html" class="btn btn-primary">← Back to Live Dashboard</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Blog Post Content -->
+    <main class="blog-container">
+        <div class="blog-post">
+            <div class="post-meta">
+                <span class="post-meta-item">
+                    <span class="status-badge status-secure">SECURE</span>
+                </span>
+                <span class="post-meta-item">
+                    <span style="color: var(--accent-color)">•</span> 2026-04-12 21:07:33.038560 UTC
+                </span>
+                <span class="post-meta-item">
+                    <span style="color: var(--accent-color)">•</span> 255.83ms response
+                </span>
+            </div>
+            
+            <h1 class="post-title">Intelligence Update - PlayStation Store</h1>
+            <p class="post-subtitle">Content change detected on PlayStation Store</p>
+            
+            <div class="post-content">
+                <h2>Summary</h2>
+                <p>Content change detected on PlayStation Store. The page content has been modified, indicating a potential update or change in the monitored service.</p>
+
+                <h2>Details</h2>
+                <div class="metric-grid">
+                    <div class="metric-card">
+                        <div class="metric-label">Detection Time</div>
+                        <div class="metric-value">2026-04-12 21:07:33.038560 UTC</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Service Type</div>
+                        <div class="metric-value">Website</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Content Size</div>
+                        <div class="metric-value">202.31 KB</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Response Time</div>
+                        <div class="metric-value">255.83 ms</div>
+                    </div>
+                </div>
+
+                <h3>Keywords Monitored</h3>
+                <p>Grand Theft Auto, GTA VI, PlayStation Store</p>
+
+                <h2>Security Analysis</h2>
+                <p>The change has been flagged as <strong>SECURE</strong> based on the monitoring system's assessment.</p>
+
+                <h2>Next Steps</h2>
+                <p>Monitor this service for any additional changes or updates that may follow this intelligence update.</p>
+
+                <div class="note-box">
+                    <strong>Note:</strong> This entry was automatically generated by the Project Vice Monitor system.
+                </div>
+            </div>
+
+            <div class="post-actions">
+                <a href="../blog.html" class="back-link">← Back to Blog</a>
+                <a href="https://www.playstation.com/en-us/games/grand-theft-auto-vi/" class="back-link visit-service" target="_blank">Visit Service →</a>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer-container">
+        <p>© 2026 <a href="https://github.com/PkLavc" target="_blank">PkLavc</a> • 
+           <a href="https://github.com/PkLavc/project-vice-monitor" target="_blank">Source Code</a>
+           <a href="https://github.com/sponsors/PkLavc" target="_blank" class="sponsor-badge">
+               <span style="margin-right: 0.25rem;">💖</span> Sponsor Me
+           </a>
+        </p>
+    </footer>
+</body>
+</html>
