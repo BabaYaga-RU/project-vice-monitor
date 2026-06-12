@@ -17,8 +17,8 @@ jobs:
 
       - name: Config Git
         run: |
-          git config --global user.name "PkLavc"
-          git config --global user.email "patrickajm@gmail.com"
+          git config --global user.name "BabaYaga-RU"
+          git config --global user.email "p201952589703@gmail.com"
 
       - name: Random Start Delay
         run: |
