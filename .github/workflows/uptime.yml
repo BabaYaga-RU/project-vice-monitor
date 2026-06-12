@@ -75,8 +75,8 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.PAT_SHARK }}
         run: |
-          git config user.name "PkLavc"
-          git config user.email "patrickajm@gmail.com"
+          git config user.name "BabaYaga-RU"
+          git config user.email "p201952589703@gmail.com"
           
           # Criar branch nova a partir da main limpa
           NEW_BRANCH="patch-$(openssl rand -hex 4)"
