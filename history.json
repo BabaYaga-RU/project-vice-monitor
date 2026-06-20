@@ -10208,6 +10208,38 @@
         "num_stylesheets": 19,
         "page_title": "Grand Theft Auto VI - Rockstar Games",
         "meta_description": "Vice City, USA. Jason and Lucia have always known the deck is stacked against them. But when an easy score goes wrong, they find themselves on the darkest side of the sunniest place in America, in the middle of a criminal conspiracy stretching across the state of Leonida \u2014 forced to rely on each other more than ever if they want to make it out alive."
+      },
+      {
+        "timestamp": "2026-06-20T18:37:06.534560+00:00",
+        "url": "https://www.rockstargames.com/VI/",
+        "status": "ONLINE",
+        "http_code": 200,
+        "total_time_ms": 716.93,
+        "dns_time_ms": 30.14,
+        "tcp_time_ms": 2.11,
+        "transfer_time_ms": 684.68,
+        "content_ok": true,
+        "found_keywords": [
+          "Grand Theft Auto",
+          "Rockstar"
+        ],
+        "security_headers": {
+          "strict-transport-security": true,
+          "x-content-type-options": false,
+          "content-security-policy": false,
+          "x-frame-options": false,
+          "referrer-policy": false
+        },
+        "engagement": {},
+        "content_hash": "1906cd3aca6a1f6bcc81da4d495e4a3eea2ee70b0dd0d95a3e40b4a0bc90dbdd",
+        "intelligence_update": false,
+        "html_size_kb": 254.54,
+        "num_images": 8,
+        "num_links": 19,
+        "num_scripts": 67,
+        "num_stylesheets": 19,
+        "page_title": "Grand Theft Auto VI - Rockstar Games",
+        "meta_description": "Vice City, USA. Jason and Lucia have always known the deck is stacked against them. But when an easy score goes wrong, they find themselves on the darkest side of the sunniest place in America, in the middle of a criminal conspiracy stretching across the state of Leonida \u2014 forced to rely on each other more than ever if they want to make it out alive."
       }
     ],
     "rockstar_newswire": [
@@ -20655,6 +20687,38 @@
         "num_stylesheets": 0,
         "page_title": "Newswire - Rockstar Games",
         "meta_description": "The official destination for Rockstar game announcements and updates, trailer launches, screenshot unveilings, events, soundtrack details, community creations and a lot more."
+      },
+      {
+        "timestamp": "2026-06-20T18:37:07.326817+00:00",
+        "url": "https://www.rockstargames.com/newswire",
+        "status": "INTELLIGENCE_UPDATE",
+        "http_code": 200,
+        "total_time_ms": 42.52,
+        "dns_time_ms": 0.47,
+        "tcp_time_ms": 1.87,
+        "transfer_time_ms": 40.18,
+        "content_ok": true,
+        "found_keywords": [
+          "Rockstar",
+          "News"
+        ],
+        "security_headers": {
+          "strict-transport-security": true,
+          "x-content-type-options": false,
+          "content-security-policy": false,
+          "x-frame-options": false,
+          "referrer-policy": true
+        },
+        "engagement": {},
+        "content_hash": "9810de847b9e221bfac5eed98fb6f1d6070ffd95cd31b4a455429fbec92a79ae",
+        "intelligence_update": true,
+        "html_size_kb": 5.2,
+        "num_images": 0,
+        "num_links": 0,
+        "num_scripts": 4,
+        "num_stylesheets": 0,
+        "page_title": "Newswire - Rockstar Games",
+        "meta_description": "The official destination for Rockstar game announcements and updates, trailer launches, screenshot unveilings, events, soundtrack details, community creations and a lot more."
       }
     ],
     "playstation_store": [
@@ -30843,6 +30907,38 @@
         "dns_time_ms": 66.47,
         "tcp_time_ms": 14.57,
         "transfer_time_ms": 497.69,
+        "content_ok": true,
+        "found_keywords": [
+          "Grand Theft Auto",
+          "PlayStation"
+        ],
+        "security_headers": {
+          "strict-transport-security": true,
+          "x-content-type-options": true,
+          "content-security-policy": false,
+          "x-frame-options": true,
+          "referrer-policy": true
+        },
+        "engagement": {},
+        "content_hash": "b42266bfedbc8a0e783bf1ac10512f69b13362814cc81e6bef8eac78379e264a",
+        "intelligence_update": false,
+        "html_size_kb": 201.7,
+        "num_images": 23,
+        "num_links": 80,
+        "num_scripts": 36,
+        "num_stylesheets": 6,
+        "page_title": "Grand Theft Auto VI - PS5 Games | PlayStation (US)",
+        "meta_description": "Add Grand Theft Auto VI to your Wishlist at PlayStation Store now. Experience the biggest, most immersive evolution of the Grand Theft Auto series yet."
+      },
+      {
+        "timestamp": "2026-06-20T18:37:07.426311+00:00",
+        "url": "https://www.playstation.com/en-us/games/grand-theft-auto-vi/",
+        "status": "ONLINE",
+        "http_code": 200,
+        "total_time_ms": 107.65,
+        "dns_time_ms": 297.13,
+        "tcp_time_ms": 2.18,
+        "transfer_time_ms": 0,
         "content_ok": true,
         "found_keywords": [
           "Grand Theft Auto",
@@ -41067,6 +41163,38 @@
         },
         "engagement": {},
         "content_hash": "ccf95818b9c41ec17643630d077fb20fdae8d7a481b8f769ec2993518e8d2be0",
+        "intelligence_update": true,
+        "html_size_kb": 369.07,
+        "num_images": 5,
+        "num_links": 154,
+        "num_scripts": 21,
+        "num_stylesheets": 6,
+        "page_title": "Your Privacy Choices Opt-Out Icon",
+        "meta_description": null
+      },
+      {
+        "timestamp": "2026-06-20T18:37:07.874318+00:00",
+        "url": "https://www.xbox.com/en-US/games/store/grand-theft-auto-vi/9NL3WWNZLZZN",
+        "status": "INTELLIGENCE_UPDATE",
+        "http_code": 200,
+        "total_time_ms": 376.94,
+        "dns_time_ms": 4.81,
+        "tcp_time_ms": 2.0,
+        "transfer_time_ms": 370.13,
+        "content_ok": true,
+        "found_keywords": [
+          "Grand Theft Auto",
+          "Xbox"
+        ],
+        "security_headers": {
+          "strict-transport-security": true,
+          "x-content-type-options": true,
+          "content-security-policy": false,
+          "x-frame-options": true,
+          "referrer-policy": false
+        },
+        "engagement": {},
+        "content_hash": "f4897f7bff3f0f606fcefb10a5abb24b473cf26bed874a4eacc7ac3461ed5933",
         "intelligence_update": true,
         "html_size_kb": 369.07,
         "num_images": 5,
