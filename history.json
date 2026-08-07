@@ -16364,6 +16364,7 @@
         "meta_description": "Vice City, USA. Jason and Lucia have always known the deck is stacked against them. But when an easy score goes wrong, they find themselves on the darkest side of the sunniest place in America, in the middle of a criminal conspiracy stretching across the state of Leonida \u2014 forced to rely on each other more than ever if they want to make it out alive."
       },
       {
+<<<<<<< Updated upstream
         "timestamp": "2026-08-07T17:18:19.192425+00:00",
         "url": "https://www.rockstargames.com/VI/",
         "status": "ONLINE",
@@ -16372,6 +16373,16 @@
         "dns_time_ms": 48.52,
         "tcp_time_ms": 3.08,
         "transfer_time_ms": 348.73,
+=======
+        "timestamp": "2026-08-07T18:10:22.907028+00:00",
+        "url": "https://www.rockstargames.com/VI/",
+        "status": "ONLINE",
+        "http_code": 200,
+        "total_time_ms": 160.77,
+        "dns_time_ms": 78.72,
+        "tcp_time_ms": 14.41,
+        "transfer_time_ms": 67.64,
+>>>>>>> Stashed changes
         "content_ok": true,
         "found_keywords": [
           "Grand Theft Auto",
@@ -32367,6 +32378,7 @@
         "meta_description": "The official destination for Rockstar game announcements and updates, trailer launches, screenshot unveilings, events, soundtrack details, community creations and a lot more."
       },
       {
+<<<<<<< Updated upstream
         "timestamp": "2026-08-07T17:18:19.719531+00:00",
         "url": "https://www.rockstargames.com/newswire",
         "status": "ONLINE",
@@ -32375,6 +32387,16 @@
         "dns_time_ms": 0.5,
         "tcp_time_ms": 2.56,
         "transfer_time_ms": 46.91,
+=======
+        "timestamp": "2026-08-07T18:10:23.236405+00:00",
+        "url": "https://www.rockstargames.com/newswire",
+        "status": "ONLINE",
+        "http_code": 200,
+        "total_time_ms": 98.38,
+        "dns_time_ms": 0.38,
+        "tcp_time_ms": 14.39,
+        "transfer_time_ms": 83.61,
+>>>>>>> Stashed changes
         "content_ok": true,
         "found_keywords": [
           "Rockstar",
@@ -48724,6 +48746,7 @@
         "meta_description": "Pre-order Grand Theft Auto VI at PlayStation.com now. Experience the biggest, most immersive evolution of the Grand Theft Auto series yet when GTA VI releases on 19 November 2026. GTA 6 is only playable on PS5 and is not available for PS4."
       },
       {
+<<<<<<< Updated upstream
         "timestamp": "2026-08-07T17:18:19.830225+00:00",
         "url": "https://www.playstation.com/en-us/games/grand-theft-auto-vi/",
         "status": "ONLINE",
@@ -48732,6 +48755,16 @@
         "dns_time_ms": 12.89,
         "tcp_time_ms": 3.04,
         "transfer_time_ms": 115.24,
+=======
+        "timestamp": "2026-08-07T18:10:23.408601+00:00",
+        "url": "https://www.playstation.com/en-us/games/grand-theft-auto-vi/",
+        "status": "INTELLIGENCE_UPDATE",
+        "http_code": 200,
+        "total_time_ms": 272.01,
+        "dns_time_ms": 77.77,
+        "tcp_time_ms": 16.21,
+        "transfer_time_ms": 178.03,
+>>>>>>> Stashed changes
         "content_ok": true,
         "found_keywords": [
           "Grand Theft Auto",
@@ -48746,8 +48779,13 @@
           "referrer-policy": true
         },
         "engagement": {},
+<<<<<<< Updated upstream
         "content_hash": "5073af71eb8276b6cb9860841ef1f5329f3b016ae6e9796024e7da9eab879e38",
         "intelligence_update": false,
+=======
+        "content_hash": "5cae52c7d9004b16ab218702fe9ea3ffdc851007d3cec549e1fc0ce0e4acd566",
+        "intelligence_update": true,
+>>>>>>> Stashed changes
         "html_size_kb": 346.6,
         "num_images": 37,
         "num_links": 90,
@@ -64686,6 +64724,7 @@
         "meta_description": null
       },
       {
+<<<<<<< Updated upstream
         "timestamp": "2026-08-07T17:18:20.039642+00:00",
         "url": "https://www.xbox.com/en-US/games/store/grand-theft-auto-vi/9NL3WWNZLZZN",
         "status": "INTELLIGENCE_UPDATE",
@@ -64694,6 +64733,16 @@
         "dns_time_ms": 7.79,
         "tcp_time_ms": 3.49,
         "transfer_time_ms": 695.6,
+=======
+        "timestamp": "2026-08-07T18:10:23.859119+00:00",
+        "url": "https://www.xbox.com/en-US/games/store/grand-theft-auto-vi/9NL3WWNZLZZN",
+        "status": "INTELLIGENCE_UPDATE",
+        "http_code": 200,
+        "total_time_ms": 593.35,
+        "dns_time_ms": 72.67,
+        "tcp_time_ms": 22.93,
+        "transfer_time_ms": 497.75,
+>>>>>>> Stashed changes
         "content_ok": true,
         "found_keywords": [
           "Grand Theft Auto",
@@ -64707,7 +64756,11 @@
           "referrer-policy": false
         },
         "engagement": {},
+<<<<<<< Updated upstream
         "content_hash": "97ca8f46fda11d57f8daa8daf9be0108eacbad94f715498e757ad5236ddba36e",
+=======
+        "content_hash": "5a48a88426223e0a8cac91c66fbe900e629d1bcd7e9d82cc47b75aa891a135ae",
+>>>>>>> Stashed changes
         "intelligence_update": true,
         "html_size_kb": 446.08,
         "num_images": 14,
