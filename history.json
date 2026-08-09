@@ -2,6 +2,7 @@
   "services": {
     "gta_vi_official": [
       {
+<<<<<<< Updated upstream
         "timestamp": "2026-08-09T11:04:42.018372+00:00",
         "url": "https://www.rockstargames.com/VI/",
         "status": "ONLINE",
@@ -10,6 +11,16 @@
         "dns_time_ms": 7.67,
         "tcp_time_ms": 1.78,
         "transfer_time_ms": 189.72,
+=======
+        "timestamp": "2026-08-09T11:57:07.378130+00:00",
+        "url": "https://www.rockstargames.com/VI/",
+        "status": "ONLINE",
+        "http_code": 200,
+        "total_time_ms": 129.7,
+        "dns_time_ms": 45.57,
+        "tcp_time_ms": 6.48,
+        "transfer_time_ms": 77.65,
+>>>>>>> Stashed changes
         "content_ok": true,
         "found_keywords": [
           "Grand Theft Auto",
@@ -37,6 +48,7 @@
     ],
     "rockstar_newswire": [
       {
+<<<<<<< Updated upstream
         "timestamp": "2026-08-09T11:04:42.244747+00:00",
         "url": "https://www.rockstargames.com/newswire",
         "status": "ONLINE",
@@ -45,6 +57,16 @@
         "dns_time_ms": 0.36,
         "tcp_time_ms": 2.24,
         "transfer_time_ms": 36.92,
+=======
+        "timestamp": "2026-08-09T11:57:07.579723+00:00",
+        "url": "https://www.rockstargames.com/newswire",
+        "status": "ONLINE",
+        "http_code": 200,
+        "total_time_ms": 54.01,
+        "dns_time_ms": 0.51,
+        "tcp_time_ms": 6.43,
+        "transfer_time_ms": 47.07,
+>>>>>>> Stashed changes
         "content_ok": true,
         "found_keywords": [
           "Rockstar",
@@ -71,6 +93,7 @@
     ],
     "playstation_store": [
       {
+<<<<<<< Updated upstream
         "timestamp": "2026-08-09T11:04:42.287792+00:00",
         "url": "https://www.playstation.com/en-us/games/grand-theft-auto-vi/",
         "status": "ONLINE",
@@ -79,6 +102,16 @@
         "dns_time_ms": 72.61,
         "tcp_time_ms": 1.86,
         "transfer_time_ms": 4.57,
+=======
+        "timestamp": "2026-08-09T11:57:07.642212+00:00",
+        "url": "https://www.playstation.com/en-us/games/grand-theft-auto-vi/",
+        "status": "ONLINE",
+        "http_code": 200,
+        "total_time_ms": 249.48,
+        "dns_time_ms": 83.65,
+        "tcp_time_ms": 6.68,
+        "transfer_time_ms": 159.15,
+>>>>>>> Stashed changes
         "content_ok": true,
         "found_keywords": [
           "Grand Theft Auto",
@@ -93,7 +126,11 @@
           "referrer-policy": true
         },
         "engagement": {},
+<<<<<<< Updated upstream
         "content_hash": "649dc23564d241e70f3842528fb9c496dd854fb90d129054c1b2c49cffbaf80e",
+=======
+        "content_hash": "17fc067209f0ed330592aa17e11aaacb06d1ce7ee5e5898877cb1e4f917e6db1",
+>>>>>>> Stashed changes
         "intelligence_update": false,
         "html_size_kb": 346.6,
         "num_images": 37,
@@ -106,6 +143,7 @@
     ],
     "xbox_store": [
       {
+<<<<<<< Updated upstream
         "timestamp": "2026-08-09T11:04:42.446614+00:00",
         "url": "https://www.xbox.com/en-US/games/store/grand-theft-auto-vi/9NL3WWNZLZZN",
         "status": "ONLINE",
@@ -114,6 +152,16 @@
         "dns_time_ms": 17.59,
         "tcp_time_ms": 2.17,
         "transfer_time_ms": 247.15,
+=======
+        "timestamp": "2026-08-09T11:57:07.988435+00:00",
+        "url": "https://www.xbox.com/en-US/games/store/grand-theft-auto-vi/9NL3WWNZLZZN",
+        "status": "ONLINE",
+        "http_code": 200,
+        "total_time_ms": 738.23,
+        "dns_time_ms": 189.04,
+        "tcp_time_ms": 6.39,
+        "transfer_time_ms": 542.8,
+>>>>>>> Stashed changes
         "content_ok": true,
         "found_keywords": [
           "Grand Theft Auto",
@@ -127,9 +175,15 @@
           "referrer-policy": false
         },
         "engagement": {},
+<<<<<<< Updated upstream
         "content_hash": "875b8092d6c0fc7094edd6f1edb79adf672b385dae0bd50d5df2fbe29f2d71d2",
         "intelligence_update": false,
         "html_size_kb": 445.96,
+=======
+        "content_hash": "d4084020a730dcd491ad30d05ec7af5080cc897e39d3df5f81571b21f1d43c98",
+        "intelligence_update": false,
+        "html_size_kb": 445.95,
+>>>>>>> Stashed changes
         "num_images": 14,
         "num_links": 159,
         "num_scripts": 21,
@@ -139,6 +193,10 @@
       }
     ]
   },
+<<<<<<< Updated upstream
   "created_at": "2026-08-09T11:04:42.018355+00:00",
+=======
+  "created_at": "2026-08-09T11:57:07.378112+00:00",
+>>>>>>> Stashed changes
   "page_size_history": []
 }
