@@ -6,15 +6,15 @@
       "sla_7d": 100.0,
       "sla_30d": 100.0,
       "performance": {
-        "avg_latency": 226.8,
-        "avg_dns_time": 71.0,
-        "avg_tcp_time": 6.85,
-        "avg_transfer_time": 148.96,
+        "avg_latency": 194.69,
+        "avg_dns_time": 59.52,
+        "avg_tcp_time": 6.02,
+        "avg_transfer_time": 129.15,
         "peak_hour": "08:58",
         "slowest_response": 276.23,
-        "fastest_response": 83.36
+        "fastest_response": 66.27
       },
-      "last_check": "2026-08-18T09:58:02.343471+00:00",
+      "last_check": "2026-08-18T10:58:44.537303+00:00",
       "engagement": {},
       "html_size_kb": 941.7,
       "num_images": 29,
@@ -29,15 +29,15 @@
       "sla_7d": 100.0,
       "sla_30d": 100.0,
       "performance": {
-        "avg_latency": 78.64,
-        "avg_dns_time": 0.44,
-        "avg_tcp_time": 6.16,
-        "avg_transfer_time": 72.05,
+        "avg_latency": 71.06,
+        "avg_dns_time": 0.43,
+        "avg_tcp_time": 5.46,
+        "avg_transfer_time": 65.17,
         "peak_hour": "07:07",
         "slowest_response": 147.14,
-        "fastest_response": 55.16
+        "fastest_response": 40.73
       },
-      "last_check": "2026-08-18T09:58:02.502667+00:00",
+      "last_check": "2026-08-18T10:58:44.639882+00:00",
       "engagement": {},
       "html_size_kb": 4.03,
       "num_images": 0,
@@ -47,20 +47,20 @@
       "meta_description": "The official destination for Rockstar game announcements and updates, trailer launches, screenshot unveilings, events, soundtrack details, community creations and a lot more."
     },
     "playstation_store": {
-      "current_status": "INTELLIGENCE_UPDATE",
+      "current_status": "ONLINE",
       "sla_24h": 100.0,
       "sla_7d": 100.0,
       "sla_30d": 100.0,
       "performance": {
-        "avg_latency": 521.01,
-        "avg_dns_time": 59.71,
-        "avg_tcp_time": 9.68,
-        "avg_transfer_time": 451.62,
+        "avg_latency": 512.76,
+        "avg_dns_time": 48.54,
+        "avg_tcp_time": 8.21,
+        "avg_transfer_time": 456.01,
         "peak_hour": "08:58",
         "slowest_response": 1113.22,
         "fastest_response": 183.91
       },
-      "last_check": "2026-08-18T09:58:02.566409+00:00",
+      "last_check": "2026-08-18T10:58:44.685128+00:00",
       "engagement": {},
       "html_size_kb": 347.28,
       "num_images": 37,
@@ -75,15 +75,15 @@
       "sla_7d": 100.0,
       "sla_30d": 100.0,
       "performance": {
-        "avg_latency": 423.99,
-        "avg_dns_time": 58.5,
-        "avg_tcp_time": 11.29,
-        "avg_transfer_time": 354.19,
+        "avg_latency": 401.56,
+        "avg_dns_time": 47.73,
+        "avg_tcp_time": 9.53,
+        "avg_transfer_time": 344.31,
         "peak_hour": "09:58",
         "slowest_response": 446.68,
-        "fastest_response": 384.42
+        "fastest_response": 311.88
       },
-      "last_check": "2026-08-18T09:58:02.801009+00:00",
+      "last_check": "2026-08-18T10:58:45.177300+00:00",
       "engagement": {},
       "html_size_kb": 445.78,
       "num_images": 14,
@@ -233,6 +233,39 @@
         "num_stylesheets": 43,
         "page_title": "Grand Theft Auto VI - Rockstar Games",
         "meta_description": "Vice City, USA. Jason and Lucia have always known the deck is stacked against them. But when an easy score goes wrong, they find themselves on the darkest side of the sunniest place in America, in the middle of a criminal conspiracy stretching across the state of Leonida — forced to rely on each other more than ever if they want to make it out alive."
+      },
+      {
+        "timestamp": "2026-08-18T10:58:44.537303+00:00",
+        "url": "https://www.rockstargames.com/VI/",
+        "status": "ONLINE",
+        "http_code": 200,
+        "total_time_ms": 66.27,
+        "dns_time_ms": 13.64,
+        "tcp_time_ms": 2.71,
+        "transfer_time_ms": 49.92,
+        "content_ok": true,
+        "found_keywords": [
+          "Grand Theft Auto",
+          "GTA VI",
+          "Rockstar"
+        ],
+        "security_headers": {
+          "strict-transport-security": true,
+          "x-content-type-options": false,
+          "content-security-policy": false,
+          "x-frame-options": false,
+          "referrer-policy": false
+        },
+        "engagement": {},
+        "content_hash": "2ce838f7c0327a6a71775e7b7cf91a8fd5a43bf16f73b2cf62e155ac4f1d7e98",
+        "intelligence_update": false,
+        "html_size_kb": 941.7,
+        "num_images": 29,
+        "num_links": 25,
+        "num_scripts": 285,
+        "num_stylesheets": 43,
+        "page_title": "Grand Theft Auto VI - Rockstar Games",
+        "meta_description": "Vice City, USA. Jason and Lucia have always known the deck is stacked against them. But when an easy score goes wrong, they find themselves on the darkest side of the sunniest place in America, in the middle of a criminal conspiracy stretching across the state of Leonida — forced to rely on each other more than ever if they want to make it out alive."
       }
     ],
     "rockstar_newswire": [
@@ -341,6 +374,38 @@
         "dns_time_ms": 0.44,
         "tcp_time_ms": 6.34,
         "transfer_time_ms": 48.52,
+        "content_ok": true,
+        "found_keywords": [
+          "Rockstar",
+          "News"
+        ],
+        "security_headers": {
+          "strict-transport-security": true,
+          "x-content-type-options": false,
+          "content-security-policy": false,
+          "x-frame-options": false,
+          "referrer-policy": true
+        },
+        "engagement": {},
+        "content_hash": "45447cc57f62bf88cefa4eed57c0415fa1c4a4c54921eed238e1ee6fb361928a",
+        "intelligence_update": false,
+        "html_size_kb": 4.03,
+        "num_images": 0,
+        "num_links": 0,
+        "num_scripts": 4,
+        "num_stylesheets": 0,
+        "page_title": "Newswire - Rockstar Games",
+        "meta_description": "The official destination for Rockstar game announcements and updates, trailer launches, screenshot unveilings, events, soundtrack details, community creations and a lot more."
+      },
+      {
+        "timestamp": "2026-08-18T10:58:44.639882+00:00",
+        "url": "https://www.rockstargames.com/newswire",
+        "status": "ONLINE",
+        "http_code": 200,
+        "total_time_ms": 40.73,
+        "dns_time_ms": 0.41,
+        "tcp_time_ms": 2.66,
+        "transfer_time_ms": 37.66,
         "content_ok": true,
         "found_keywords": [
           "Rockstar",
@@ -497,6 +562,39 @@
         "num_stylesheets": 6,
         "page_title": "Grand Theft Auto VI - PS5 Games | PlayStation (US)",
         "meta_description": "Pre-order Grand Theft Auto VI at PlayStation.com now. Experience the biggest, most immersive evolution of the Grand Theft Auto series yet when GTA VI releases on 19 November 2026. GTA 6 is only playable on PS5 and is not available for PS4."
+      },
+      {
+        "timestamp": "2026-08-18T10:58:44.685128+00:00",
+        "url": "https://www.playstation.com/en-us/games/grand-theft-auto-vi/",
+        "status": "ONLINE",
+        "http_code": 200,
+        "total_time_ms": 479.76,
+        "dns_time_ms": 3.85,
+        "tcp_time_ms": 2.34,
+        "transfer_time_ms": 473.57,
+        "content_ok": true,
+        "found_keywords": [
+          "Grand Theft Auto",
+          "GTA VI",
+          "PlayStation"
+        ],
+        "security_headers": {
+          "strict-transport-security": true,
+          "x-content-type-options": true,
+          "content-security-policy": false,
+          "x-frame-options": true,
+          "referrer-policy": true
+        },
+        "engagement": {},
+        "content_hash": "96cce59687a74e7dd1dc7b6d46d40c15169a8e7f02b6700aad418ac7b9216419",
+        "intelligence_update": false,
+        "html_size_kb": 347.28,
+        "num_images": 37,
+        "num_links": 90,
+        "num_scripts": 39,
+        "num_stylesheets": 6,
+        "page_title": "Grand Theft Auto VI - PS5 Games | PlayStation (US)",
+        "meta_description": "Pre-order Grand Theft Auto VI at PlayStation.com now. Experience the biggest, most immersive evolution of the Grand Theft Auto series yet when GTA VI releases on 19 November 2026. GTA 6 is only playable on PS5 and is not available for PS4."
       }
     ],
     "xbox_store": [
@@ -627,13 +725,45 @@
         "num_stylesheets": 6,
         "page_title": "Your Privacy Choices Opt-Out Icon",
         "meta_description": null
+      },
+      {
+        "timestamp": "2026-08-18T10:58:45.177300+00:00",
+        "url": "https://www.xbox.com/en-US/games/store/grand-theft-auto-vi/9NL3WWNZLZZN",
+        "status": "INTELLIGENCE_UPDATE",
+        "http_code": 200,
+        "total_time_ms": 311.88,
+        "dns_time_ms": 4.65,
+        "tcp_time_ms": 2.47,
+        "transfer_time_ms": 304.76,
+        "content_ok": true,
+        "found_keywords": [
+          "Grand Theft Auto",
+          "Xbox"
+        ],
+        "security_headers": {
+          "strict-transport-security": true,
+          "x-content-type-options": true,
+          "content-security-policy": false,
+          "x-frame-options": true,
+          "referrer-policy": false
+        },
+        "engagement": {},
+        "content_hash": "3a05b04b8e4fc5d78d6f680c50ecfffe58315533983302cae8b9de1434a969c2",
+        "intelligence_update": true,
+        "html_size_kb": 445.78,
+        "num_images": 14,
+        "num_links": 159,
+        "num_scripts": 21,
+        "num_stylesheets": 6,
+        "page_title": "Your Privacy Choices Opt-Out Icon",
+        "meta_description": null
       }
     ]
   },
   "page_size_history": [],
-  "generated_at": "2026-08-18T09:58:03.300832+00:00",
+  "generated_at": "2026-08-18T10:58:45.506666+00:00",
   "summary": {
-    "run_duration_seconds": 0.96,
+    "run_duration_seconds": 0.97,
     "incidents_last_24h": {
       "gta_vi_official": 0,
       "rockstar_newswire": 0,
@@ -641,10 +771,10 @@
       "xbox_store": 0
     },
     "avg_latency_last_24h": {
-      "gta_vi_official": 226,
-      "rockstar_newswire": 78,
-      "playstation_store": 521,
-      "xbox_store": 423
+      "gta_vi_official": 194,
+      "rockstar_newswire": 71,
+      "playstation_store": 512,
+      "xbox_store": 401
     },
     "intelligence_updates": [
       {
@@ -654,8 +784,8 @@
       },
       {
         "service": "xbox_store",
-        "count": 3,
-        "latest": "2026-08-18T09:58:02.801009+00:00"
+        "count": 4,
+        "latest": "2026-08-18T10:58:45.177300+00:00"
       }
     ]
   }
