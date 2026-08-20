@@ -2,6 +2,7 @@
   "services": {
     "gta_vi_official": [
       {
+<<<<<<< Updated upstream
         "timestamp": "2026-08-20T10:55:36.771596+00:00",
         "url": "https://www.rockstargames.com/VI/",
         "status": "ONLINE",
@@ -10,6 +11,16 @@
         "dns_time_ms": 71.83,
         "tcp_time_ms": 1.65,
         "transfer_time_ms": 0,
+=======
+        "timestamp": "2026-08-20T11:55:34.509290+00:00",
+        "url": "https://www.rockstargames.com/VI/",
+        "status": "ONLINE",
+        "http_code": 200,
+        "total_time_ms": 482.57,
+        "dns_time_ms": 39.6,
+        "tcp_time_ms": 3.02,
+        "transfer_time_ms": 439.95,
+>>>>>>> Stashed changes
         "content_ok": true,
         "found_keywords": [
           "Grand Theft Auto",
@@ -37,6 +48,7 @@
     ],
     "rockstar_newswire": [
       {
+<<<<<<< Updated upstream
         "timestamp": "2026-08-20T10:55:36.924300+00:00",
         "url": "https://www.rockstargames.com/newswire",
         "status": "ONLINE",
@@ -45,6 +57,16 @@
         "dns_time_ms": 0.4,
         "tcp_time_ms": 1.94,
         "transfer_time_ms": 38.07,
+=======
+        "timestamp": "2026-08-20T11:55:35.054671+00:00",
+        "url": "https://www.rockstargames.com/newswire",
+        "status": "ONLINE",
+        "http_code": 200,
+        "total_time_ms": 44.92,
+        "dns_time_ms": 0.33,
+        "tcp_time_ms": 2.73,
+        "transfer_time_ms": 41.86,
+>>>>>>> Stashed changes
         "content_ok": true,
         "found_keywords": [
           "Rockstar",
@@ -71,6 +93,7 @@
     ],
     "playstation_store": [
       {
+<<<<<<< Updated upstream
         "timestamp": "2026-08-20T10:55:36.968120+00:00",
         "url": "https://www.playstation.com/en-us/games/grand-theft-auto-vi/",
         "status": "ONLINE",
@@ -79,6 +102,16 @@
         "dns_time_ms": 33.96,
         "tcp_time_ms": 2.14,
         "transfer_time_ms": 161.24,
+=======
+        "timestamp": "2026-08-20T11:55:35.103892+00:00",
+        "url": "https://www.playstation.com/en-us/games/grand-theft-auto-vi/",
+        "status": "ONLINE",
+        "http_code": 200,
+        "total_time_ms": 360.56,
+        "dns_time_ms": 110.78,
+        "tcp_time_ms": 3.15,
+        "transfer_time_ms": 246.63,
+>>>>>>> Stashed changes
         "content_ok": true,
         "found_keywords": [
           "Grand Theft Auto",
@@ -93,12 +126,21 @@
           "referrer-policy": true
         },
         "engagement": {},
+<<<<<<< Updated upstream
         "content_hash": "2f4800c5c3cd4945dd022c8c4bae856e9204acc00955d32631e92d25c97eeb2d",
         "intelligence_update": false,
         "html_size_kb": 347.53,
         "num_images": 37,
         "num_links": 90,
         "num_scripts": 40,
+=======
+        "content_hash": "b0e4f60a9c632979898490b8a98da6564bdd4495b294c612fe1948fb78cceb35",
+        "intelligence_update": false,
+        "html_size_kb": 347.29,
+        "num_images": 37,
+        "num_links": 90,
+        "num_scripts": 39,
+>>>>>>> Stashed changes
         "num_stylesheets": 6,
         "page_title": "Grand Theft Auto VI - PS5 Games | PlayStation (US)",
         "meta_description": "Pre-order Grand Theft Auto VI at PlayStation.com now. Experience the biggest, most immersive evolution of the Grand Theft Auto series yet when GTA VI releases on 19 November 2026. GTA 6 is only playable on PS5 and is not available for PS4."
@@ -106,6 +148,7 @@
     ],
     "xbox_store": [
       {
+<<<<<<< Updated upstream
         "timestamp": "2026-08-20T10:55:37.207625+00:00",
         "url": "https://www.xbox.com/en-US/games/store/grand-theft-auto-vi/9NL3WWNZLZZN",
         "status": "ONLINE",
@@ -114,6 +157,16 @@
         "dns_time_ms": 16.75,
         "tcp_time_ms": 2.19,
         "transfer_time_ms": 374.57,
+=======
+        "timestamp": "2026-08-20T11:55:35.584538+00:00",
+        "url": "https://www.xbox.com/en-US/games/store/grand-theft-auto-vi/9NL3WWNZLZZN",
+        "status": "ONLINE",
+        "http_code": 200,
+        "total_time_ms": 391.34,
+        "dns_time_ms": 5.32,
+        "tcp_time_ms": 3.15,
+        "transfer_time_ms": 382.87,
+>>>>>>> Stashed changes
         "content_ok": true,
         "found_keywords": [
           "Grand Theft Auto",
@@ -127,7 +180,11 @@
           "referrer-policy": false
         },
         "engagement": {},
+<<<<<<< Updated upstream
         "content_hash": "48abff2b4e7be87cceb4bb93a3b964be5517413c29e569ccdc73a88f5718c891",
+=======
+        "content_hash": "34197f23b079042a5b324273d212f91e184374d80437e0728572be805fcdb801",
+>>>>>>> Stashed changes
         "intelligence_update": false,
         "html_size_kb": 446.52,
         "num_images": 14,
@@ -139,6 +196,10 @@
       }
     ]
   },
+<<<<<<< Updated upstream
   "created_at": "2026-08-20T10:55:36.771579+00:00",
+=======
+  "created_at": "2026-08-20T11:55:34.509273+00:00",
+>>>>>>> Stashed changes
   "page_size_history": []
 }
