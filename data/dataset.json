@@ -6,6 +6,7 @@
       "sla_7d": 100.0,
       "sla_30d": 100.0,
       "performance": {
+<<<<<<< Updated upstream
         "avg_latency": 232.12,
         "avg_dns_time": 46.32,
         "avg_tcp_time": 2.07,
@@ -15,6 +16,17 @@
         "fastest_response": 232.12
       },
       "last_check": "2026-08-21T07:16:41.938986+00:00",
+=======
+        "avg_latency": 545.82,
+        "avg_dns_time": 69.91,
+        "avg_tcp_time": 1.91,
+        "avg_transfer_time": 474.0,
+        "peak_hour": "08:15",
+        "slowest_response": 545.82,
+        "fastest_response": 545.82
+      },
+      "last_check": "2026-08-21T08:15:19.956063+00:00",
+>>>>>>> Stashed changes
       "engagement": {},
       "html_size_kb": 941.7,
       "num_images": 29,
@@ -29,6 +41,7 @@
       "sla_7d": 100.0,
       "sla_30d": 100.0,
       "performance": {
+<<<<<<< Updated upstream
         "avg_latency": 42.46,
         "avg_dns_time": 0.41,
         "avg_tcp_time": 2.07,
@@ -38,6 +51,17 @@
         "fastest_response": 42.46
       },
       "last_check": "2026-08-21T07:16:42.238831+00:00",
+=======
+        "avg_latency": 42.01,
+        "avg_dns_time": 0.45,
+        "avg_tcp_time": 2.04,
+        "avg_transfer_time": 39.52,
+        "peak_hour": "08:15",
+        "slowest_response": 42.01,
+        "fastest_response": 42.01
+      },
+      "last_check": "2026-08-21T08:15:20.593614+00:00",
+>>>>>>> Stashed changes
       "engagement": {},
       "html_size_kb": 4.03,
       "num_images": 0,
@@ -52,6 +76,7 @@
       "sla_7d": 100.0,
       "sla_30d": 100.0,
       "performance": {
+<<<<<<< Updated upstream
         "avg_latency": 155.98,
         "avg_dns_time": 15.86,
         "avg_tcp_time": 1.85,
@@ -61,6 +86,17 @@
         "fastest_response": 155.98
       },
       "last_check": "2026-08-21T07:16:42.285145+00:00",
+=======
+        "avg_latency": 97.91,
+        "avg_dns_time": 13.45,
+        "avg_tcp_time": 1.9,
+        "avg_transfer_time": 82.56,
+        "peak_hour": "08:15",
+        "slowest_response": 97.91,
+        "fastest_response": 97.91
+      },
+      "last_check": "2026-08-21T08:15:20.639613+00:00",
+>>>>>>> Stashed changes
       "engagement": {},
       "html_size_kb": 347.28,
       "num_images": 37,
@@ -75,6 +111,7 @@
       "sla_7d": 100.0,
       "sla_30d": 100.0,
       "performance": {
+<<<<<<< Updated upstream
         "avg_latency": 371.2,
         "avg_dns_time": 3.64,
         "avg_tcp_time": 1.77,
@@ -84,6 +121,17 @@
         "fastest_response": 371.2
       },
       "last_check": "2026-08-21T07:16:42.465372+00:00",
+=======
+        "avg_latency": 340.12,
+        "avg_dns_time": 10.55,
+        "avg_tcp_time": 2.07,
+        "avg_transfer_time": 327.5,
+        "peak_hour": "08:15",
+        "slowest_response": 340.12,
+        "fastest_response": 340.12
+      },
+      "last_check": "2026-08-21T08:15:20.758916+00:00",
+>>>>>>> Stashed changes
       "engagement": {},
       "html_size_kb": 446.52,
       "num_images": 14,
@@ -103,6 +151,7 @@
   "history": {
     "gta_vi_official": [
       {
+<<<<<<< Updated upstream
         "timestamp": "2026-08-21T07:16:41.938986+00:00",
         "url": "https://www.rockstargames.com/VI/",
         "status": "ONLINE",
@@ -111,6 +160,16 @@
         "dns_time_ms": 46.32,
         "tcp_time_ms": 2.07,
         "transfer_time_ms": 183.73,
+=======
+        "timestamp": "2026-08-21T08:15:19.956063+00:00",
+        "url": "https://www.rockstargames.com/VI/",
+        "status": "ONLINE",
+        "http_code": 200,
+        "total_time_ms": 545.82,
+        "dns_time_ms": 69.91,
+        "tcp_time_ms": 1.91,
+        "transfer_time_ms": 474.0,
+>>>>>>> Stashed changes
         "content_ok": true,
         "found_keywords": [
           "Grand Theft Auto",
@@ -138,6 +197,7 @@
     ],
     "rockstar_newswire": [
       {
+<<<<<<< Updated upstream
         "timestamp": "2026-08-21T07:16:42.238831+00:00",
         "url": "https://www.rockstargames.com/newswire",
         "status": "ONLINE",
@@ -146,6 +206,16 @@
         "dns_time_ms": 0.41,
         "tcp_time_ms": 2.07,
         "transfer_time_ms": 39.98,
+=======
+        "timestamp": "2026-08-21T08:15:20.593614+00:00",
+        "url": "https://www.rockstargames.com/newswire",
+        "status": "ONLINE",
+        "http_code": 200,
+        "total_time_ms": 42.01,
+        "dns_time_ms": 0.45,
+        "tcp_time_ms": 2.04,
+        "transfer_time_ms": 39.52,
+>>>>>>> Stashed changes
         "content_ok": true,
         "found_keywords": [
           "Rockstar",
@@ -172,6 +242,7 @@
     ],
     "playstation_store": [
       {
+<<<<<<< Updated upstream
         "timestamp": "2026-08-21T07:16:42.285145+00:00",
         "url": "https://www.playstation.com/en-us/games/grand-theft-auto-vi/",
         "status": "ONLINE",
@@ -180,6 +251,16 @@
         "dns_time_ms": 15.86,
         "tcp_time_ms": 1.85,
         "transfer_time_ms": 138.27,
+=======
+        "timestamp": "2026-08-21T08:15:20.639613+00:00",
+        "url": "https://www.playstation.com/en-us/games/grand-theft-auto-vi/",
+        "status": "ONLINE",
+        "http_code": 200,
+        "total_time_ms": 97.91,
+        "dns_time_ms": 13.45,
+        "tcp_time_ms": 1.9,
+        "transfer_time_ms": 82.56,
+>>>>>>> Stashed changes
         "content_ok": true,
         "found_keywords": [
           "Grand Theft Auto",
@@ -207,6 +288,7 @@
     ],
     "xbox_store": [
       {
+<<<<<<< Updated upstream
         "timestamp": "2026-08-21T07:16:42.465372+00:00",
         "url": "https://www.xbox.com/en-US/games/store/grand-theft-auto-vi/9NL3WWNZLZZN",
         "status": "ONLINE",
@@ -215,6 +297,16 @@
         "dns_time_ms": 3.64,
         "tcp_time_ms": 1.77,
         "transfer_time_ms": 365.79,
+=======
+        "timestamp": "2026-08-21T08:15:20.758916+00:00",
+        "url": "https://www.xbox.com/en-US/games/store/grand-theft-auto-vi/9NL3WWNZLZZN",
+        "status": "ONLINE",
+        "http_code": 200,
+        "total_time_ms": 340.12,
+        "dns_time_ms": 10.55,
+        "tcp_time_ms": 2.07,
+        "transfer_time_ms": 327.5,
+>>>>>>> Stashed changes
         "content_ok": true,
         "found_keywords": [
           "Grand Theft Auto",
@@ -228,7 +320,11 @@
           "referrer-policy": false
         },
         "engagement": {},
+<<<<<<< Updated upstream
         "content_hash": "9aeea66d0415b352e4b9e0639039f6dc44c5e346901c54443fd918c0a7e3d02d",
+=======
+        "content_hash": "1337c8a8d0cb9c14459fd409de8a55deda3495f33a21259c2a3961fbe413eb74",
+>>>>>>> Stashed changes
         "intelligence_update": false,
         "html_size_kb": 446.52,
         "num_images": 14,
@@ -241,9 +337,15 @@
     ]
   },
   "page_size_history": [],
+<<<<<<< Updated upstream
   "generated_at": "2026-08-21T07:16:42.850640+00:00",
   "summary": {
     "run_duration_seconds": 0.91,
+=======
+  "generated_at": "2026-08-21T08:15:21.119884+00:00",
+  "summary": {
+    "run_duration_seconds": 1.16,
+>>>>>>> Stashed changes
     "incidents_last_24h": {
       "gta_vi_official": 0,
       "rockstar_newswire": 0,
@@ -251,10 +353,17 @@
       "xbox_store": 0
     },
     "avg_latency_last_24h": {
+<<<<<<< Updated upstream
       "gta_vi_official": 232,
       "rockstar_newswire": 42,
       "playstation_store": 155,
       "xbox_store": 371
+=======
+      "gta_vi_official": 545,
+      "rockstar_newswire": 42,
+      "playstation_store": 97,
+      "xbox_store": 340
+>>>>>>> Stashed changes
     },
     "intelligence_updates": []
   }
