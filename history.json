@@ -332,6 +332,7 @@
         "meta_description": "Vice City, USA. Jason and Lucia have always known the deck is stacked against them. But when an easy score goes wrong, they find themselves on the darkest side of the sunniest place in America, in the middle of a criminal conspiracy stretching across the state of Leonida \u2014 forced to rely on each other more than ever if they want to make it out alive."
       },
       {
+<<<<<<< Updated upstream
         "timestamp": "2026-08-24T10:09:44.943714+00:00",
         "url": "https://www.rockstargames.com/VI/",
         "status": "ONLINE",
@@ -340,6 +341,16 @@
         "dns_time_ms": 125.6,
         "tcp_time_ms": 2.68,
         "transfer_time_ms": 26.39,
+=======
+        "timestamp": "2026-08-24T10:58:03.041861+00:00",
+        "url": "https://www.rockstargames.com/VI/",
+        "status": "ONLINE",
+        "http_code": 200,
+        "total_time_ms": 569.49,
+        "dns_time_ms": 49.01,
+        "tcp_time_ms": 2.59,
+        "transfer_time_ms": 517.89,
+>>>>>>> Stashed changes
         "content_ok": true,
         "found_keywords": [
           "Grand Theft Auto",
@@ -687,6 +698,7 @@
         "meta_description": "The official destination for Rockstar game announcements and updates, trailer launches, screenshot unveilings, events, soundtrack details, community creations and a lot more."
       },
       {
+<<<<<<< Updated upstream
         "timestamp": "2026-08-24T10:09:45.247899+00:00",
         "url": "https://www.rockstargames.com/newswire",
         "status": "INTELLIGENCE_UPDATE",
@@ -695,6 +707,16 @@
         "dns_time_ms": 0.45,
         "tcp_time_ms": 9.41,
         "transfer_time_ms": 38.87,
+=======
+        "timestamp": "2026-08-24T10:58:03.684167+00:00",
+        "url": "https://www.rockstargames.com/newswire",
+        "status": "INTELLIGENCE_UPDATE",
+        "http_code": 200,
+        "total_time_ms": 53.1,
+        "dns_time_ms": 0.39,
+        "tcp_time_ms": 3.58,
+        "transfer_time_ms": 49.13,
+>>>>>>> Stashed changes
         "content_ok": true,
         "found_keywords": [
           "Rockstar",
@@ -1051,6 +1073,7 @@
         "meta_description": "Pre-order Grand Theft Auto VI at PlayStation.com now. Experience the biggest, most immersive evolution of the Grand Theft Auto series yet when GTA VI releases on 19 November 2026. GTA 6 is only playable on PS5 and is not available for PS4."
       },
       {
+<<<<<<< Updated upstream
         "timestamp": "2026-08-24T10:09:45.310923+00:00",
         "url": "https://www.playstation.com/en-us/games/grand-theft-auto-vi/",
         "status": "INTELLIGENCE_UPDATE",
@@ -1059,6 +1082,16 @@
         "dns_time_ms": 57.93,
         "tcp_time_ms": 2.71,
         "transfer_time_ms": 448.85,
+=======
+        "timestamp": "2026-08-24T10:58:03.745340+00:00",
+        "url": "https://www.playstation.com/en-us/games/grand-theft-auto-vi/",
+        "status": "INTELLIGENCE_UPDATE",
+        "http_code": 200,
+        "total_time_ms": 406.72,
+        "dns_time_ms": 142.73,
+        "tcp_time_ms": 2.57,
+        "transfer_time_ms": 261.42,
+>>>>>>> Stashed changes
         "content_ok": true,
         "found_keywords": [
           "Grand Theft Auto",
@@ -1406,6 +1439,7 @@
         "meta_description": null
       },
       {
+<<<<<<< Updated upstream
         "timestamp": "2026-08-24T10:09:45.889859+00:00",
         "url": "https://www.xbox.com/en-US/games/store/grand-theft-auto-vi/9NL3WWNZLZZN",
         "status": "INTELLIGENCE_UPDATE",
@@ -1414,6 +1448,16 @@
         "dns_time_ms": 17.68,
         "tcp_time_ms": 8.16,
         "transfer_time_ms": 1329.1,
+=======
+        "timestamp": "2026-08-24T10:58:04.306062+00:00",
+        "url": "https://www.xbox.com/en-US/games/store/grand-theft-auto-vi/9NL3WWNZLZZN",
+        "status": "INTELLIGENCE_UPDATE",
+        "http_code": 200,
+        "total_time_ms": 409.4,
+        "dns_time_ms": 12.15,
+        "tcp_time_ms": 3.16,
+        "transfer_time_ms": 394.09,
+>>>>>>> Stashed changes
         "content_ok": true,
         "found_keywords": [
           "Grand Theft Auto",
@@ -1427,7 +1471,11 @@
           "referrer-policy": false
         },
         "engagement": {},
+<<<<<<< Updated upstream
         "content_hash": "43f5403dd31631b89d194c1c7d6a31e4b8167b02a34fc4868868bcaf1b14a9ea",
+=======
+        "content_hash": "56279a6b66c0026c42f99d6bd3fa4395f89f449168bb432a9e09a5d048cdc8ed",
+>>>>>>> Stashed changes
         "intelligence_update": true,
         "html_size_kb": 446.52,
         "num_images": 14,
