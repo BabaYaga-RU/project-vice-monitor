@@ -4818,6 +4818,39 @@
         "num_stylesheets": 43,
         "page_title": "Grand Theft Auto VI - Rockstar Games",
         "meta_description": "Vice City, USA. Jason and Lucia have always known the deck is stacked against them. But when an easy score goes wrong, they find themselves on the darkest side of the sunniest place in America, in the middle of a criminal conspiracy stretching across the state of Leonida \u2014 forced to rely on each other more than ever if they want to make it out alive."
+      },
+      {
+        "timestamp": "2026-09-28T05:22:33.610103+00:00",
+        "url": "https://www.rockstargames.com/VI/",
+        "status": "ONLINE",
+        "http_code": 200,
+        "total_time_ms": 65.15,
+        "dns_time_ms": 106.72,
+        "tcp_time_ms": 2.62,
+        "transfer_time_ms": 0,
+        "content_ok": true,
+        "found_keywords": [
+          "Grand Theft Auto",
+          "GTA VI",
+          "Rockstar"
+        ],
+        "security_headers": {
+          "strict-transport-security": true,
+          "x-content-type-options": false,
+          "content-security-policy": false,
+          "x-frame-options": false,
+          "referrer-policy": false
+        },
+        "engagement": {},
+        "content_hash": "a21fc0556e0030a471bab4f3cc22c93da1bcdac8f121e854e18676b4dda4969a",
+        "intelligence_update": false,
+        "html_size_kb": 1061.62,
+        "num_images": 31,
+        "num_links": 24,
+        "num_scripts": 319,
+        "num_stylesheets": 43,
+        "page_title": "Grand Theft Auto VI - Rockstar Games",
+        "meta_description": "Vice City, USA. Jason and Lucia have always known the deck is stacked against them. But when an easy score goes wrong, they find themselves on the darkest side of the sunniest place in America, in the middle of a criminal conspiracy stretching across the state of Leonida \u2014 forced to rely on each other more than ever if they want to make it out alive."
       }
     ],
     "rockstar_newswire": [
@@ -9436,6 +9469,38 @@
         "dns_time_ms": 0.44,
         "tcp_time_ms": 1.92,
         "transfer_time_ms": 47.31,
+        "content_ok": true,
+        "found_keywords": [
+          "Rockstar",
+          "News"
+        ],
+        "security_headers": {
+          "strict-transport-security": true,
+          "x-content-type-options": false,
+          "content-security-policy": false,
+          "x-frame-options": false,
+          "referrer-policy": true
+        },
+        "engagement": {},
+        "content_hash": "3cd1759c204e8c148f224dc08cb8d428b09ee2589525bb5e2ce14428288e3928",
+        "intelligence_update": false,
+        "html_size_kb": 4.04,
+        "num_images": 0,
+        "num_links": 0,
+        "num_scripts": 4,
+        "num_stylesheets": 0,
+        "page_title": "Newswire - Rockstar Games",
+        "meta_description": "The official destination for Rockstar game announcements and updates, trailer launches, screenshot unveilings, events, soundtrack details, community creations and a lot more."
+      },
+      {
+        "timestamp": "2026-09-28T05:22:33.822674+00:00",
+        "url": "https://www.rockstargames.com/newswire",
+        "status": "ONLINE",
+        "http_code": 200,
+        "total_time_ms": 39.86,
+        "dns_time_ms": 0.43,
+        "tcp_time_ms": 2.19,
+        "transfer_time_ms": 37.24,
         "content_ok": true,
         "found_keywords": [
           "Rockstar",
@@ -14254,6 +14319,39 @@
         "num_stylesheets": 0,
         "page_title": "Access Denied",
         "meta_description": null
+      },
+      {
+        "timestamp": "2026-09-28T05:22:33.883407+00:00",
+        "url": "https://www.playstation.com/en-us/games/grand-theft-auto-vi/",
+        "status": "INTELLIGENCE_UPDATE",
+        "http_code": 200,
+        "total_time_ms": 179.03,
+        "dns_time_ms": 7.84,
+        "tcp_time_ms": 2.61,
+        "transfer_time_ms": 168.58,
+        "content_ok": true,
+        "found_keywords": [
+          "Grand Theft Auto",
+          "GTA VI",
+          "PlayStation"
+        ],
+        "security_headers": {
+          "strict-transport-security": true,
+          "x-content-type-options": true,
+          "content-security-policy": false,
+          "x-frame-options": true,
+          "referrer-policy": true
+        },
+        "engagement": {},
+        "content_hash": "d9deb70f176cd2afc36f23e138ed5457a20bde254a3a96f991da34a87f3480dd",
+        "intelligence_update": true,
+        "html_size_kb": 352.42,
+        "num_images": 37,
+        "num_links": 91,
+        "num_scripts": 39,
+        "num_stylesheets": 6,
+        "page_title": "Grand Theft Auto VI - PS5 Games | PlayStation (US)",
+        "meta_description": "Pre-order Grand Theft Auto VI at PlayStation.com now. Experience the biggest, most immersive evolution of the Grand Theft Auto series yet when GTA VI releases on 19 November 2026. GTA 6 is only playable on PS5 and is not available for PS4."
       }
     ],
     "xbox_store": [
@@ -18922,6 +19020,38 @@
         "content_hash": "0d3e8499559fc834f68e398ac4a00d5e2c4c595efa5b148c400c4a38a0ea7ea9",
         "intelligence_update": true,
         "html_size_kb": 456.61,
+        "num_images": 14,
+        "num_links": 159,
+        "num_scripts": 21,
+        "num_stylesheets": 6,
+        "page_title": "Your Privacy Choices Opt-Out Icon",
+        "meta_description": null
+      },
+      {
+        "timestamp": "2026-09-28T05:22:34.103208+00:00",
+        "url": "https://www.xbox.com/en-US/games/store/grand-theft-auto-vi/9NL3WWNZLZZN",
+        "status": "INTELLIGENCE_UPDATE",
+        "http_code": 200,
+        "total_time_ms": 464.66,
+        "dns_time_ms": 4.28,
+        "tcp_time_ms": 2.72,
+        "transfer_time_ms": 457.66,
+        "content_ok": true,
+        "found_keywords": [
+          "Grand Theft Auto",
+          "Xbox"
+        ],
+        "security_headers": {
+          "strict-transport-security": true,
+          "x-content-type-options": true,
+          "content-security-policy": false,
+          "x-frame-options": true,
+          "referrer-policy": false
+        },
+        "engagement": {},
+        "content_hash": "dcd757ba24381bfec3e3bb07ee82fd3d87593aa8fbaa29d6ad1f2cf19d324aa8",
+        "intelligence_update": true,
+        "html_size_kb": 456.6,
         "num_images": 14,
         "num_links": 159,
         "num_scripts": 21,
