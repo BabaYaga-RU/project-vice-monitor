@@ -5,29 +5,41 @@
         "enabled": true,
         "label": "Open Source Projects",
         "href": "https://pklavc.com",
-        "image": "/ads/banners/open-source.svg",
-        "alt": "Explore open source projects at pklavc.com"
+        "image": "/ads/partner.webp",
+        "alt": "Explore open source projects at pklavc.com",
+        "kicker": "MACCA BLOG PRESENTS",
+        "headline": "OPEN SOURCE PROJECTS",
+        "description": "Build in the open | Explore pklavc.com"
       },
       {
         "enabled": true,
         "label": "Software Engineering",
         "href": "https://pklavc.com",
-        "image": "/ads/banners/software-engineering.svg",
-        "alt": "Software engineering, architecture and delivery at pklavc.com"
+        "image": "/ads/partner.webp",
+        "alt": "Software engineering, architecture and delivery at pklavc.com",
+        "kicker": "ENGINEERING BETTER SYSTEMS",
+        "headline": "SOFTWARE ENGINEERING",
+        "description": "Architecture | APIs | Automation | pklavc.com"
       },
       {
         "enabled": true,
         "label": "Technology",
         "href": "https://pklavc.com",
-        "image": "/ads/banners/technology.svg",
-        "alt": "Technology and engineering ideas at pklavc.com"
+        "image": "/ads/partner.webp",
+        "alt": "Technology and engineering ideas at pklavc.com",
+        "kicker": "IDEAS, TOOLS & WHAT'S NEXT",
+        "headline": "TECHNOLOGY IN PRACTICE",
+        "description": "Explore projects and engineering notes | pklavc.com"
       },
       {
         "enabled": true,
         "label": "PKLAVC Blog Returning Soon",
         "href": "https://pklavc.com",
-        "image": "/ads/banners/blog-returning.svg",
-        "alt": "The PKLAVC blog is returning soon. Visit pklavc.com"
+        "image": "/ads/partner.webp",
+        "alt": "The PKLAVC blog is returning soon. Visit pklavc.com",
+        "kicker": "A NEW CHAPTER IS ON THE WAY",
+        "headline": "THE PKLAVC BLOG IS COMING SOON",
+        "description": "Follow the return at pklavc.com"
       }
     ],
     "article-inline": [
@@ -35,15 +47,21 @@
         "enabled": true,
         "label": "Open Source Projects",
         "href": "https://pklavc.com",
-        "image": "/ads/banners/open-source.svg",
-        "alt": "Explore open source projects at pklavc.com"
+        "image": "/ads/partner.webp",
+        "alt": "Explore open source projects at pklavc.com",
+        "kicker": "MACCA BLOG PRESENTS",
+        "headline": "OPEN SOURCE PROJECTS",
+        "description": "Build in the open | Explore pklavc.com"
       },
       {
         "enabled": true,
         "label": "PKLAVC Blog Returning Soon",
         "href": "https://pklavc.com",
-        "image": "/ads/banners/blog-returning.svg",
-        "alt": "The PKLAVC blog is returning soon. Visit pklavc.com"
+        "image": "/ads/partner.webp",
+        "alt": "The PKLAVC blog is returning soon. Visit pklavc.com",
+        "kicker": "A NEW CHAPTER IS ON THE WAY",
+        "headline": "THE PKLAVC BLOG IS COMING SOON",
+        "description": "Follow the return at pklavc.com"
       }
     ],
     "sidebar": [
@@ -51,15 +69,21 @@
         "enabled": true,
         "label": "Software Engineering",
         "href": "https://pklavc.com",
-        "image": "/ads/banners/software-engineering.svg",
-        "alt": "Software engineering at pklavc.com"
+        "image": "/ads/partner.webp",
+        "alt": "Software engineering at pklavc.com",
+        "kicker": "ENGINEERING BETTER SYSTEMS",
+        "headline": "SOFTWARE ENGINEERING",
+        "description": "Architecture | APIs | Automation | pklavc.com"
       },
       {
         "enabled": true,
         "label": "Technology",
         "href": "https://pklavc.com",
-        "image": "/ads/banners/technology.svg",
-        "alt": "Technology at pklavc.com"
+        "image": "/ads/partner.webp",
+        "alt": "Technology at pklavc.com",
+        "kicker": "IDEAS, TOOLS & WHAT'S NEXT",
+        "headline": "TECHNOLOGY IN PRACTICE",
+        "description": "Explore projects and engineering notes | pklavc.com"
       }
     ]
   }
