@@ -50,6 +50,11 @@ for(const file of files){
   head=replaceTag(head,`<meta name="description" content="${esc(description)}">`,/<meta\b(?=[^>]*\bname=["']description["'])[^>]*>/i);
   head=replaceTag(head,`<meta name="robots" content="${internalToolRoute?'noindex, follow':'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1'}">`,/<meta\b(?=[^>]*\bname=["']robots["'])[^>]*>/i);
   head=replaceTag(head,`<link rel="canonical" href="${esc(url)}">`,/<link\b(?=[^>]*\brel=["']canonical["'])[^>]*>/i);
+  head=replaceTag(head,'<link rel="icon" href="/favicon.ico" sizes="any">',/<link\b(?=[^>]*\brel=["']icon["'])[^>]*>/i);
+  head=replaceTag(head,'<link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">',/<link\b(?=[^>]*\bsizes=["']32x32["'])[^>]*>/i);
+  head=replaceTag(head,'<link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">',/<link\b(?=[^>]*\bsizes=["']16x16["'])[^>]*>/i);
+  head=replaceTag(head,'<link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">',/<link\b(?=[^>]*\brel=["']apple-touch-icon["'])[^>]*>/i);
+  head=replaceTag(head,'<link rel="manifest" href="/site.webmanifest">',/<link\b(?=[^>]*\brel=["']manifest["'])[^>]*>/i);
   const metas=[['og:type',url.endsWith('/blog/')?'website':'website'],['og:site_name','Macca Lab'],['og:title',title],['og:description',description],['og:url',url],['og:image',image],['og:image:alt',`Macca Lab — ${title}`],['og:locale',lang.toLowerCase().startsWith('pt')?'pt_BR':'en_US'],['twitter:card','summary_large_image'],['twitter:title',title],['twitter:description',description],['twitter:image',image]];
   for(const [key,value] of metas){const attribute=key.startsWith('twitter:')?'name':'property';head=replaceTag(head,`<meta ${attribute}="${key}" content="${esc(value)}">`,new RegExp(`<meta\\b(?=[^>]*\\b(?:property|name)=["']${key.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}["'])[^>]*>`,'i'));}
   head=replaceTag(head,`<link rel="alternate" type="application/rss+xml" title="Macca Blog RSS" href="${SITE}/blog/feed.xml">`,/<link\b(?=[^>]*\btype=["']application\/rss\+xml["'])[^>]*>/i);
