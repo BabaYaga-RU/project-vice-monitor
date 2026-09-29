@@ -1,0 +1,14 @@
+﻿# Arquivos locais/proprietários ou gerados para execução.
+user-content/
+.local-tools/
+cstrike/
+valve/
+*.pak
+*.wad
+*.bsp
+*.mdl
+*.spr
+*.wav
+*.mp3
+*.wasm
+*.so

@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#f6f7f1">
+  <title>Play — Lab</title>
+  <link rel="stylesheet" href="../study/styles.css">
+  <style>
+    body { display: grid; min-height: 100vh; place-items: center; padding: 24px; }
+    main { width: min(100%, 520px); }
+    .back { color: var(--green); font: 800 .78rem Arial,sans-serif; text-decoration: none; text-transform: uppercase; }
+    h1 { margin: 28px 0 8px; color: var(--dark); font-size: clamp(2.5rem,10vw,4rem); line-height: 1; }
+    p { color: var(--muted); }
+    .game { display: block; margin-top: 24px; padding: 22px; border: 1px solid var(--line); border-top: 5px solid var(--coral); color: var(--ink); background: var(--card); text-decoration: none; box-shadow: var(--shadow); transition: transform .2s; }
+    .game:hover { transform: translateY(-4px); }
+    .game strong { display: block; color: var(--dark); font-size: 1.5rem; }
+    .game span { color: var(--muted); }
+  </style>
+</head>
+<body>
+  <main>
+    <a class="back" href="../">← Início</a>
+    <h1>Play</h1>
+    <p>Jogos e experiências no navegador.</p>
+    <a class="game" href="cs16/"><strong>Counter-Strike 1.6</strong><span>Xash3D · WebAssembly · de_dust2</span></a>
+  </main>
+</body>
+</html>
