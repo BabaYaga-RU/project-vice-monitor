@@ -48,13 +48,17 @@ jobs:
         env:
           SITE_URL: https://macca-lab.onrender.com
         run: node scripts/blog.mjs build
+      - name: Build whole-site SEO metadata and discovery files
+        env:
+          SITE_URL: https://macca-lab.onrender.com
+        run: node scripts/build-seo.mjs
       - name: Commit and push generated changes
         run: |
-          if [[ -n "$(git status --porcelain blog sitemap.xml)" ]]; then
+          if [[ -n "$(git status --porcelain)" ]]; then
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add blog sitemap.xml
-            git commit -m "Publish researched GTA blog update"
+            git add -A
+            git commit -m "Build blog artwork and whole-site SEO"
             git push origin HEAD:main
           else
             echo "No blog changes to publish."

@@ -1,0 +1,9 @@
+# Public content discovery
+
+Website: https://macca-lab.onrender.com/
+Crawl policy: https://macca-lab.onrender.com/robots.txt
+Sitemap: https://macca-lab.onrender.com/sitemap.xml
+Page directory: https://macca-lab.onrender.com/llms.txt
+Full directory: https://macca-lab.onrender.com/llms-full.txt
+
+These optional directories describe public pages. They do not control crawler access or guarantee indexing, ranking, training, or citations.

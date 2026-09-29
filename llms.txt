@@ -1,0 +1,25 @@
+# Macca Lab
+
+> A practical software engineering lab for study materials, experiments, interactive tests, and technical projects. Macca Blog publishes sourced reporting about Grand Theft Auto, Rockstar Games, and Take-Two.
+
+The main site is organized around learning resources and interactive experiments. Blog pages are editorial content and link to their sources.
+
+## Main pages
+
+- [Macca Lab | Software Engineering, Study & Experiments](https://macca-lab.onrender.com/): Macca Lab is a practical software engineering laboratory with study materials, technical experiments, interactive tests, and learning projects.
+- [Play — Lab](https://macca-lab.onrender.com/play/): Play
+- [Matérias](https://macca-lab.onrender.com/study/): Matérias at Macca Lab.
+- [Laboratório de Eletrônica Digital | Práticas](https://macca-lab.onrender.com/study/Laboratorio-de-Eletronica-Digital/): Roteiro para entender e repetir as nove práticas do Manual de Sistemas Digitais. Em cada prática: monte seguindo a figura do PDF, execute a sequência, observe o…
+- [Bancada lógica | Laboratório](https://macca-lab.onrender.com/study/Laboratorio-de-Eletronica-Digital/simulador/): Arraste chaves, portas e LEDs para a folha. Ligue os terminais com o mouse e teste a saída.
+- [Laboratório de Projetos Eletrônicos | Práticas](https://macca-lab.onrender.com/study/Laboratorio-de-Projetos-Eletronicos/): Roteiro para aprender e repetir as práticas do Manual de Sistemas Analógicos. Use as figuras do PDF para a ligação exata dos componentes; aqui estão a sequência…
+
+## Blog and feeds
+
+- [Macca Blog](https://macca-lab.onrender.com/blog/): Sourced reporting, rumors clearly labeled, and analysis.
+- [RSS feed](https://macca-lab.onrender.com/blog/feed.xml): Recent blog articles.
+
+## Discovery
+
+- [XML sitemap index](https://macca-lab.onrender.com/sitemap.xml)
+- [Page sitemap](https://macca-lab.onrender.com/sitemap-pages.xml)
+- [Blog sitemap](https://macca-lab.onrender.com/blog/sitemap.xml)
