@@ -5,11 +5,15 @@ on:
     - cron: '0 0,2,5,7,10,12,14,17,19,22 * * *'
   workflow_dispatch:
     inputs:
+      retroactive_backfill:
+        description: Search the last 21 days and generate a retroactive batch
+        type: boolean
+        default: false
       posts_to_generate:
-        description: Maximum new articles to generate in this run
+        description: Maximum articles (up to 50 when retroactive backfill is enabled)
         type: choice
-        options: ['1', '3', '5']
-        default: '3'
+        options: ['1', '3', '5', '10', '25', '50']
+        default: '5'
 
 permissions:
   contents: write
@@ -21,6 +25,7 @@ concurrency:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    timeout-minutes: 360
     steps:
       - uses: actions/checkout@v4
         with:
@@ -33,11 +38,12 @@ jobs:
         env:
           SITE_URL: https://macca-lab.onrender.com
           MAX_POSTS_PER_RUN: ${{ github.event.inputs.posts_to_generate || '1' }}
+          BACKFILL_FLAG: ${{ github.event.inputs.retroactive_backfill == 'true' && '--backfill' || '' }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-        run: node scripts/blog.mjs generate --count=${MAX_POSTS_PER_RUN}
+        run: node scripts/blog.mjs generate ${BACKFILL_FLAG} --count=${MAX_POSTS_PER_RUN}
       - name: Build all blog indexes, feeds and sitemaps
         env:
           SITE_URL: https://macca-lab.onrender.com

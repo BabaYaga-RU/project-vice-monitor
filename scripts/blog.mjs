@@ -5,11 +5,13 @@ import crypto from 'node:crypto';
 
 const ROOT = process.cwd();
 const BASE = process.env.SITE_URL || 'https://macca-lab.onrender.com';
+const BACKFILL = process.argv.includes('--backfill');
 const FEEDS = [
-  'https://news.google.com/rss/search?q=GTA+6+OR+Grand+Theft+Auto+when%3A7d&hl=en-US&gl=US&ceid=US%3Aen',
-  'https://news.google.com/rss/search?q=GTA+Online+OR+Rockstar+Games+when%3A7d&hl=en-US&gl=US&ceid=US%3Aen',
-  'https://news.google.com/rss/search?q=Rockstar+Games+OR+Take-Two+Interactive+OR+Take+Two+when%3A7d&hl=en-US&gl=US&ceid=US%3Aen',
-  'https://news.google.com/rss/search?q=site%3Areddit.com%2Fr%2FGTA+OR+site%3Agtaforums.com+GTA+when%3A7d&hl=en-US&gl=US&ceid=US%3Aen',
+  'https://news.google.com/rss/search?q=GTA+6+news+rumors+leaks+trailer+release+date+preorder+price+when%3A21d&hl=en-US&gl=US&ceid=US%3Aen',
+  'https://news.google.com/rss/search?q=GTA+Online+Rockstar+update+event+when%3A21d&hl=en-US&gl=US&ceid=US%3Aen',
+  'https://news.google.com/rss/search?q=Rockstar+Games+news+lawsuit+studio+hack+when%3A21d&hl=en-US&gl=US&ceid=US%3Aen',
+  'https://news.google.com/rss/search?q=Take-Two+Interactive+news+lawsuit+game+when%3A21d&hl=en-US&gl=US&ceid=US%3Aen',
+  'https://news.google.com/rss/search?q=site%3Areddit.com%2Fr%2FGTA+OR+site%3Agtaforums.com+Grand+Theft+Auto+when%3A21d&hl=en-US&gl=US&ceid=US%3Aen',
   'https://feeds.feedburner.com/ign/gta',
   'https://www.pcgamer.com/rss/',
   'https://www.gamespot.com/feeds/news/',
@@ -47,7 +49,7 @@ async function research() {
     } catch(e) { console.warn(`Research source unavailable: ${url}: ${e.message}`); }
   }
   // Discover reporting across independent gaming newsrooms, blogs and publications.
-  const cutoff=Date.now()-1000*60*60*24*7;
+  const cutoff=Date.now()-1000*60*60*24*(BACKFILL?21:7);
   return items.filter(x=>/grand theft auto|\bgta\b|rockstar games|take[- ]two/i.test(`${x.title} ${x.description}`) && (!x.date || (Date.parse(x.date)>=cutoff && Date.parse(x.date)<=Date.now()+86400000)));
 }
 
@@ -151,7 +153,8 @@ async function generate() {
   if(generated.skip) { console.log('Provider declined despite instruction; building a strictly attributed short brief from the discovered report.'); generated.title=candidate.title; generated.description=candidate.description||candidate.title; generated.category=/take[- ]two|rockstar/i.test(candidate.title)?'Rockstar & Take-Two':'GTA News'; generated.tags=['GTA',candidate.source]; generated.sections=[{heading:'What the source reported',paragraphs:[`${candidate.source} reported: “${candidate.title}.” ${candidate.description?`The feed summary states: ${candidate.description}`:'The feed listing provides no further detail at this time.'}`]},{heading:'Context and confirmation',paragraphs:[`This post records the report by ${candidate.source} and does not treat unverified claims as confirmed. Readers should follow the linked source for updates and additional context.`]}]; generated.sources=[{title:candidate.title,url:candidate.link,publisher:candidate.source}]; }
   if(!generated.title||!Array.isArray(generated.sections)||generated.sections.length<1) throw new Error('Provider returned incomplete article JSON.');
   const title=String(generated.title).trim();
-  const cited=[...(Array.isArray(generated.sources)?generated.sources:[]),{title:candidate.title,url:mainSource.canonical||candidate.link,publisher:candidate.source}];
+  const allowedSourceUrls=new Set(sourced.flatMap(s=>[s.link,s.canonical]).concat(candidate.link).filter(Boolean));
+  const cited=[...(Array.isArray(generated.sources)?generated.sources.filter(s=>allowedSourceUrls.has(s.url)):[]),{title:candidate.title,url:mainSource.canonical||candidate.link,publisher:candidate.source}];
   const p={...generated,title,description:String(generated.description||mainSource.description||candidate.description||title).slice(0,300),category:String(generated.category||'News'),tags:Array.isArray(generated.tags)?generated.tags.map(String).slice(0,10):['GTA'],date:new Date().toISOString().slice(0,10),slug:slugify(title),sourceUrl:mainSource.canonical||candidate.link,sources:[...new Map(cited.filter(s=>s.url).map(s=>[s.url,s])).values()]};
   if(posts.some(x=>x.slug===p.slug||similarity(x.title,p.title)>0.36)) { console.log(`Skipping near-duplicate generated title: ${p.title}`); history.unshift({sourceUrl:candidate.link,title:candidate.title,date:new Date().toISOString(),status:'near-duplicate',sourceUrls:relatedFeeds.map(s=>s.link)}); await writeJson(HISTORY_FILE,history.slice(0,500)); generate.rejected++; if(generate.rejected<3) return generate(); console.log('Reached per-run limit while skipping duplicates.'); return; }
   posts.unshift(p); await writeJson(DATA_FILE,posts); history.unshift({slug:p.slug,title:p.title,sourceUrl:p.sourceUrl,sourceUrls:relatedFeeds.map(s=>s.link),date:p.date,status:'published',hash:crypto.createHash('sha256').update(`${p.title}|${p.sourceUrl}`).digest('hex')}); await writeJson(HISTORY_FILE,history.slice(0,500));
@@ -163,8 +166,8 @@ function topicScore(item){const t=`${item.title} ${item.description}`.toLowerCas
 const cmd=process.argv[2]||'build';
 if(cmd==='build') await build();
 else if(cmd==='generate') {
-  const count=Math.max(1,Math.min(5,Number(process.argv.find(x=>x.startsWith('--count='))?.split('=')[1]||1)));
+  const count=Math.max(1,Math.min(BACKFILL?50:5,Number(process.argv.find(x=>x.startsWith('--count='))?.split('=')[1]||1)));
   for(let i=0;i<count;i++) { const before=(await readJson(DATA_FILE,[])).length; generate.rejected=0; await generate(); const after=(await readJson(DATA_FILE,[])).length; if(process.argv.includes('--dry-run')||after===before) break; }
 }
-else if(cmd==='discover') { const items=await research(); console.log(JSON.stringify(items.slice(0,40),null,2)); }
+else if(cmd==='discover') { const items=await research(); console.log(JSON.stringify(items.slice(0,BACKFILL?200:40),null,2)); }
 else throw new Error(`Unknown command ${cmd}`);
