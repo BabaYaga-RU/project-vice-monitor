@@ -6,6 +6,8 @@ import crypto from 'node:crypto';
 const ROOT = process.cwd();
 const BASE = process.env.SITE_URL || 'https://macca-lab.onrender.com';
 const FEEDS = [
+  'https://news.google.com/rss/search?q=GTA+6+OR+Grand+Theft+Auto+when%3A7d&hl=en-US&gl=US&ceid=US%3Aen',
+  'https://news.google.com/rss/search?q=GTA+Online+OR+Rockstar+Games+when%3A7d&hl=en-US&gl=US&ceid=US%3Aen',
   'https://feeds.feedburner.com/ign/gta',
   'https://www.pcgamer.com/rss/',
   'https://www.gamespot.com/feeds/news/',
@@ -37,40 +39,58 @@ async function research() {
         let link=get('link') || block.match(/<link[^>]+href=["']([^"']+)/i)?.[1] || '';
         const description=get('description') || get('summary') || get('content');
         const date=get('pubDate') || get('published') || get('updated');
-        if(title && /^https?:/.test(link)) items.push({title,link,description,date,source:new URL(url).hostname});
+        const publisher=strip(block.match(/<source[^>]*>([\s\S]*?)<\/source>/i)?.[1]?.replace(/<!\[CDATA\[|\]\]>/g,'')||'') || new URL(url).hostname;
+        if(title && /^https?:/.test(link)) items.push({title:title.replace(/\s+-\s+[^-]+$/,''),link,description,date,source:publisher});
       }
     } catch(e) { console.warn(`Research source unavailable: ${url}: ${e.message}`); }
   }
   // Discover reporting across independent gaming newsrooms, blogs and publications.
-  const cutoff=Date.now()-1000*60*60*24*30;
+  const cutoff=Date.now()-1000*60*60*24*7;
   return items.filter(x=>/grand theft auto|\bgta\b|rockstar games/i.test(`${x.title} ${x.description}`) && (!x.date || (Date.parse(x.date)>=cutoff && Date.parse(x.date)<=Date.now()+86400000)));
+}
+
+async function fetchArticle(item) {
+  try {
+    const response=await fetch(item.link,{headers:{'user-agent':'Mozilla/5.0 (compatible; MaccaBlogResearch/1.0)'},redirect:'follow',signal:AbortSignal.timeout(15000)});
+    if(!response.ok) return item;
+    const html=await response.text();
+    const meta=(name)=>html.match(new RegExp(`<meta[^>]+(?:name|property)=["']${name}["'][^>]+content=["']([^"']+)`, 'i'))?.[1] || html.match(new RegExp(`<meta[^>]+content=["']([^"']+)["'][^>]+(?:name|property)=["']${name}["']`, 'i'))?.[1] || '';
+    const title=strip(html.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1]||'') || item.title;
+    const description=strip(meta('og:description')||meta('description')||item.description);
+    const paragraphs=[...html.matchAll(/<p\b[^>]*>([\s\S]*?)<\/p>/gi)].map(m=>strip(m[1])).filter(t=>t.length>80).slice(0,9);
+    return {...item,title,description,excerpt:paragraphs.join('\n\n').slice(0,6500),publisher:item.source||new URL(response.url).hostname,canonical:response.url};
+  } catch(e) { console.warn(`Could not fetch article body for ${item.link}: ${e.message}`); return item; }
 }
 
 async function ask(prompt) {
   const errors=[];
   const attempts=[];
-  if(process.env.GEMINI_API_KEY) attempts.push(['Gemini',async()=>{
-    const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{responseMimeType:'application/json',temperature:0.4}})});
+  if(process.env.GEMINI_API_KEY) attempts.push(['Gemini',async(p)=>{
+    const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:p}]}],generationConfig:{responseMimeType:'application/json',temperature:0.4}})});
     if(!r.ok) throw new Error(`HTTP ${r.status}`); return (await r.json()).candidates?.[0]?.content?.parts?.[0]?.text;
   }]);
-  if(process.env.CLOUDFLARE_API_TOKEN && process.env.CLOUDFLARE_ACCOUNT_ID) attempts.push(['Cloudflare Workers AI',async()=>{
+  if(process.env.CLOUDFLARE_API_TOKEN && process.env.CLOUDFLARE_ACCOUNT_ID) attempts.push(['Cloudflare Workers AI',async(p)=>{
     const url=`https://api.cloudflare.com/client/v4/accounts/${process.env.CLOUDFLARE_ACCOUNT_ID}/ai/run/@cf/meta/llama-3.1-8b-instruct`;
-    const r=await fetch(url,{method:'POST',headers:{authorization:`Bearer ${process.env.CLOUDFLARE_API_TOKEN}`,'content-type':'application/json'},body:JSON.stringify({messages:[{role:'user',content:prompt}]})});
+    const r=await fetch(url,{method:'POST',headers:{authorization:`Bearer ${process.env.CLOUDFLARE_API_TOKEN}`,'content-type':'application/json'},body:JSON.stringify({messages:[{role:'user',content:p}]})});
     if(!r.ok) throw new Error(`HTTP ${r.status}`); return (await r.json()).result?.response;
   }]);
-  if(process.env.OPENROUTER_API_KEY) attempts.push(['OpenRouter',async()=>{
-    const r=await fetch('https://openrouter.ai/api/v1/chat/completions',{method:'POST',headers:{authorization:`Bearer ${process.env.OPENROUTER_API_KEY}`,'content-type':'application/json','HTTP-Referer':BASE,'X-Title':'GTA Research Blog'},body:JSON.stringify({model:'openrouter/auto',messages:[{role:'user',content:prompt}],response_format:{type:'json_object'}})});
+  if(process.env.OPENROUTER_API_KEY) attempts.push(['OpenRouter',async(p)=>{
+    const r=await fetch('https://openrouter.ai/api/v1/chat/completions',{method:'POST',headers:{authorization:`Bearer ${process.env.OPENROUTER_API_KEY}`,'content-type':'application/json','HTTP-Referer':BASE,'X-Title':'Macca Blog'},body:JSON.stringify({model:'openrouter/auto',messages:[{role:'user',content:p}],response_format:{type:'json_object'}})});
     if(!r.ok) throw new Error(`HTTP ${r.status}`); return (await r.json()).choices?.[0]?.message?.content;
   }]);
   if(!attempts.length) throw new Error('No AI provider credentials configured.');
-  for(const [name,call] of attempts) try { const out=await call(); if(out){console.log(`Article generated with ${name}`);return out;} throw new Error('Empty response'); } catch(e) { errors.push(`${name}: ${e.message}`); console.warn(`${name} unavailable; trying next provider.`); }
+  for(const [name,call] of attempts) {
+    for(let retry=0;retry<2;retry++) try { const out=await call(retry?`${prompt}\n\nFORMAT REMINDER: Return exactly one valid JSON object. Do not write prose or markdown outside it.`:prompt); if(out){parseModel(out);console.log(`Article generated with ${name}${retry?' after format retry':''}`);return out;} throw new Error('Empty response'); } catch(e) { errors.push(`${name}${retry?' retry':''}: ${e.message}`); if(retry===0)console.warn(`${name} returned invalid output; retrying with a strict JSON reminder.`); }
+    console.warn(`${name} failed; trying next provider.`);
+  }
   throw new Error(`All AI providers failed: ${errors.join('; ')}`);
 }
 
 function parseModel(text) {
   const raw=String(text).replace(/^```(?:json)?\s*/i,'').replace(/\s*```$/,'');
+  if(/^"?skip"?$/i.test(raw.trim())) return {skip:true,reason:'provider judged the available reporting too thin'};
   const a=raw.indexOf('{'), b=raw.lastIndexOf('}');
-  if(a<0||b<a) throw new Error('Model did not return JSON.');
+  if(a<0||b<a) throw new Error(`Model did not return JSON: ${raw.slice(0,160).replace(/\s+/g,' ')}`);
   return JSON.parse(raw.slice(a,b+1));
 }
 
@@ -109,29 +129,39 @@ async function build() {
 }
 
 async function generate() {
+  generate.rejected ||= 0;
   const dryRun=process.argv.includes('--dry-run');
   const candidates=await research();
   if(!candidates.length) { console.log('No recent GTA coverage found in configured news feeds; skipping this run.'); return; }
   const posts=await readJson(DATA_FILE,[]), history=await readJson(HISTORY_FILE,[]);
-  const used=new Set([...posts.map(p=>p.sourceUrl),...history.map(h=>h.sourceUrl)].filter(Boolean));
-  const ranked=candidates.filter(c=>!used.has(c.link) && !posts.some(p=>similarity(p.title,c.title)>0.7)).sort((a,b)=>topicScore(b)-topicScore(a));
+  const used=new Set([...posts.map(p=>p.sourceUrl),...history.flatMap(h=>[h.sourceUrl,...(h.sourceUrls||[])])].filter(Boolean));
+  const ranked=candidates.filter(c=>!used.has(c.link) && !posts.some(p=>similarity(p.title,c.title)>0.36)).sort((a,b)=>topicScore(b)-topicScore(a));
   const candidate=ranked[0];
   if(!candidate) { console.log('No sufficiently novel topic; skipping this run.'); return; }
   if(dryRun) console.log(`Dry run selected candidate: ${candidate.title} (${candidate.link})`);
-  const sameTopic=candidates.filter(c=>similarity(c.title,candidate.title)>0.25).slice(0,5);
-  const prompt=`Write an accurate English news article for Macca Blog using only the source material below. Never invent or upgrade a claim. Attribute each report, leak, rumor, alleged hack, preorder or price claim to its publisher. Label unverified claims as RUMOR, LEAK, or UNCONFIRMED in the headline or opening. Do not say Rockstar was hacked as fact unless at least two independent sources explicitly corroborate it; otherwise report that a named outlet alleges it and state that it is unverified. Include a source section listing every supplied URL used. If material is too thin, return {"skip":true,"reason":"insufficient sourced information"}. Return JSON only with title, description, category, tags (array), image (empty unless an image URL was supplied), imageAlt, featured (boolean), sections (array of {heading,paragraphs:[...]}), sources (array of {title,url,publisher}). Aim for 600-900 useful words without padding.\nMATCHING RECENT COVERAGE:\n${sameTopic.map((s,i)=>`${i+1}. ${s.title}\nURL: ${s.link}\nPublisher: ${s.source}\nDate: ${s.date}\nSummary: ${s.description}`).join('\n\n')}\n\nPRIMARY CANDIDATE: ${candidate.link}\n`;
+  const relatedFeeds=candidates.filter(c=>similarity(c.title,candidate.title)>0.2).slice(0,5);
+  const sourced=await Promise.all(relatedFeeds.map(fetchArticle));
+  const mainSource=sourced.find(s=>s.link===candidate.link)||await fetchArticle(candidate);
+  if(dryRun) console.log(`Research fetched ${sourced.length} source page(s); primary excerpt: ${(mainSource.excerpt||mainSource.description||'none').length} characters.`);
+  const prompt=`Write a concise, accurate English news post for Macca Blog based only on the research below. A sourced news brief of 250-450 words is welcome; do not pad it into a feature. Never invent or upgrade a claim. Attribute every report, leak, rumor, alleged hack, preorder or price claim to its publisher. Label unverified claims as RUMOR, LEAK, or UNCONFIRMED in the headline or opening. Do not state a hack as fact unless two independent publishers explicitly corroborate it. Include every source actually used. Return skip only if all source pages lack meaningful relevant details. Return JSON only with title, description, category, tags (array), image (empty unless supplied), imageAlt, featured (boolean), sections (array of {heading,paragraphs:[...]}), sources (array of {title,url,publisher}). Use 2-4 sections and avoid unsupported context.\nRESEARCHED ARTICLES:\n${sourced.map((s,i)=>`${i+1}. ${s.title}\nURL: ${s.canonical||s.link}\nPublisher: ${s.publisher}\nPublished: ${s.date}\nRSS summary: ${s.description}\nArticle text excerpts: ${s.excerpt||'[Could not retrieve article text]'}`).join('\n\n')}\n`;
   const generated=parseModel(await ask(prompt));
-  if(dryRun) { if(!generated.skip && (!generated.title||!Array.isArray(generated.sections)||generated.sections.length<3)) throw new Error('Provider returned incomplete article JSON.'); console.log(`Dry run received valid article JSON (${String(generated.title||'untitled')}); no files changed.`); return; }
-  if(generated.skip) { console.log(`Skipping weak source: ${generated.reason}`); return; }
-  if(!generated.title||!Array.isArray(generated.sections)||generated.sections.length<3) throw new Error('Provider returned incomplete article JSON.');
+  if(dryRun) { if(generated.skip) { console.log(`Dry run provider declined topic: ${generated.reason||'no reason supplied'}`); return; } if(!generated.title||!Array.isArray(generated.sections)||generated.sections.length<2) throw new Error('Provider returned incomplete article JSON.'); console.log(`Dry run received valid article JSON (${generated.title}); no files changed.`); return; }
+  if(generated.skip) { console.log(`Skipping weak source: ${generated.reason}`); history.unshift({sourceUrl:candidate.link,title:candidate.title,date:new Date().toISOString(),status:'insufficient-source',sourceUrls:relatedFeeds.map(s=>s.link)}); await writeJson(HISTORY_FILE,history.slice(0,500)); generate.rejected++; if(generate.rejected<3) return generate(); console.log('Reached per-run limit while rejecting thin sources.'); return; }
+  if(!generated.title||!Array.isArray(generated.sections)||generated.sections.length<2) throw new Error('Provider returned incomplete article JSON.');
   const title=String(generated.title).trim();
-  const p={...generated,title,description:String(generated.description||candidate.description||title).slice(0,300),category:String(generated.category||'News'),tags:Array.isArray(generated.tags)?generated.tags.map(String).slice(0,10):['GTA'],date:new Date().toISOString().slice(0,10),slug:slugify(title),sourceUrl:candidate.link,sources:Array.isArray(generated.sources)&&generated.sources.length?generated.sources:sameTopic.map(s=>({title:s.title,url:s.link,publisher:s.source}))};
-  if(posts.some(x=>x.slug===p.slug||similarity(x.title,p.title)>0.7)) throw new Error('Duplicate article detected after generation.');
-  posts.unshift(p); await writeJson(DATA_FILE,posts); history.unshift({slug:p.slug,title:p.title,sourceUrl:p.sourceUrl,date:p.date,hash:crypto.createHash('sha256').update(`${p.title}|${p.sourceUrl}`).digest('hex')}); await writeJson(HISTORY_FILE,history.slice(0,500));
+  const p={...generated,title,description:String(generated.description||mainSource.description||candidate.description||title).slice(0,300),category:String(generated.category||'News'),tags:Array.isArray(generated.tags)?generated.tags.map(String).slice(0,10):['GTA'],date:new Date().toISOString().slice(0,10),slug:slugify(title),sourceUrl:mainSource.canonical||candidate.link,sources:Array.isArray(generated.sources)&&generated.sources.length?generated.sources:sourced.map(s=>({title:s.title,url:s.canonical||s.link,publisher:s.publisher}))};
+  if(posts.some(x=>x.slug===p.slug||similarity(x.title,p.title)>0.36)) { console.log(`Skipping near-duplicate generated title: ${p.title}`); history.unshift({sourceUrl:candidate.link,title:candidate.title,date:new Date().toISOString(),status:'near-duplicate',sourceUrls:relatedFeeds.map(s=>s.link)}); await writeJson(HISTORY_FILE,history.slice(0,500)); generate.rejected++; if(generate.rejected<3) return generate(); console.log('Reached per-run limit while skipping duplicates.'); return; }
+  posts.unshift(p); await writeJson(DATA_FILE,posts); history.unshift({slug:p.slug,title:p.title,sourceUrl:p.sourceUrl,sourceUrls:relatedFeeds.map(s=>s.link),date:p.date,status:'published',hash:crypto.createHash('sha256').update(`${p.title}|${p.sourceUrl}`).digest('hex')}); await writeJson(HISTORY_FILE,history.slice(0,500));
   await build(); console.log(`Published ${p.slug}`);
 }
 function similarity(a,b){const words=x=>new Set(String(x).toLowerCase().split(/[^a-z0-9]+/).filter(w=>w.length>2));const x=words(a),y=words(b);if(!x.size||!y.size)return 0;return [...x].filter(v=>y.has(v)).length/new Set([...x,...y]).size;}
 function topicScore(item){const t=`${item.title} ${item.description}`.toLowerCase();let score=0;if(/gta\s*6|grand theft auto vi|pre-?order|pre-?sale|price|leak|leaked|hack|hacked|breach|trailer|release date|rockstar/i.test(t))score+=5;if(/rumou?r|alleged|unconfirmed|speculation/i.test(t))score+=2;if(/mod|history|community|character|map|vehicle/i.test(t))score+=1;if(item.date)score+=Math.max(0,3-(Date.now()-Date.parse(item.date))/86400000/10);return score;}
 
 const cmd=process.argv[2]||'build';
-if(cmd==='build') await build(); else if(cmd==='generate') await generate(); else throw new Error(`Unknown command ${cmd}`);
+if(cmd==='build') await build();
+else if(cmd==='generate') {
+  const count=Math.max(1,Math.min(5,Number(process.argv.find(x=>x.startsWith('--count='))?.split('=')[1]||1)));
+  for(let i=0;i<count;i++) { const before=(await readJson(DATA_FILE,[])).length; generate.rejected=0; await generate(); const after=(await readJson(DATA_FILE,[])).length; if(process.argv.includes('--dry-run')||after===before) break; }
+}
+else if(cmd==='discover') { const items=await research(); console.log(JSON.stringify(items.slice(0,40),null,2)); }
+else throw new Error(`Unknown command ${cmd}`);
