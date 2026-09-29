@@ -22,47 +22,47 @@ A pagina verifica que o BSP existe, mas a engine carrega outros dados dinamicame
 
 ## Build Lite
 
-O script `tools/build-lite.ps1` recebe o ZIP completo criado por `prepare-assets.ps1` e escreve `play/cs16/user-content/cs16-lite.zip`. A origem nunca e alterada. O ZIP Lite e gerado localmente e ignorado pelo Git.
+`tools/build-lite.ps1` gera a Lite v1. `tools/build-lite-v2.ps1` aplica tambem o manifesto de arquivos que o Xash abriu no teste local e remove modelos `.mdl` nao observados. Ambos leem o ZIP completo sem alterar a instalacao de origem e criam ZIPs locais ignorados pelo Git.
 
 ```powershell
-& .\play\cs16\tools\build-lite.ps1
+& .\play\cs16\tools\build-lite-v2.ps1
 ```
 
 Ou indique entrada/saida explicitamente:
 
 ```powershell
-& .\play\cs16\tools\build-lite.ps1 -InputZip .\play\cs16\user-content\cs16-assets.zip -OutputZip .\play\cs16\user-content\cs16-lite.zip
+& .\play\cs16\tools\build-lite-v2.ps1 -InputZip .\play\cs16\user-content\cs16-assets.zip -OutputZip .\play\cs16\user-content\cs16-lite-v2.zip
 ```
 
-O filtro le o lump de entidades do `cstrike/maps/de_dust2.bsp` (GoldSrc BSP30) e mantem os WADs declarados pelo worldspawn. Alem deles, conserva `valve/gfx.wad`, dependencia base aberta pelo Xash no teste. Se o BSP nao declarar WADs, o script preserva todos os WADs por seguranca. WASM e engine nao entram no ZIP; texturas/modelos mantidos nao sao alterados nem redimensionados.
+O v2 le o lump de entidades do `cstrike/maps/de_dust2.bsp` (GoldSrc BSP30) para identificar WADs e consulta `tools/verified-access-v2.txt`, gerado pelo rastreamento de `FS.open` bem-sucedido no navegador. O manifesto contem so nomes de caminhos, nao assets. Um WAD fica se Dust2 o declara ou se o Xash o abriu; por isso `valve/gfx.wad` continua, pois apareceu no rastreamento. Modelos `.mdl` fora do manifesto sao removidos; sprites ficam intactos enquanto a exibicao/disparo de arma nao puder ser confirmada. WASM/engine nao entram no ZIP, e nenhuma textura e redimensionada ou convertida.
 
 ### Classificacao observada
 
 Rastreamento de `FS.open` com sucesso durante a inicializacao single-player em Dust2, mais as dependencias declaradas pelo BSP. Ele nao representa cada acao/rodada futura nem substitui testes em outras versoes dos assets.
 
-| Estado | Arquivos/conjuntos |
+| Classificacao | Arquivos/conjuntos |
 |---|---|
-| Necessario | `cstrike/maps/de_dust2.bsp`; WADs `valve/halflife.wad`, `valve/decals.wad`, `cstrike/cs_dust.wad`; `valve/gfx.wad`; arquivos abertos sob `models/`, `sprites/`, `events/`, configs e recursos de idioma/HUD listados pelo rastreamento. Todos os modelos/sprites originais sao mantidos para preservar armas, HUD e compatibilidade. |
-| Opcional, preservado | `cstrike/maps/de_dust2.res`, overview `de_dust2`, configs adicionais, outros modelos/sprites do CS nao observados nesta inicializacao. Alguns so podem ser necessarios em telas, armas, entidades ou acoes nao exercitadas no teste. |
-| Nao utilizado no teste e removido | Audio (diretorios `sound/` e formatos comuns de audio), demos, media, sprays/logos, cache de downloads, addons, mapas BSP exceto Dust2, mapas/overviews do Half-Life, overviews de outros mapas, fundos/logos de menu e WADs que nao aparecem nas dependencias do BSP (exceto `gfx.wad`). Binarios nativos sao substituidos pelos modulos WASM do cliente. |
+| REQUIRED | `cstrike/maps/de_dust2.bsp`; WADs declarados no worldspawn (`valve/halflife.wad`, `valve/decals.wad`, `cstrike/cs_dust.wad`); WADs abertos no teste (`cstrike/decals.wad`, `valve/gfx.wad`); 142 modelos `.mdl` e 80 sprites `.spr` no manifesto de acesso; dados observados do HUD, eventos e configs. Os modelos das familias de armas e jogadores vistos no rastreamento permanecem. |
+| OPTIONAL | Sprites `.spr` nao vistos, mantidos por falta de um teste visual conclusivo de arma/efeitos; demais arquivos de configuracao e sidecar de Dust2 mantidos pelo filtro conservador. |
+| NOT USED (neste rastreamento) | 360 modelos `.mdl` sem abertura bem-sucedida durante carregar o mapa e as entradas automatizadas; removidos no v2. Tambem removidos: audio, outros mapas, demos, video/media, logos/fundos, binarios nativos e WADs fora das referencias/acessos observados. Ausencia no rastreamento nao prova que um arquivo nunca e usado em outro mapa/acao. |
 
-Isso e uma reducao conservadora por caminhos observados/declarados, nao uma afirmacao de que cada outro recurso foi provado impossivel de usar em todos os cenarios. Nao removemos modelos ou sprites por extensao, nem reduzimos texturas.
+O teste automatizado carregou a Lite v2 pela interface, renderizou Dust2 e enviou WASD e movimento de mouse; a orientacao renderizada mudou. A imagem, porem, nao mostrou HUD completo nem arma. Foram enviados cliques esquerdos e comandos de troca/concessao de arma, mas nenhum disparo visual foi confirmado. Por isso a lista de sprites foi preservada e o v2 nao e declarado validado para combate.
 
 ### Medidas desta amostra local
 
 Assets gerados a partir do App 90 do SteamCMD, apenas para teste local:
 
-| Medida | Original | Lite |
-|---|---:|---:|
-| Arquivos | 5.405 | 1.899 |
-| ZIP | 784,93 MiB | 99,10 MiB |
-| Soma descompactada | 784,08 MiB | 184,52 MiB |
+| Medida | Original | Lite v1 | Lite v2 |
+|---|---:|---:|---:|
+| Arquivos | 5.405 | 1.899 | 1.539 |
+| ZIP | 784,93 MiB | 99,10 MiB | 83,76 MiB |
+| Soma descompactada | 784,08 MiB | 184,52 MiB | 160,35 MiB |
 
-Reducao do ZIP: **87,4%**. Reducao do payload: **76,5%**. Foram removidos 3.506 arquivos/599,56 MiB, principalmente audio (3.011 arquivos/126,35 MiB), mapas/sidecars e overviews (362/329,81 MiB), WADs nao referenciados (26/64,03 MiB), binarios nativos (16/43,86 MiB), media (4/10,18 MiB), logos/fundos (143/25,32 MiB) e outros itens menores.
+O v2 reduziu o ZIP **89,3% frente ao original**, **15,5% frente a v1**. O payload caiu **79,5% frente ao original**. Em relacao a v1, foram retirados mais 360 modelos nao abertos, com 24,17 MiB descompactados, e a saida compactada diminuiu 15,34 MiB. Na reducao total tambem saem 2.955 arquivos/126,35 MiB de audio, mapas e sidecars, overviews, 26 WADs nao referenciados, 16 binarios nativos, demos, videos/media e recursos de menu. WADs de Dust2/Xash e modelos/sprites observados permanecem. Nenhuma medida de RAM e reportada.
 
 ### Distribuicao
 
-O site continua aceitando um ZIP escolhido localmente. Uma hospedagem estatica pode servir bytes sem backend, mas nao concede direito de redistribuir conteudo proprietario. Por isso este repositorio nao hospeda nem baixa automaticamente WADs, mapas ou outros arquivos comerciais. O jogador gera o ZIP a partir de uma instalacao legitima. O ZIP Lite de teste tem 99,10 MiB, mas tamanho abaixo do limite tecnico de um host nao altera a licenca.
+O site continua aceitando um ZIP escolhido localmente. Uma hospedagem estatica pode servir bytes sem backend, mas nao concede direito de redistribuir conteudo proprietario. Por isso este repositorio nao hospeda assets. O jogador gera o ZIP a partir da propria instalacao legitima. Os ZIPs de teste ficam no `user-content/` local ignorado pelo Git.
 
 ## Preparar assets localmente no Windows
 
@@ -88,10 +88,10 @@ Na raiz do repositorio:
 python -m http.server 8000
 ```
 
-Abra `http://localhost:8000/play/cs16/`, escolha `play/cs16/user-content/cs16-assets.zip` e clique em **Iniciar em de_dust2**. O site baixa os binarios fixados do CDN, monta `valve/` e `cstrike/` no filesystem em memoria do WASM, inicia Xash3D e executa `map de_dust2`. O cliente entra na equipe Terrorista automaticamente. Clique no canvas para capturar o mouse.
+Abra `http://localhost:8000/play/cs16/`, escolha `play/cs16/user-content/cs16-lite-v2.zip` e clique em **Iniciar em de_dust2**. O site baixa os binarios fixados do CDN, monta `valve/` e `cstrike/` no filesystem em memoria do WASM, e executa `map de_dust2`. Clique no canvas para capturar o mouse.
 
 ## GitHub Pages
 
 Publique o conteudo normal do repositorio. O Pages serve HTML, CSS e JS. O ZIP pessoal nao faz parte do site; cada jogador prepara/selecione seus proprios assets. Nao ha backend ou processo de jogo no Pages. O engine e os modulos CS vem do CDN externo jsDelivr em versoes fixas, entao a primeira carga requer internet. A verificacao foi feita em Edge local e mostrou o interior de de_dust2 renderizado.
 
-O cliente inicia com `-nosound`; os arquivos de audio nao sao incluidos no ZIP Lite e Dust2 foi confirmado carregando nessa configuracao. O mapa e movimentacao foram testados localmente usando Edge/SwiftShader. Uma medicao de RAM antes/depois nao ficou comparavel: as execucoes do ZIP original excederam o tempo do navegador de automacao antes de disponibilizar o canvas. O processo carrega os arquivos extraidos na memoria do WASM, portanto reduzir o payload deve reduzir a memoria transitoria de montagem, mas nao registramos aqui uma porcentagem de RAM.
+O cliente inicia com `-nosound`. Edge/SwiftShader carregou o ZIP v2 pela interface e renderizou Dust2; a camera respondeu a entradas WASD/mouse. O teste nao comprovou spawn com HUD, arma visivel ou disparo; esses pontos seguem pendentes antes de considerar combate funcional. A pagina mostrou um 404 de favicon e um aviso WebGL `INVALID_ENUM`, sem erro fatal de carregamento do mapa. A RAM nao foi medida.
