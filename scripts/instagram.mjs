@@ -7,7 +7,7 @@ import { spawnSync } from 'node:child_process';
 const ROOT = process.cwd();
 const BASE = (process.env.SITE_URL || 'https://macca-lab.onrender.com').replace(/\/$/, '');
 const GRAPH_VERSION = 'v23.0';
-const QUEUE_FILE = process.env.INSTAGRAM_QUEUE_FILE || path.join(os.tmpdir(), 'macca-instagram-queue.json');
+const QUEUE_FILE = process.env.INSTAGRAM_QUEUE_FILE || path.join(ROOT, 'blog', 'instagram-queue.json');
 const POSTS_FILE = path.join(ROOT, 'blog', 'posts.json');
 const PUBLISHED_FILE = path.join(ROOT, 'blog', 'instagram-published.json');
 const token = process.env.INSTAGRAM_ACCESS_TOKEN;
@@ -72,10 +72,16 @@ async function prepare() {
   const queue = await safeJson(QUEUE_FILE, []);
   if (!Array.isArray(queue) || !queue.length) { console.log('No new articles to prepare for Instagram.'); return; }
   const posts = await safeJson(POSTS_FILE, []);
+  const pending = [];
+  for (const item of queue) {
+    try { await fs.access(path.join(ROOT, 'blog', item.slug, 'instagram.jpg')); }
+    catch { pending.push(item); }
+  }
+  if (!pending.length) { console.log('All queued Instagram images already exist.'); return; }
   const command = imageConverter();
   const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'macca-instagram-'));
   try {
-    for (const {slug} of queue) {
+    for (const {slug} of pending) {
       const post = posts.find(item => item.slug === slug);
       if (!post) throw new Error(`Instagram queue references missing blog article: ${slug}`);
       const localInput = path.join(tempDir, 'article-image');
@@ -94,7 +100,10 @@ async function graphGet(host, resource, fields) {
   if (fields) url.searchParams.set('fields', fields);
   const response = await fetch(url, {headers:{authorization:`Bearer ${token}`}, signal:AbortSignal.timeout(20000)});
   const body = await response.json().catch(() => ({}));
-  if (!response.ok || body.error) throw new Error(body.error?.message || `Meta Graph API returned HTTP ${response.status}`);
+  if (!response.ok || body.error) {
+    const error = body.error;
+    throw new Error(`${error?.message || `Meta Graph API returned HTTP ${response.status}`}${error?.code ? ` (code ${error.code}${error.error_subcode ? `, subcode ${error.error_subcode}` : ''})` : ''}`);
+  }
   return body;
 }
 
@@ -118,7 +127,10 @@ async function graphPost(host, resource, params) {
     method:'POST', headers:{'content-type':'application/x-www-form-urlencoded'}, body:new URLSearchParams({...params, access_token:token}), signal:AbortSignal.timeout(30000)
   });
   const body = await response.json().catch(() => ({}));
-  if (!response.ok || body.error) throw new Error(body.error?.message || `Meta Graph API returned HTTP ${response.status}`);
+  if (!response.ok || body.error) {
+    const error = body.error;
+    throw new Error(`${error?.message || `Meta Graph API returned HTTP ${response.status}`}${error?.code ? ` (code ${error.code}${error.error_subcode ? `, subcode ${error.error_subcode}` : ''})` : ''}`);
+  }
   return body;
 }
 
@@ -141,6 +153,31 @@ async function waitForPublicImage(url) {
     await delay(10000);
   }
   throw new Error(`The public JPEG did not become available: ${url}`);
+}
+
+async function waitForContainer(host, containerId) {
+  let status = null;
+  for (let attempt = 1; attempt <= 30; attempt++) {
+    const result = await graphGet(host, containerId, 'status_code,status');
+    status = result.status_code;
+    if (status === 'FINISHED') return;
+    if (status === 'ERROR' || status === 'EXPIRED') throw new Error(`Instagram media processing ended with ${status}: ${result.status || 'no further details'}`);
+    console.log(`Waiting for Instagram media processing (${attempt}/30, ${status || 'pending'}).`);
+    await delay(5000);
+  }
+  throw new Error(`Instagram media container did not finish processing (last status: ${status || 'unknown'}).`);
+}
+
+async function inspectQueue() {
+  const queue = await safeJson(QUEUE_FILE, []);
+  if (!Array.isArray(queue)) throw new Error('blog/instagram-queue.json must contain a JSON array.');
+  let needsArtwork = false;
+  for (const {slug} of queue) {
+    try { await fs.access(path.join(ROOT, 'blog', slug, 'instagram.jpg')); }
+    catch { needsArtwork = true; break; }
+  }
+  if (process.env.GITHUB_OUTPUT) await fs.appendFile(process.env.GITHUB_OUTPUT, `needs_artwork=${needsArtwork ? 'true' : 'false'}\n`);
+  console.log(`${queue.length} article(s) pending on Instagram; new artwork ${needsArtwork ? 'is' : 'is not'} required.`);
 }
 
 async function findExisting(host, accountId, storyUrl, published) {
@@ -173,21 +210,29 @@ async function publish() {
       published[storyUrl] = {mediaId:existing.mediaId || existing.id, permalink:existing.permalink || '', publishedAt:existing.publishedAt || existing.timestamp || new Date().toISOString()};
       console.log(`Already present on Instagram; recording ${storyUrl}`);
       await saveJson(PUBLISHED_FILE, published);
+      const remaining = queue.filter(item => item.slug !== slug);
+      await saveJson(QUEUE_FILE, remaining);
+      queue.splice(0, queue.length, ...remaining);
       continue;
     }
     const container = await graphPost(account.host, `${account.id}/media`, {image_url:imageUrl, caption:caption(post), alt_text:post.title});
     if (!container.id) throw new Error('Meta did not return a media container ID.');
+    await waitForContainer(account.host, container.id);
     const media = await graphPost(account.host, `${account.id}/media_publish`, {creation_id:container.id});
     if (!media.id) throw new Error('Meta did not return a published media ID.');
     let permalink = '';
     try { permalink = (await graphGet(account.host, media.id, 'permalink')).permalink || ''; } catch {}
     published[storyUrl] = {mediaId:media.id, permalink, publishedAt:new Date().toISOString()};
     await saveJson(PUBLISHED_FILE, published);
+    const remaining = queue.filter(item => item.slug !== slug);
+    await saveJson(QUEUE_FILE, remaining);
+    queue.splice(0, queue.length, ...remaining);
     console.log(`Published ${slug} to Instagram (${media.id})${permalink ? `: ${permalink}` : ''}`);
   }
 }
 
 const command = process.argv[2];
 if (command === 'prepare') await prepare();
+else if (command === 'inspect') await inspectQueue();
 else if (command === 'publish') await publish();
-else throw new Error('Usage: node scripts/instagram.mjs <prepare|publish>');
+else throw new Error('Usage: node scripts/instagram.mjs <inspect|prepare|publish>');
