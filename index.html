@@ -1,26 +1,35 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#f6f7f1">
-  <title>Lab — Study &amp; Play</title>
+  <title>Lab â€” Study &amp; Play</title>
   <link rel="stylesheet" href="study/styles.css">
   <style>
     body { display: grid; min-height: 100vh; place-items: center; padding: 24px; }
-    main { display: grid; width: min(100%, 520px); grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px 20px; }
+    main { display: grid; width: min(100%, 680px); grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px 20px; }
     a { display: flex; min-width: 0; flex-direction: column; align-items: center; gap: 12px; color: var(--dark); font: 700 .9rem/1.2 Arial, sans-serif; text-align: center; text-decoration: none; }
     a::before { content: ""; display: grid; width: 112px; height: 112px; place-items: center; border: 1px solid var(--line); border-radius: 26px; color: #fff; background: var(--green); box-shadow: 0 8px 18px rgba(21,51,40,.1); font-size: 1.1rem; transition: transform .2s, filter .2s; }
     a:nth-child(1)::before { content: "STUDY"; }
     a:nth-child(2)::before { content: "PLAY"; background: var(--coral); }
+    a:nth-child(3)::before { content: "MACCA BLOG"; background: #273a2b; }
     a:hover::before { transform: translateY(-4px); filter: brightness(.88); }
     @media (max-width: 380px) { main { gap: 16px 10px; } a::before { width: 92px; height: 92px; } }
+    .home-ad { position: absolute; top: 24px; left: 50%; width: min(900px, 90vw); transform: translateX(-50%); }
+    .home-ad a, .home-ad img { display: block; width: 100%; }
+    .home-ad img { border-radius: 10px; }
+    @media (max-width: 650px) { body { padding-top: 135px; } .home-ad { top: 15px; } }
   </style>
 </head>
 <body>
-  <main aria-label="Escolha uma seção">
+  <div class="home-ad" data-ad-slot="blog-top" aria-label="Advertisement"><a href="https://pklavc.com" target="_blank" rel="sponsored noopener"><img src="blog/assets/ads/open-source.svg" alt="Open source projects and engineering at pklavc.com"></a></div>
+  <main aria-label="Escolha uma seÃ§Ã£o">
     <a href="study/">Study</a>
     <a href="play/">Play</a>
+    <a href="blog/">Macca Blog</a>
   </main>
+  <script defer src="blog/assets/blog.js"></script>
 </body>
 </html>
+

@@ -1,0 +1,21 @@
+[
+  {
+    "title": "How Grand Theft Auto Built Its Open-World Identity",
+    "slug": "how-grand-theft-auto-built-its-open-world-identity",
+    "date": "2026-09-29",
+    "description": "A source-led look at the design ideas that connect Grand Theft Auto's changing cities, player freedom and satirical storytelling.",
+    "category": "Game History",
+    "tags": ["history", "world design", "series"],
+    "image": "/blog/assets/gta-fallback.svg",
+    "imageAlt": "Illustrated neon city skyline inspired by open-world crime games",
+    "featured": true,
+    "sourceUrl": "https://www.rockstargames.com/gta-v",
+    "sources": [{"title":"Grand Theft Auto V official site","url":"https://www.rockstargames.com/gta-v","publisher":"Rockstar Games"}],
+    "sections": [
+      {"heading":"A city as a playable system","paragraphs":["Grand Theft Auto is often discussed through its missions and characters, but its cities are just as central to the series. Streets, landmarks and districts give players a space to move through at their own pace, connecting authored stories with unscripted play.","That design creates a useful distinction: the map is both a setting and a system. Roads support travel and pursuit, while neighborhoods communicate different moods through architecture, traffic and activity. The exact balance changes from game to game, but the city remains a defining part of the experience."]},
+      {"heading":"Freedom shaped by structure","paragraphs":["Open-world freedom does not mean every action is equally possible everywhere. Missions guide players toward particular locations and objectives; outside those missions, the same streets can support exploration, experimentation or simply moving across town. This contrast helps a game feel authored without making every moment feel prescribed.","The official Grand Theft Auto V site presents Los Santos and Blaine County as a broad setting for its story and activities. That is a confirmed description of the game. Claims about the studio's internal design process would require developer interviews or documentation, so this article does not treat interpretation as production fact."]},
+      {"heading":"Satire depends on recognizable places","paragraphs":["A fictional city can comment on real life because players recognize the ingredients: commercial districts, highways, suburbs and public spaces. Exaggeration makes those elements legible as satire, while the ability to travel between them gives the player time to notice how the world changes.","This is an interpretation of the series' visible design, rather than a claim about a specific developer intention. The distinction matters: analysis can explain what a game invites players to notice while leaving statements about private creative decisions to attributable sources."]},
+      {"heading":"What to watch in future entries","paragraphs":["The series' open-world identity is not tied to one map size or one feature list. A useful way to compare future games is to ask how their spaces connect travel, mission design and ambient activity, then separate confirmed details from promotional language and community speculation.","Until Rockstar publishes specific information, predictions about unannounced mechanics or map features remain speculation. The strongest history of Grand Theft Auto comes from examining released games and clearly cited statements, not treating rumors as evidence."]}
+    ]
+  }
+]

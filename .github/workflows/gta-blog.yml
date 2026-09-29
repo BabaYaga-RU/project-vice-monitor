@@ -1,0 +1,48 @@
+name: Macca Blog Publisher
+
+on:
+  schedule:
+    - cron: '17 */3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: macca-blog-publisher
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Research and generate an article when a novel sourced topic exists
+        continue-on-error: true
+        env:
+          SITE_URL: https://macca-lab.onrender.com
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+        run: node scripts/blog.mjs generate
+      - name: Build all blog indexes, feeds and sitemaps
+        env:
+          SITE_URL: https://macca-lab.onrender.com
+        run: node scripts/blog.mjs build
+      - name: Commit and push generated changes
+        run: |
+          if [[ -n "$(git status --porcelain blog sitemap.xml)" ]]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add blog sitemap.xml
+            git commit -m "Publish researched GTA blog update"
+            git push origin HEAD:main
+          else
+            echo "No blog changes to publish."
+          fi
