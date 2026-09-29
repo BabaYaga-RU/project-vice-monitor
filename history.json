@@ -4917,6 +4917,39 @@
         "num_stylesheets": 43,
         "page_title": "Grand Theft Auto VI - Rockstar Games",
         "meta_description": "Vice City, USA. Jason and Lucia have always known the deck is stacked against them. But when an easy score goes wrong, they find themselves on the darkest side of the sunniest place in America, in the middle of a criminal conspiracy stretching across the state of Leonida \u2014 forced to rely on each other more than ever if they want to make it out alive."
+      },
+      {
+        "timestamp": "2026-09-29T01:20:42.229324+00:00",
+        "url": "https://www.rockstargames.com/VI/",
+        "status": "ONLINE",
+        "http_code": 200,
+        "total_time_ms": 391.53,
+        "dns_time_ms": 59.25,
+        "tcp_time_ms": 2.2,
+        "transfer_time_ms": 330.08,
+        "content_ok": true,
+        "found_keywords": [
+          "Grand Theft Auto",
+          "GTA VI",
+          "Rockstar"
+        ],
+        "security_headers": {
+          "strict-transport-security": true,
+          "x-content-type-options": false,
+          "content-security-policy": false,
+          "x-frame-options": false,
+          "referrer-policy": false
+        },
+        "engagement": {},
+        "content_hash": "a21fc0556e0030a471bab4f3cc22c93da1bcdac8f121e854e18676b4dda4969a",
+        "intelligence_update": false,
+        "html_size_kb": 1061.62,
+        "num_images": 31,
+        "num_links": 24,
+        "num_scripts": 319,
+        "num_stylesheets": 43,
+        "page_title": "Grand Theft Auto VI - Rockstar Games",
+        "meta_description": "Vice City, USA. Jason and Lucia have always known the deck is stacked against them. But when an easy score goes wrong, they find themselves on the darkest side of the sunniest place in America, in the middle of a criminal conspiracy stretching across the state of Leonida \u2014 forced to rely on each other more than ever if they want to make it out alive."
       }
     ],
     "rockstar_newswire": [
@@ -9646,6 +9679,38 @@
         "engagement": {},
         "content_hash": "3cd1759c204e8c148f224dc08cb8d428b09ee2589525bb5e2ce14428288e3928",
         "intelligence_update": true,
+        "html_size_kb": 4.04,
+        "num_images": 0,
+        "num_links": 0,
+        "num_scripts": 4,
+        "num_stylesheets": 0,
+        "page_title": "Newswire - Rockstar Games",
+        "meta_description": "The official destination for Rockstar game announcements and updates, trailer launches, screenshot unveilings, events, soundtrack details, community creations and a lot more."
+      },
+      {
+        "timestamp": "2026-09-29T01:20:42.711953+00:00",
+        "url": "https://www.rockstargames.com/newswire",
+        "status": "ONLINE",
+        "http_code": 200,
+        "total_time_ms": 42.25,
+        "dns_time_ms": 0.35,
+        "tcp_time_ms": 1.94,
+        "transfer_time_ms": 39.96,
+        "content_ok": true,
+        "found_keywords": [
+          "Rockstar",
+          "News"
+        ],
+        "security_headers": {
+          "strict-transport-security": true,
+          "x-content-type-options": false,
+          "content-security-policy": false,
+          "x-frame-options": false,
+          "referrer-policy": true
+        },
+        "engagement": {},
+        "content_hash": "3cd1759c204e8c148f224dc08cb8d428b09ee2589525bb5e2ce14428288e3928",
+        "intelligence_update": false,
         "html_size_kb": 4.04,
         "num_images": 0,
         "num_links": 0,
@@ -14548,6 +14613,39 @@
         "num_stylesheets": 6,
         "page_title": "Grand Theft Auto VI - PS5 Games | PlayStation (US)",
         "meta_description": "Pre-order Grand Theft Auto VI at PlayStation.com now. Experience the biggest, most immersive evolution of the Grand Theft Auto series yet when GTA VI releases on 19 November 2026. GTA 6 is only playable on PS5 and is not available for PS4."
+      },
+      {
+        "timestamp": "2026-09-29T01:20:42.771202+00:00",
+        "url": "https://www.playstation.com/en-us/games/grand-theft-auto-vi/",
+        "status": "INTELLIGENCE_UPDATE",
+        "http_code": 200,
+        "total_time_ms": 344.41,
+        "dns_time_ms": 56.52,
+        "tcp_time_ms": 10.09,
+        "transfer_time_ms": 277.8,
+        "content_ok": true,
+        "found_keywords": [
+          "Grand Theft Auto",
+          "GTA VI",
+          "PlayStation"
+        ],
+        "security_headers": {
+          "strict-transport-security": true,
+          "x-content-type-options": true,
+          "content-security-policy": false,
+          "x-frame-options": true,
+          "referrer-policy": true
+        },
+        "engagement": {},
+        "content_hash": "0104057808798cb4c43c28c1d66e62b48b0dbd223494d71222eeb7bc1c467c15",
+        "intelligence_update": true,
+        "html_size_kb": 352.41,
+        "num_images": 37,
+        "num_links": 91,
+        "num_scripts": 39,
+        "num_stylesheets": 6,
+        "page_title": "Grand Theft Auto VI - PS5 Games | PlayStation (US)",
+        "meta_description": "Pre-order Grand Theft Auto VI at PlayStation.com now. Experience the biggest, most immersive evolution of the Grand Theft Auto series yet when GTA VI releases on 19 November 2026. GTA 6 is only playable on PS5 and is not available for PS4."
       }
     ],
     "xbox_store": [
@@ -19312,6 +19410,38 @@
         "content_hash": "301d45ac96a1b8f17ecf18cf2b4439199316d3c8e23ce9f4f25685f02a224e59",
         "intelligence_update": true,
         "html_size_kb": 456.63,
+        "num_images": 14,
+        "num_links": 159,
+        "num_scripts": 21,
+        "num_stylesheets": 6,
+        "page_title": "Your Privacy Choices Opt-Out Icon",
+        "meta_description": null
+      },
+      {
+        "timestamp": "2026-09-29T01:20:43.206214+00:00",
+        "url": "https://www.xbox.com/en-US/games/store/grand-theft-auto-vi/9NL3WWNZLZZN",
+        "status": "INTELLIGENCE_UPDATE",
+        "http_code": 200,
+        "total_time_ms": 451.31,
+        "dns_time_ms": 67.79,
+        "tcp_time_ms": 11.55,
+        "transfer_time_ms": 371.97,
+        "content_ok": true,
+        "found_keywords": [
+          "Grand Theft Auto",
+          "Xbox"
+        ],
+        "security_headers": {
+          "strict-transport-security": true,
+          "x-content-type-options": true,
+          "content-security-policy": false,
+          "x-frame-options": true,
+          "referrer-policy": false
+        },
+        "engagement": {},
+        "content_hash": "de57544012ea2aa5bf73021357749404d18ca1fe339f9e2faccb146543a988f7",
+        "intelligence_update": true,
+        "html_size_kb": 456.64,
         "num_images": 14,
         "num_links": 159,
         "num_scripts": 21,
