@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Visualizador interativo S-800 com olhos, cabeça e boca animados.">
+  <link rel="canonical" href="https://pklavc.com/lab/t800/">
+  <title>S-800</title>
+  <link rel="stylesheet" href="style.css">
+  <script type="importmap">{ "imports": { "three": "./vendor/three/three.module.js" } }</script>
+</head>
+<body>
+  <main class="stage" aria-label="Visualizador S-800">
+    <div id="viewport" class="viewport">
+      <div id="loading" class="loading">Carregando modelo...</div>
+      <div id="error" class="error" hidden></div>
+    </div>
+    <section class="console" aria-label="Controles de fala">
+      <form id="speech-form" class="speech-form">
+        <label class="sr-only" for="speech-input">Texto para o personagem falar</label>
+        <input id="speech-input" name="speech" type="text" maxlength="180" autocomplete="off" placeholder="Digite uma frase..." value="I'll be back.">
+        <button type="submit">Falar</button>
+      </form>
+    </section>
+  </main>
+  <script type="module" src="main.js"></script>
+</body>
+</html>
