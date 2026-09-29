@@ -117,7 +117,16 @@ function articleHtml(p, all) {
 
 async function build() {
   const posts=(await readJson(DATA_FILE,[])).sort((a,b)=>b.date.localeCompare(a.date));
-  for(const p of posts) { p.image='/images/macca-blog-banner.jpg'; p.imageAlt='Macca the Gator at sunset in Vice City'; await fs.mkdir(path.join(ROOT,'blog',p.slug),{recursive:true}); await fs.writeFile(path.join(ROOT,'blog',p.slug,'index.html'),articleHtml(p,posts)); }
+  for(const p of posts) {
+    p.image='/images/macca-blog-banner.jpg'; p.imageAlt='Macca the Gator at sunset in Vice City';
+    const inlineImages=Array.isArray(p.inlineImages)?p.inlineImages:[];
+    const thumbnail=String(p.thumbnail||'').replace(/&amp;/g,'&');
+    if(/^https:\/\//i.test(thumbnail)&&!inlineImages.some(x=>x.url===thumbnail)) {
+      inlineImages.unshift({url:thumbnail,alt:p.thumbnailAlt||p.title,caption:'Image accompanying the source report',sourceUrl:p.sourceUrl||p.sources?.[0]?.url||'#'});
+      p.inlineImages=inlineImages;
+    }
+    await fs.mkdir(path.join(ROOT,'blog',p.slug),{recursive:true}); await fs.writeFile(path.join(ROOT,'blog',p.slug,'index.html'),articleHtml(p,posts));
+  }
   await writeJson(DATA_FILE,posts);
   const card=p=>`<a class="feature" href="/blog/${encodeURIComponent(p.slug)}/"><span class="feature-cover"><img src="${esc(p.thumbnail||'/images/macca-blog-banner.webp')}" alt="${esc(p.thumbnailAlt||p.title)}" loading="lazy" onerror="this.onerror=null;this.src='/images/macca-blog-banner.webp'"><span class="cover-label">MACCA BLOG | ${esc(p.category)}</span></span><small>${esc(p.category)} | ${esc(p.date)}</small><h2>${esc(p.title)}</h2><p>${esc(p.description)}</p></a>`;
   const cats=[...new Set(posts.map(p=>p.category))].sort();
