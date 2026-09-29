@@ -1,5 +1,60 @@
 [
   {
+    "skip": false,
+    "title": "Alleged Rockstar Games Hacker Arrested, Ordered Multiple Murders",
+    "description": "Dutch police have arrested a 24-year-old Amsterdam man allegedly linked to the ShinyHunters breach of Rockstar Games, and he now also faces suspicion of attempted incitement to commit two murders.",
+    "category": "Rockstar Games",
+    "tags": [
+      "Rockstar Games",
+      "Take-Two",
+      "ShinyHunters",
+      "hacking",
+      "GTA Online",
+      "Rockstar Intel"
+    ],
+    "featured": true,
+    "sections": [
+      {
+        "heading": "Dutch Police Arrest Man Tied to Rockstar Games Breach",
+        "paragraphs": [
+          "A 24-year-old man from Amsterdam has been arrested in connection with the hacking group that breached Rockstar Games earlier this year, according to RockstarINTEL. Citing Dutch law enforcement, the outlet reports that the man was taken into custody on September 15 and appeared in court on Tuesday over alleged involvement with the hacker group ShinyHunters.",
+          "RockstarINTEL notes that Dutch police said in a social media post that the Amsterdam resident is suspected of participating in a criminal organization. Following his arrest, officers reportedly found a large amount of information on his laptop, including details about two murders that were to be committed abroad, and the man is now also suspected of attempted incitement to commit two murders — a suspicion police say is separate from the ShinyHunters investigation.",
+          "According to RockstarINTEL, a statement from Neo Security via Reuters identified the man as Pepijn van der Stap, an offensive security lead at the Amsterdam-based firm. The outlet adds that ShinyHunters denies that van der Stap is associated with the group, so his claimed link to the Rockstar breach remains disputed."
+        ]
+      },
+      {
+        "heading": "Background: The ShinyHunters Breach of Rockstar",
+        "paragraphs": [
+          "RockstarINTEL recaps that ShinyHunters hacked Rockstar Games earlier this year and held the company to ransom. The group reportedly infiltrated a third-party software used by the company, allowing them to steal what was claimed to be 80 million files, including documents revealing how much money GTA Online makes and how many players it has.",
+          "The hackers demanded payment from Rockstar or the files would be released, and per RockstarINTEL no payment was made, leading to the leaked details surfacing publicly. Rockstar confirmed the incident at the time, saying \"a limited amount of non-material company information was accessed in connection with a third-party data breach\" and that it had \"no impact on our organization or our players.\"",
+          "RockstarINTEL also points out that ShinyHunters has claimed responsibility for numerous other hacks, including Ticketmaster, SoundCloud, Google and even the FBI in recent weeks. The suspect in the Dutch case had previously been convicted of data theft and extortion but had since disavowed cyber crime, according to the reporting. He is being held in complete isolation while police conduct a thorough investigation into the allegations."
+        ]
+      }
+    ],
+    "thumbnail": "https://rockstarintel.com/wp-content/uploads/2025/05/Raul_Bautista_01-scaled.jpg",
+    "thumbnailAlt": "Alleged Rockstar Games hacker arrested, ordered multiple murders",
+    "inlineImages": [
+      {
+        "url": "https://rockstarintel.com/wp-content/uploads/2025/05/Raul_Bautista_01-scaled.jpg",
+        "alt": "Alleged Rockstar Games hacker arrested, ordered multiple murders",
+        "caption": "Image via RockstarINTEL's report on the arrest",
+        "sourceUrl": "https://rockstarintel.com/alleged-rockstar-games-hacker-arrested-ordered-multiple-murders/"
+      }
+    ],
+    "sources": [
+      {
+        "title": "Alleged Rockstar Games Hacker Arrested, Ordered Multiple Murders",
+        "url": "https://rockstarintel.com/alleged-rockstar-games-hacker-arrested-ordered-multiple-murders/",
+        "publisher": "rockstarintel.com"
+      }
+    ],
+    "date": "2026-09-29",
+    "slug": "alleged-rockstar-games-hacker-arrested-ordered-multiple-murders",
+    "sourceUrl": "https://rockstarintel.com/alleged-rockstar-games-hacker-arrested-ordered-multiple-murders/",
+    "image": "/images/macca-blog-banner.jpg",
+    "imageAlt": "Macca the Gator at sunset in Vice City"
+  },
+  {
     "title": "GTA 6 Won’t Spoof Disney World, Says Rockstar – Here’s What We Know",
     "description": "GameSpot reports that GTA 6 won't include a parody of Walt Disney World or other Central Florida landmarks, per Rockstar's Jack McPherson. The game still aims for the 'full Florida experience' elsewhere.",
     "category": "News",
