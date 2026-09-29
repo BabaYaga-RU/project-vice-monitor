@@ -3,87 +3,37 @@
     "blog-top": [
       {
         "enabled": true,
-        "label": "Open Source Projects",
+        "label": "The PKLAVC Blog Is Coming Soon",
         "href": "https://pklavc.com",
         "image": "/ads/partner.webp",
-        "alt": "Explore open source projects at pklavc.com",
-        "kicker": "MACCA BLOG PRESENTS",
-        "headline": "OPEN SOURCE PROJECTS",
-        "description": "Build in the open | Explore pklavc.com"
-      },
-      {
-        "enabled": true,
-        "label": "Software Engineering",
-        "href": "https://pklavc.com",
-        "image": "/ads/partner.webp",
-        "alt": "Software engineering, architecture and delivery at pklavc.com",
-        "kicker": "MACCA BLOG PRESENTS",
-        "headline": "SOFTWARE ENGINEERING",
-        "description": "Architecture | APIs | Automation | pklavc.com"
-      },
-      {
-        "enabled": true,
-        "label": "Technology",
-        "href": "https://pklavc.com",
-        "image": "/ads/partner.webp",
-        "alt": "Technology and engineering ideas at pklavc.com",
-        "kicker": "MACCA BLOG PRESENTS",
-        "headline": "TECHNOLOGY IN PRACTICE",
-        "description": "Explore projects and engineering notes | pklavc.com"
-      },
-      {
-        "enabled": true,
-        "label": "PKLAVC Blog Returning Soon",
-        "href": "https://pklavc.com",
-        "image": "/ads/partner.webp",
-        "alt": "The PKLAVC blog is returning soon. Visit pklavc.com",
+        "alt": "The PKLAVC blog is coming soon. Visit pklavc.com",
         "kicker": "MACCA BLOG PRESENTS",
         "headline": "THE PKLAVC BLOG IS COMING SOON",
-        "description": "Follow the return at pklavc.com"
+        "description": "pklavc.com"
       }
     ],
     "article-inline": [
       {
         "enabled": true,
-        "label": "Open Source Projects",
+        "label": "The PKLAVC Blog Is Coming Soon",
         "href": "https://pklavc.com",
         "image": "/ads/partner.webp",
-        "alt": "Explore open source projects at pklavc.com",
-        "kicker": "MACCA BLOG PRESENTS",
-        "headline": "OPEN SOURCE PROJECTS",
-        "description": "Build in the open | Explore pklavc.com"
-      },
-      {
-        "enabled": true,
-        "label": "PKLAVC Blog Returning Soon",
-        "href": "https://pklavc.com",
-        "image": "/ads/partner.webp",
-        "alt": "The PKLAVC blog is returning soon. Visit pklavc.com",
+        "alt": "The PKLAVC blog is coming soon. Visit pklavc.com",
         "kicker": "MACCA BLOG PRESENTS",
         "headline": "THE PKLAVC BLOG IS COMING SOON",
-        "description": "Follow the return at pklavc.com"
+        "description": "pklavc.com"
       }
     ],
     "sidebar": [
       {
         "enabled": true,
-        "label": "Software Engineering",
+        "label": "The PKLAVC Blog Is Coming Soon",
         "href": "https://pklavc.com",
         "image": "/ads/partner.webp",
-        "alt": "Software engineering at pklavc.com",
+        "alt": "The PKLAVC blog is coming soon. Visit pklavc.com",
         "kicker": "MACCA BLOG PRESENTS",
-        "headline": "SOFTWARE ENGINEERING",
-        "description": "Architecture | APIs | Automation | pklavc.com"
-      },
-      {
-        "enabled": true,
-        "label": "Technology",
-        "href": "https://pklavc.com",
-        "image": "/ads/partner.webp",
-        "alt": "Technology at pklavc.com",
-        "kicker": "MACCA BLOG PRESENTS",
-        "headline": "TECHNOLOGY IN PRACTICE",
-        "description": "Explore projects and engineering notes | pklavc.com"
+        "headline": "THE PKLAVC BLOG IS COMING SOON",
+        "description": "pklavc.com"
       }
     ]
   }
