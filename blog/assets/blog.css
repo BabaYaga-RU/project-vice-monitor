@@ -23,3 +23,8 @@ a:hover,.article-body a{color:var(--cyan)}
 .source-image img{display:block;width:100%;max-height:620px;object-fit:contain;background:#0b0910}
 .source-image figcaption{padding:.65rem .85rem;color:var(--muted);font-size:.82rem}
 @media(max-width:520px){.cover-label{left:.65rem;right:auto;text-align:left}.feature-cover::after{background:linear-gradient(90deg,transparent 10%,rgba(14,9,24,.25) 50%,rgba(14,9,24,.65))}}
+
+.footer-social{display:inline-flex;align-items:center;gap:.5rem;color:var(--cyan);font-size:.82rem;font-weight:700;text-decoration:none;white-space:nowrap;transition:color .2s ease}
+.footer-social svg{width:1.25rem;height:1.25rem;flex:none}
+.footer-social:hover{color:var(--accent)}
+.footer-social:focus-visible{outline:2px solid var(--cyan);outline-offset:4px;border-radius:4px}
