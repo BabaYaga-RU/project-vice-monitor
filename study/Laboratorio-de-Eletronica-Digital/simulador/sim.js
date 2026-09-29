@@ -37,50 +37,63 @@ function simulateDigital(){const n=nets(),values=new Map(),net=k=>n.root(k);for(
 function digitalValue(part,pin){return digitalState.values.get(digitalState.root(pinKey(part.id,pin)))}
 function update(){if(mode==='analog')simulateAnalog();else simulateDigital()}
 
-const report3Specs=[
- {file:'01_INVERSOR_NAND_A0_LED1.png',kind:'inverter',a:0,expected:1},
- {file:'02_INVERSOR_NAND_A1_LED0.png',kind:'inverter',a:1,expected:0},
- {file:'03_AND_NAND_A0_B0_LED0.png',kind:'and',a:0,b:0,expected:0},
- {file:'04_AND_NAND_A0_B1_LED0.png',kind:'and',a:0,b:1,expected:0},
- {file:'05_AND_NAND_A1_B0_LED0.png',kind:'and',a:1,b:0,expected:0},
- {file:'06_AND_NAND_A1_B1_LED1.png',kind:'and',a:1,b:1,expected:1},
- {file:'07_OR_NAND_A0_B0_LED0.png',kind:'or',a:0,b:0,expected:0},
- {file:'08_OR_NAND_A0_B1_LED1.png',kind:'or',a:0,b:1,expected:1},
- {file:'09_OR_NAND_A1_B0_LED1.png',kind:'or',a:1,b:0,expected:1},
- {file:'10_OR_NAND_A1_B1_LED1.png',kind:'or',a:1,b:1,expected:1}
-];
-function buildReport3Circuit(spec){
+const report5Specs=[];
+const states2=[[0,0],[0,1],[1,0],[1,1]],states3=[[0,0,0],[0,0,1],[0,1,0],[0,1,1],[1,0,0],[1,0,1],[1,1,0],[1,1,1]];
+for(const[a,b]of states2){const sum=a^b,carry=a&b;report5Specs.push({family:'halfAdder',inputs:{A:a,B:b},outputs:{Soma:sum,Carry:carry},file:`${String(report5Specs.length+1).padStart(2,'0')}_HALF_ADDER_A${a}_B${b}_S${sum}_C${carry}.png`})}
+for(const[a,b,c]of states3){const sum=a^b^c,carry=(a&b)|(a&c)|(b&c);report5Specs.push({family:'fullAdder',inputs:{A:a,B:b,C:c},outputs:{Soma:sum,Carry:carry},file:`${String(report5Specs.length+1).padStart(2,'0')}_FULL_ADDER_A${a}_B${b}_C${c}_S${sum}_C${carry}.png`})}
+for(const[a,b]of states2){const diff=a^b,borrow=(1-a)&b;report5Specs.push({family:'halfSub',inputs:{A:a,B:b},outputs:{Diferença:diff,Empréstimo:borrow},file:`${String(report5Specs.length+1).padStart(2,'0')}_HALF_SUB_A${a}_B${b}_D${diff}_B${borrow}.png`})}
+for(const[a,b,c]of states3){const sum=a^b^c,carry=(a&b)|(c&(a^b));report5Specs.push({family:'twoHalfAdders',inputs:{A:a,B:b,Cin:c},outputs:{Soma:sum,Cout:carry},file:`${String(report5Specs.length+1).padStart(2,'0')}_FA_2HA_A${a}_B${b}_C${c}_S${sum}_C${carry}.png`})}
+for(const[a,b,bin]of states3){const diff=a^b^bin,borrow=((1-a)&b)|((1-a)&bin)|(b&bin);report5Specs.push({family:'fullSub',inputs:{A:a,B:b,Bin:bin},outputs:{Diferença:diff,Bout:borrow},file:`${String(report5Specs.length+1).padStart(2,'0')}_FULL_SUB_A${a}_B${b}_BIN${bin}_D${diff}_B${borrow}.png`})}
+function buildReport5Circuit(spec){
  circuit={mode:'digital',components:[],wires:[],nextId:1,frequency:60};selected=null;
  const add=(type,x,y,name,extra={})=>{const p={...library[type],...extra,id:circuit.nextId++,type,x,y,name};circuit.components.push(p);return p};
- const sw=(name,value,x,y)=>add('SW',x,y,name,{value}),nand=(x,y)=>add('NAND',x,y,'7400'),led=(x,y)=>add('LED',x,y,'LED');
- const wire=(a,ap,b,bp)=>circuit.wires.push({id:`r3w${circuit.wires.length+1}`,a:pinKey(a.id,ap),b:pinKey(b.id,bp)});
- const join=(a,b,input)=>wire(a,a.type==='SW'?0:2,b,input),branch=(source,target)=>{join(source,target,0);join(source,target,1)};
- if(spec.kind==='inverter'){
-  const a=sw('A',spec.a,85,310),n=nand(490,300),l=led(850,300);branch(a,n);join(n,l,0);
- }else if(spec.kind==='and'){
-  const a=sw('A',spec.a,70,230),b=sw('B',spec.b,70,390),n1=nand(410,290),n2=nand(770,290),l=led(1060,290);
-  join(a,n1,0);join(b,n1,1);branch(n1,n2);join(n2,l,0);
- }else if(spec.kind==='or'){
-  const a=sw('A',spec.a,50,80),b=sw('B',spec.b,50,330),n1=nand(360,65),n2=nand(360,315),n3=nand(780,190),l=led(1080,190);
-  branch(a,n1);branch(b,n2);join(n1,n3,0);join(n2,n3,1);join(n3,l,0);
+ const sw=(name,value,x,y)=>add('SW',x,y,name,{value}),gate=(type,name,x,y)=>add(type,x,y,name),lamp=(name,x,y)=>add('LED',x,y,name);
+ const wire=(from,fromPin,to,toPin)=>circuit.wires.push({id:`r5w${circuit.wires.length+1}`,a:pinKey(from.id,fromPin),b:pinKey(to.id,toPin)});
+ const connect=(from,to,input)=>wire(from,from.type==='SW'?0:meta(from).pins.length-1,to,input);
+ const branch=(from,to)=>{connect(from,to,0);connect(from,to,1)};
+ const input={};
+ if(spec.family==='halfAdder'){
+  input.A=sw('A',spec.inputs.A,55,225);input.B=sw('B',spec.inputs.B,55,425);
+  const x=gate('XOR','XOR',365,225),a=gate('AND','AND',365,395),s=lamp('Soma',865,225),c=lamp('Carry',865,395);
+  connect(input.A,x,0);connect(input.B,x,1);connect(input.A,a,0);connect(input.B,a,1);connect(x,s,0);connect(a,c,0);
+ }else if(spec.family==='fullAdder'){
+  input.A=sw('A',spec.inputs.A,40,75);input.B=sw('B',spec.inputs.B,40,300);input.C=sw('C',spec.inputs.C,40,550);
+  const x1=gate('XOR','X1',280,135),sum=gate('XOR','Soma',600,115),t1=gate('AND','T1',280,340),t2=gate('AND','T2',280,475),t3=gate('AND','T3',575,545),o1=gate('OR','O1',610,350),o2=gate('OR','Carry',870,405),ls=lamp('Soma',1085,125),lc=lamp('Carry',1085,415);
+  connect(input.A,x1,0);connect(input.B,x1,1);connect(x1,sum,0);connect(input.C,sum,1);
+  connect(input.A,t1,0);connect(input.B,t1,1);connect(input.A,t2,0);connect(input.C,t2,1);connect(input.B,t3,0);connect(input.C,t3,1);
+  connect(t1,o1,0);connect(t2,o1,1);connect(o1,o2,0);connect(t3,o2,1);connect(sum,ls,0);connect(o2,lc,0);
+ }else if(spec.family==='halfSub'){
+  input.A=sw('A',spec.inputs.A,55,220);input.B=sw('B',spec.inputs.B,55,430);
+  const x=gate('XOR','XOR',385,215),na=gate('NOT','NOT A',315,70),and=gate('AND','AND',650,365),ld=lamp('Diferença',950,225),lb=lamp('Empréstimo',950,390);
+  connect(input.A,x,0);connect(input.B,x,1);connect(input.A,na,0);connect(na,and,0);connect(input.B,and,1);connect(x,ld,0);connect(and,lb,0);
+ }else if(spec.family==='twoHalfAdders'){
+  input.A=sw('A',spec.inputs.A,40,90);input.B=sw('B',spec.inputs.B,40,310);input.Cin=sw('Cin',spec.inputs.Cin,40,555);
+  const x1=gate('XOR','HA1 XOR',275,150),c1=gate('AND','HA1 AND',275,340),x2=gate('XOR','HA2 XOR',620,150),c2=gate('AND','HA2 AND',620,375),or=gate('OR','Carry',900,365),ls=lamp('Soma',1085,160),lc=lamp('Cout',1085,400);
+  connect(input.A,x1,0);connect(input.B,x1,1);connect(input.A,c1,0);connect(input.B,c1,1);connect(x1,x2,0);connect(input.Cin,x2,1);connect(x1,c2,0);connect(input.Cin,c2,1);connect(c1,or,0);connect(c2,or,1);connect(x2,ls,0);connect(or,lc,0);
+ }else if(spec.family==='fullSub'){
+  input.A=sw('A',spec.inputs.A,35,75);input.B=sw('B',spec.inputs.B,35,315);input.Bin=sw('Bin',spec.inputs.Bin,35,555);
+  const x1=gate('XOR','X1',265,100),diff=gate('XOR','Diferença',530,95),na=gate('NOT','NOT A',265,405),t1=gate('AND','T1',510,315),t2=gate('AND','T2',510,455),t3=gate('AND','T3',510,590),o1=gate('OR','O1',755,410),o2=gate('OR','Bout',925,455),ld=lamp('Diferença',1085,100),lb=lamp('Bout',1085,460);
+  connect(input.A,x1,0);connect(input.B,x1,1);connect(x1,diff,0);connect(input.Bin,diff,1);connect(input.A,na,0);connect(na,t1,0);connect(input.B,t1,1);connect(na,t2,0);connect(input.Bin,t2,1);connect(input.B,t3,0);connect(input.Bin,t3,1);connect(t1,o1,0);connect(t2,o1,1);connect(o1,o2,0);connect(t3,o2,1);connect(diff,ld,0);connect(o2,lb,0);
  }
 }
-function reportSvgBlob(){
- const sourceBounds=[partsLayer.getBBox(),wiresLayer.getBBox()].filter(box=>box.width||box.height);
- if(!sourceBounds.length)throw new Error('O circuito nao contem componentes conectaveis.');
- const x0=Math.min(...sourceBounds.map(box=>box.x))-24,y0=Math.min(...sourceBounds.map(box=>box.y))-30;
- const x1=Math.max(...sourceBounds.map(box=>box.x+box.width))+24,y1=Math.max(...sourceBounds.map(box=>box.y+box.height))+36;
- const scale=Math.min(1080/Math.max(1,x1-x0),590/Math.max(1,y1-y0)),tx=600-(x0+x1)*scale/2,ty=360-(y0+y1)*scale/2;
- const imageSvg=$('circuit').cloneNode(true);imageSvg.setAttribute('xmlns',ns);imageSvg.setAttribute('width','2400');imageSvg.setAttribute('height','1440');imageSvg.setAttribute('data-mode','digital');imageSvg.removeAttribute('id');
- const copyComputed=(source,target)=>{const computed=getComputedStyle(source),properties=['fill','fill-opacity','stroke','stroke-width','stroke-linecap','stroke-linejoin','stroke-dasharray','opacity','filter','display','visibility','font-family','font-size','font-weight','text-anchor','pointer-events','shape-rendering','paint-order'];const declarations=properties.map(name=>{const value=computed.getPropertyValue(name);return value?`${name}:${value}`:''}).filter(Boolean).join(';');if(declarations)target.setAttribute('style',declarations);const a=source.children,b=target.children;for(let i=0;i<Math.min(a.length,b.length);i++)copyComputed(a[i],b[i])};
- copyComputed($('circuit'),imageSvg);const background=imageSvg.querySelector(':scope > rect:first-of-type');background?.setAttribute('fill','#f9fbfc');imageSvg.querySelector(':scope > rect:nth-of-type(2)')?.remove();
- let grid='';for(let x=0;x<=1200;x+=20)grid+=`M${x} 0V720 `;for(let y=0;y<=720;y+=20)grid+=`M0 ${y}H1200 `;const gridLines=sEl('path',{d:grid,fill:'none',stroke:'#e1e7ec','stroke-width':.7,'pointer-events':'none'});imageSvg.insertBefore(gridLines,imageSvg.querySelector('#wires'));
- const wires=imageSvg.querySelector('#wires'),parts=imageSvg.querySelector('#parts');imageSvg.querySelector('.wire-preview')?.remove();const group=sEl('g',{transform:`translate(${tx} ${ty}) scale(${scale})`});wires.parentNode.insertBefore(group,wires);group.append(wires,parts);return new Blob([new XMLSerializer().serializeToString(imageSvg)],{type:'image/svg+xml;charset=utf-8'});
+function checkReport5(spec){
+ const leds=circuit.components.filter(p=>p.type==='LED'),expectedLeds=Object.entries(spec.outputs),actual=expectedLeds.map(([name])=>{const p=leds.find(x=>x.name===name);return p?.level});
+ if(leds.length!==expectedLeds.length||actual.some((v,i)=>v!==expectedLeds[i][1]))throw new Error(`${spec.file}: LEDs ${leds.map(p=>`${p.name}=${p.level??'flutuando'}`).join(', ')}; esperado ${expectedLeds.map(([n,v])=>`${n}=${v}`).join(', ')}.`);
+ const gateCounts={halfAdder:{XOR:1,AND:1},fullAdder:{XOR:2,AND:3,OR:2},halfSub:{XOR:1,NOT:1,AND:1},twoHalfAdders:{XOR:2,AND:2,OR:1},fullSub:{XOR:2,NOT:1,AND:3,OR:2}},counts={};for(const p of circuit.components)if(['AND','OR','NOT','NAND','NOR','XOR','XNOR'].includes(p.type))counts[p.type]=(counts[p.type]||0)+1;
+ const wanted=gateCounts[spec.family];if(Object.keys(wanted).some(type=>counts[type]!==wanted[type])||Object.keys(counts).some(type=>counts[type]!==wanted[type]))throw new Error(`${spec.file}: portas ${JSON.stringify(counts)}; esperadas ${JSON.stringify(wanted)}.`);
+ return{file:spec.file,family:spec.family,inputs:spec.inputs,expected:spec.outputs,leds:Object.fromEntries(leds.map(p=>[p.name,p.level])),gateCounts:counts,wires:circuit.wires.length};
 }
-async function renderReport3Png(){const svgBlob=reportSvgBlob(),url=URL.createObjectURL(svgBlob);try{const image=new Image();await new Promise((resolve,reject)=>{image.onload=resolve;image.onerror=()=>reject(new Error('O navegador nao renderizou o SVG da montagem.'));image.src=url});const canvas=document.createElement('canvas');canvas.width=2400;canvas.height=1440;const ctx=canvas.getContext('2d');ctx.fillStyle='#fbfcfd';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.drawImage(image,0,0,canvas.width,canvas.height);return await new Promise((resolve,reject)=>canvas.toBlob(blob=>blob?resolve(blob):reject(new Error('Falha ao exportar PNG.')),'image/png'))}finally{URL.revokeObjectURL(url)}}
-function checkReport3(spec){const leds=circuit.components.filter(p=>p.type==='LED'),gates=circuit.components.filter(p=>['AND','OR','NOT','NAND','NOR','XOR','XNOR'].includes(p.type)),nands=gates.filter(p=>p.type==='NAND');if(leds.length!==1||leds[0].level!==spec.expected)throw new Error(`${spec.file}: LED=${leds[0]?.level??'flutuando'}; esperado ${spec.expected}.`);const count=spec.kind==='inverter'?1:spec.kind==='and'?2:3;if(gates.length!==count||nands.length!==count)throw new Error(`${spec.file}: esperadas ${count} portas NAND fisicas.`);const intermediate=nands.map(p=>digitalValue(p,2));let expected;if(spec.kind==='inverter')expected=[1-spec.a];else if(spec.kind==='and')expected=[1-(spec.a&spec.b),spec.a&spec.b];else expected=[1-spec.a,1-spec.b,spec.a|spec.b];if(intermediate.some((v,i)=>v!==expected[i]))throw new Error(`${spec.file}: saidas internas ${intermediate.join(',')} nao conferem com ${expected.join(',')}.`);return{file:spec.file,inputs:spec.kind==='inverter'?[spec.a]:[spec.a,spec.b],expected:spec.expected,led:leds[0].level,gates:gates.map(p=>p.type),gateOutputs:intermediate,wires:circuit.wires.length}}
-async function generateReport3(){const button=$('generateReport3'),box=$('report3Output'),status=$('report3Status'),downloads=$('report3Downloads'),savedCircuit=JSON.parse(JSON.stringify(circuit)),savedSelection=selected;button.disabled=true;box.hidden=false;downloads.replaceChildren();status.textContent='Montando e validando 10 circuitos...';try{const built=[];for(const spec of report3Specs){buildReport3Circuit(spec);update();built.push({spec,circuit:JSON.parse(JSON.stringify(circuit)),audit:checkReport3(spec)})}const artifacts=[];for(const item of built){circuit=JSON.parse(JSON.stringify(item.circuit));selected=null;update();const audit=checkReport3(item.spec);if(audit.led!==item.audit.led)throw new Error(`${item.spec.file}: o estado mudou antes da captura.`);artifacts.push({filename:item.spec.file,blob:await renderReport3Png(),audit})}for(const artifact of artifacts){const a=document.createElement('a');a.href=URL.createObjectURL(artifact.blob);a.download=artifact.filename;a.textContent=`Baixar ${artifact.filename}`;a.dataset.filename=artifact.filename;downloads.append(a)}for(const a of downloads.querySelectorAll('a')){a.click();await new Promise(resolve=>setTimeout(resolve,180))}window.__digitalReport3Audit=artifacts.map(x=>x.audit);status.textContent='10 imagens exportadas. Se downloads automaticos forem bloqueados, use os links abaixo.'}catch(error){downloads.replaceChildren();status.textContent=`Exportacao interrompida: ${error.message}`;console.error('Report 3:',error)}finally{circuit=savedCircuit;selected=savedSelection;draw();renderInspector();button.disabled=false}}
-if(mode==='digital')$('generateReport3').onclick=generateReport3;
+function report5SvgBlob(){
+ const boxes=[partsLayer.getBBox(),wiresLayer.getBBox()].filter(box=>box.width||box.height);if(!boxes.length)throw new Error('A montagem nao tem componentes conectados.');
+ const x0=Math.min(...boxes.map(box=>box.x))-28,y0=Math.min(...boxes.map(box=>box.y))-34,x1=Math.max(...boxes.map(box=>box.x+box.width))+28,y1=Math.max(...boxes.map(box=>box.y+box.height))+38,scale=Math.min(1080/Math.max(1,x1-x0),590/Math.max(1,y1-y0)),tx=600-(x0+x1)*scale/2,ty=360-(y0+y1)*scale/2;
+ const imageSvg=$('circuit').cloneNode(true);imageSvg.setAttribute('xmlns',ns);imageSvg.setAttribute('width','2400');imageSvg.setAttribute('height','1440');imageSvg.setAttribute('data-mode','digital');imageSvg.removeAttribute('id');
+ const copyComputed=(source,target)=>{const c=getComputedStyle(source),props=['fill','fill-opacity','stroke','stroke-width','stroke-linecap','stroke-linejoin','stroke-dasharray','opacity','filter','display','visibility','font-family','font-size','font-weight','text-anchor','pointer-events','shape-rendering','paint-order'];target.setAttribute('style',props.map(k=>{const v=c.getPropertyValue(k);return v?`${k}:${v}`:''}).filter(Boolean).join(';'));for(let i=0;i<Math.min(source.children.length,target.children.length);i++)copyComputed(source.children[i],target.children[i])};copyComputed($('circuit'),imageSvg);
+ imageSvg.querySelector(':scope > rect:first-of-type')?.setAttribute('fill','#f9fbfc');imageSvg.querySelector(':scope > rect:nth-of-type(2)')?.remove();let d='';for(let x=0;x<=1200;x+=20)d+=`M${x} 0V720 `;for(let y=0;y<=720;y+=20)d+=`M0 ${y}H1200 `;imageSvg.insertBefore(sEl('path',{d,fill:'none',stroke:'#e1e7ec','stroke-width':.7,'pointer-events':'none'}),imageSvg.querySelector('#wires'));
+ const wires=imageSvg.querySelector('#wires'),parts=imageSvg.querySelector('#parts'),group=sEl('g',{transform:`translate(${tx} ${ty}) scale(${scale})`});wires.parentNode.insertBefore(group,wires);group.append(wires,parts);return new Blob([new XMLSerializer().serializeToString(imageSvg)],{type:'image/svg+xml;charset=utf-8'});
+}
+async function renderReport5Png(){const blob=report5SvgBlob(),url=URL.createObjectURL(blob);try{const image=new Image();await new Promise((ok,no)=>{image.onload=ok;image.onerror=()=>no(new Error('O navegador nao renderizou a montagem SVG.'));image.src=url});const canvas=document.createElement('canvas');canvas.width=2400;canvas.height=1440;const ctx=canvas.getContext('2d');ctx.fillStyle='#fbfcfd';ctx.fillRect(0,0,2400,1440);ctx.drawImage(image,0,0,2400,1440);return await new Promise((ok,no)=>canvas.toBlob(p=>p?ok(p):no(new Error('Falha ao exportar PNG.')),'image/png'))}finally{URL.revokeObjectURL(url)}}
+async function generateReport5(){const button=$('generateReport5'),box=$('report5Output'),status=$('report5Status'),downloads=$('report5Downloads'),savedCircuit=JSON.parse(JSON.stringify(circuit)),savedSelection=selected;button.disabled=true;box.hidden=false;downloads.replaceChildren();status.textContent='Montando e validando os 32 circuitos...';try{const built=[];for(const spec of report5Specs){buildReport5Circuit(spec);update();built.push({spec,circuit:JSON.parse(JSON.stringify(circuit)),audit:checkReport5(spec)})}const artifacts=[];for(const item of built){circuit=JSON.parse(JSON.stringify(item.circuit));selected=null;update();const audit=checkReport5(item.spec);artifacts.push({filename:item.spec.file,blob:await renderReport5Png(),audit})}for(const item of artifacts){const a=document.createElement('a');a.href=URL.createObjectURL(item.blob);a.download=item.filename;a.textContent=`Baixar ${item.filename}`;a.dataset.filename=item.filename;downloads.append(a)}window.__digitalReport5Audit=artifacts.map(x=>x.audit);status.textContent='32 imagens prontas. Use os links abaixo para baixar os arquivos.'}catch(error){downloads.replaceChildren();status.textContent=`Exportacao interrompida: ${error.message}`;window.__digitalReport5Error=error.message;console.error('Relatorio 5:',error)}finally{circuit=savedCircuit;selected=savedSelection;draw();renderInspector();button.disabled=false}}
+if(mode==='digital')$('generateReport5').onclick=generateReport5;
 
 // Local repository folder access plus portable JSON export/import.
 const dbName='lab-simulator-v2',dirKey='saveDir-'+mode;function db(){return new Promise((ok,no)=>{const r=indexedDB.open(dbName,1);r.onupgradeneeded=()=>r.result.createObjectStore('handles');r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)})}async function rememberHandle(h){dirHandle=h;const d=await db();d.transaction('handles','readwrite').objectStore('handles').put(h,dirKey)}async function recalledHandle(){try{const d=await db();return await new Promise(ok=>{const r=d.transaction('handles').objectStore('handles').get(dirKey);r.onsuccess=()=>ok(r.result||null);r.onerror=()=>ok(null)})}catch{return null}}function configuration(){return{mode,circuit}}function installConfig(data){if(data.mode!==mode||!data.circuit||!Array.isArray(data.circuit.components)){alert('Arquivo de outro simulador ou formato inválido.');return}circuit=data.circuit;selected=null;draw();renderInspector();update()}async function refreshSaved(){const box=$('savedList');box.replaceChildren();if(!dirHandle)return;try{for await(const[name,h]of dirHandle.entries()){if(!name.endsWith('.json'))continue;const row=document.createElement('span');row.className='saveditem';const open=document.createElement('button');open.textContent=name.replace(/\.json$/,'');open.onclick=async()=>{const f=await h.getFile();installConfig(JSON.parse(await f.text()))};const del=document.createElement('button');del.textContent='×';del.onclick=async()=>{await dirHandle.removeEntry(name);refreshSaved()};row.append(open,del);box.append(row)}}catch{$('saveStatus').textContent='Reconecte a pasta para abrir os circuitos.'}}
