@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: Refresh OAuth only or upload a temporary public smoke-test video
+        description: Refresh OAuth only, publish the latest article, or upload a prepared video
         type: choice
-        options: [check, smoke-test, upload]
+        options: [check, publish-latest, upload]
         default: check
       video_path:
         description: Repository-relative path to a prepared video (upload mode only)
@@ -43,8 +43,8 @@ jobs:
           cache-dependency-path: requirements-youtube.txt
       - name: Install YouTube API client
         run: python -m pip install -r requirements-youtube.txt
-      - name: Install FFmpeg for temporary smoke-test video
-        if: inputs.mode == 'smoke-test'
+      - name: Install FFmpeg for article Shorts
+        if: inputs.mode == 'publish-latest'
         run: |
           sudo apt-get update
           sudo apt-get install -y ffmpeg fonts-dejavu-core
@@ -55,12 +55,15 @@ jobs:
           YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
           YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
         run: python -m scripts.youtube_manual_test
-      - name: Upload a generated public OAuth smoke-test video
-        if: inputs.mode == 'smoke-test'
+      - name: Publish the latest unpublished article as a public Short
+        if: inputs.mode == 'publish-latest'
         env:
           YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
           YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
           YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+          SITE_URL: https://macca-lab.onrender.com
+          YOUTUBE_QUEUE_FILE: blog/youtube-queue.json
+          YOUTUBE_PUBLISHED_FILE: blog/youtube-published.json
         run: python -m scripts.youtube_smoke_test
       - name: Upload prepared video publicly
         if: inputs.mode == 'upload'
@@ -96,3 +99,15 @@ jobs:
               summary.write("## Public YouTube upload\n\n")
               summary.write(f"Video ID: `{result['id']}`\n\nURL: {result['url']}\n")
           PY
+      - name: Save manual YouTube publication record
+        if: inputs.mode == 'publish-latest'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A blog/youtube-queue.json blog/youtube-published.json
+          if git diff --cached --quiet; then
+            echo "No publication state changes to save."
+          else
+            git commit -m "Record manual YouTube blog publication"
+            git push origin HEAD:main
+          fi
