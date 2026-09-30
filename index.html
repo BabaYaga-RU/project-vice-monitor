@@ -14,6 +14,9 @@
     a:nth-child(1)::before { content: "STUDY"; }
     a:nth-child(2)::before { content: "PLAY"; background: var(--coral); }
     a:nth-child(3)::before { content: "MACCA BLOG"; background: #273a2b; }
+    a:nth-child(4)::before { content: "PRIVACY"; background: #40334f; }
+    main { position: relative; padding-bottom: 72px; }
+    .privacy-link { position: absolute; right: 0; bottom: 0; display: block; color: var(--dark); font: 600 .8rem/1.4 Arial,sans-serif; text-decoration: underline; text-underline-offset: 3px; }
     a:hover::before { transform: translateY(-4px); filter: brightness(.88); }
     @media (max-width: 380px) { main { gap: 16px 10px; } a::before { width: 92px; height: 92px; } }
   </style>
@@ -77,6 +80,7 @@
     <a href="study/">Study</a>
     <a href="play/">Play</a>
     <a href="blog/">Macca Blog</a>
+    <a href="privacy/">Privacy Policy</a>
   </main>
   <script defer src="/skylet/widget.js?v=20260929.1"></script>
 </body>

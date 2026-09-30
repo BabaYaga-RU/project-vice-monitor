@@ -1,0 +1,86 @@
+name: Macca YouTube Publisher
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: Run a safe OAuth/channel check or upload one prepared video
+        type: choice
+        options: [check, upload]
+        default: check
+      video_path:
+        description: Repository-relative path to a prepared video (upload mode only)
+        type: string
+        required: false
+      title:
+        description: Video title (upload mode only)
+        type: string
+        required: false
+      description:
+        description: Video description (upload mode only)
+        type: string
+        required: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: macca-youtube-publisher
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: requirements-youtube.txt
+      - name: Install YouTube API client
+        run: python -m pip install -r requirements-youtube.txt
+      - name: Refresh access token and identify authenticated channel
+        id: channel
+        env:
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+        run: python -m scripts.youtube_manual_test
+      - name: Upload prepared video privately
+        if: inputs.mode == 'upload'
+        env:
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+          VIDEO_PATH: ${{ inputs.video_path }}
+          VIDEO_TITLE: ${{ inputs.title }}
+          VIDEO_DESCRIPTION: ${{ inputs.description }}
+        run: |
+          python - <<'PY'
+          import os
+          from src.youtube.upload import upload_video
+
+          path = os.environ.get("VIDEO_PATH", "")
+          title = os.environ.get("VIDEO_TITLE", "")
+          description = os.environ.get("VIDEO_DESCRIPTION", "")
+          if not path or not title:
+              raise SystemExit("Upload mode requires video_path and title inputs.")
+          try:
+              result = upload_video(
+                  path,
+                  title=title,
+                  description=description,
+                  tags=["GTA", "Rockstar Games", "Macca the Gator"],
+                  privacy_status="private",
+              )
+          except Exception:
+              raise SystemExit("YouTube upload failed; inspect non-sensitive API configuration and retry.") from None
+          print(f"Private YouTube upload completed: {result['url']}")
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as summary:
+              summary.write("## Private YouTube upload\n\n")
+              summary.write(f"Video ID: `{result['id']}`\n\nURL: {result['url']}\n")
+          PY
