@@ -44,5 +44,47 @@
       }
     ],
     "queuedAt": "2026-09-30T05:32:12.250Z"
+  },
+  {
+    "slug": "modder-who-taunted-try-me-rockstar-with-gta-5-switch-port-is-thankful-for-take-t",
+    "articleUrl": "https://macca-lab.onrender.com/blog/modder-who-taunted-try-me-rockstar-with-gta-5-switch-port-is-thankful-for-take-t/",
+    "sourceUrl": "https://www.videogameschronicle.com/news/modder-who-taunted-try-me-rockstar-with-gta-5-switch-port-is-thankful-for-take-twos-mercy-as-lawyers-shut-it-down/",
+    "title": "Modder who taunted ‘try me Rockstar’ with GTA 5 Switch port is ‘thankful for Take-Two’s mercy’ as lawyers shut it down",
+    "description": "A modder known as Mojso has shut down an unofficial Grand Theft Auto 5 Switch port after receiving a legal notice from Take-Two. The project, which also aimed to bring GTA Online to the console, was taken down after the modder taunted Rockstar with a 'try me' post. Mojso said they are 'thankful for ",
+    "sections": [
+      {
+        "heading": "Project Shutdown",
+        "paragraphs": [
+          "As reported by Video Games Chronicle (VGC), a modder who created an unofficial Switch port of GTA 5 has announced the project's discontinuation. The modder, who goes by Mojso and operates under the name Paralympics Productions, had reportedly used leaked source code to build the port and was preparing to make it available on modified Switch consoles.",
+          "Mojso had also showcased images of GTA Online running on a Switch, stating that they only had a few issues to iron out. However, after Rockstar Games updated its modding guidelines earlier this month to explicitly forbid unofficial ports, Mojso taunted the company on X with a screenshot of the guideline and the caption 'try me Rockstar'."
+        ]
+      },
+      {
+        "heading": "Legal Action and Fallout",
+        "paragraphs": [
+          "Three days after the taunt, the Paralympics Productions Discord server was shut down by Discord for copyright infringement. Then, on September 28, Mojso announced the project's end after being contacted by Take-Two's lawyers, apparently escaping further legal action. \"Paralympics Productions is shutting down on October 3rd,\" Mojso wrote. \"I am thankful for Take Two's mercy, so this is the definitive end.\"",
+          "The VGC report notes that the modder was in the process of porting GTA Online as well. Rockstar's updated guidelines explicitly stated that players should not 'modify our games to operate on consoles, hardware devices, or other platforms where they have not been officially released by Rockstar Games.'"
+        ]
+      }
+    ],
+    "tags": [
+      "GTA V",
+      "Switch",
+      "Modding",
+      "Take-Two",
+      "Rockstar Games",
+      "GTA Online"
+    ],
+    "thumbnail": "https://www.videogameschronicle.com/files/2022/04/GTA-V-ps5-and-Xbox-Series-X-a-scaled.jpg",
+    "thumbnailAlt": "Grand Theft Auto V promotional art",
+    "inlineImages": [],
+    "sources": [
+      {
+        "title": "Modder who taunted &#8216;try me Rockstar&#8217; with GTA 5 Switch port is &#8216;thankful for Take-Two&#8217;s mercy&#8217; as lawyers shut it down",
+        "url": "https://www.videogameschronicle.com/news/modder-who-taunted-try-me-rockstar-with-gta-5-switch-port-is-thankful-for-take-twos-mercy-as-lawyers-shut-it-down/",
+        "publisher": "www.videogameschronicle.com"
+      }
+    ],
+    "queuedAt": "2026-09-30T12:34:29.277Z"
   }
 ]
