@@ -104,7 +104,12 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A blog/youtube-queue.json blog/youtube-published.json
+          git add blog/youtube-published.json
+          if [[ -f blog/youtube-queue.json ]]; then
+            git add blog/youtube-queue.json
+          else
+            git add -u -- blog/youtube-queue.json 2>/dev/null || true
+          fi
           if git diff --cached --quiet; then
             echo "No publication state changes to save."
           else
