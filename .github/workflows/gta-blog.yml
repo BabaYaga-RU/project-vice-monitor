@@ -139,6 +139,7 @@ jobs:
           fi
       - name: Set up Python for queued YouTube Shorts
         if: always() && steps.commit_generated.outcome != 'failure' && hashFiles('blog/youtube-queue.json') != ''
+        continue-on-error: true
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -146,6 +147,7 @@ jobs:
           cache-dependency-path: requirements-youtube.txt
       - name: Install YouTube API and Shorts dependencies
         if: always() && steps.commit_generated.outcome != 'failure' && hashFiles('blog/youtube-queue.json') != ''
+        continue-on-error: true
         run: |
           sudo apt-get update
           sudo apt-get install -y ffmpeg fonts-dejavu-core
