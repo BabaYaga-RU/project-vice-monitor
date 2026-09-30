@@ -84,6 +84,7 @@ jobs:
         if: always()
         env:
           INSTAGRAM_QUEUE_FILE: blog/instagram-queue.json
+          INSTAGRAM_FORCE_REGENERATE: 'true'
         run: node scripts/instagram.mjs inspect
       - name: Install ImageMagick for branded Instagram artwork
         id: install_imagemagick
@@ -97,6 +98,7 @@ jobs:
         env:
           SITE_URL: https://macca-lab.onrender.com
           INSTAGRAM_QUEUE_FILE: blog/instagram-queue.json
+          INSTAGRAM_FORCE_REGENERATE: 'true'
         run: node scripts/instagram.mjs prepare
       - name: Commit and push generated changes
         id: commit_generated

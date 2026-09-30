@@ -73,7 +73,9 @@ async function prepare() {
   if (!Array.isArray(queue) || !queue.length) { console.log('No new articles to prepare for Instagram.'); return; }
   const posts = await safeJson(POSTS_FILE, []);
   const pending = [];
-  for (const item of queue) {
+  const forceRegenerate = process.env.INSTAGRAM_FORCE_REGENERATE === 'true';
+  if (forceRegenerate) pending.push(...queue);
+  else for (const item of queue) {
     try { await fs.access(path.join(ROOT, 'blog', item.slug, 'instagram.jpg')); }
     catch { pending.push(item); }
   }
@@ -171,7 +173,7 @@ async function waitForContainer(host, containerId) {
 async function inspectQueue() {
   const queue = await safeJson(QUEUE_FILE, []);
   if (!Array.isArray(queue)) throw new Error('blog/instagram-queue.json must contain a JSON array.');
-  let needsArtwork = false;
+  let needsArtwork = process.env.INSTAGRAM_FORCE_REGENERATE === 'true' && queue.length > 0;
   for (const {slug} of queue) {
     try { await fs.access(path.join(ROOT, 'blog', slug, 'instagram.jpg')); }
     catch { needsArtwork = true; break; }
