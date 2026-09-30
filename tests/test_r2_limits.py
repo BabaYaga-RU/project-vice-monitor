@@ -1,7 +1,7 @@
 import unittest
 from datetime import datetime, timedelta, timezone
 
-from src.youtube.r2_limits import MAX_ATTEMPTS_PER_OBJECT, MAX_OBJECT_BYTES, remaining_r2_attempts_after_cleanup, reserve_r2_upload
+from src.youtube.r2_limits import MAX_ATTEMPTS_PER_OBJECT, MAX_OBJECT_BYTES, consume_reserved_r2_attempt, remaining_r2_attempts_after_cleanup, reserve_r2_upload
 
 
 class R2LimitsTests(unittest.TestCase):
@@ -37,6 +37,7 @@ class R2LimitsTests(unittest.TestCase):
         self.assertEqual(too_large[0], 0)
         self.assertEqual(self.state["monthlyUploadAttempts"], 0)
         self.assertEqual(self.reserve(slug="boundary", size_bytes=MAX_OBJECT_BYTES), (2, ""))
+        self.assertEqual(self.state["articles"]["boundary"]["attemptsConsumed"], 0)
 
     def test_only_one_reservation_per_article(self):
         self.assertEqual(self.reserve()[0], 2)
@@ -89,6 +90,20 @@ class R2LimitsTests(unittest.TestCase):
         reservation["deletedAt"] = "2026-09-30T12:00:00Z"
         reservation["attemptsConsumed"] = MAX_ATTEMPTS_PER_OBJECT
         self.assertEqual(remaining_r2_attempts_after_cleanup(reservation), 0)
+
+    def test_consumes_each_put_attempt_once_and_stops_at_per_object_limit(self):
+        self.assertEqual(self.reserve(), (2, ""))
+        for expected in (1, 2):
+            consumed, reason = consume_reserved_r2_attempt(
+                self.state, slug="story", object_key="instagram-reels/story.mp4"
+            )
+            self.assertTrue(consumed, reason)
+            self.assertEqual(self.state["articles"]["story"]["attemptsConsumed"], expected)
+        consumed, reason = consume_reserved_r2_attempt(
+            self.state, slug="story", object_key="instagram-reels/story.mp4"
+        )
+        self.assertFalse(consumed)
+        self.assertIn("limit", reason)
 
 
 if __name__ == "__main__":

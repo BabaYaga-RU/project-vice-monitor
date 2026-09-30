@@ -28,6 +28,21 @@ def remaining_r2_attempts_after_cleanup(article_reservation: dict) -> int:
     return reserved - consumed
 
 
+def consume_reserved_r2_attempt(state: dict, *, slug: str, object_key: str) -> tuple[bool, str]:
+    """Record one actual PUT immediately before it is sent."""
+    reservation = state.get("articles", {}).get(slug)
+    if not reservation or reservation.get("objectKey") != object_key:
+        return False, "No matching R2 upload reservation exists."
+    reserved = min(MAX_ATTEMPTS_PER_OBJECT, max(0, int(reservation.get("attemptsReserved", 0))))
+    # Legacy reservations without an explicit counter are treated as fully
+    # consumed; only new or reconciled entries can spend remaining attempts.
+    consumed = min(reserved, max(0, int(reservation.get("attemptsConsumed", reserved))))
+    if consumed >= reserved:
+        return False, "Per-object R2 attempt limit reached."
+    reservation["attemptsConsumed"] = consumed + 1
+    return True, ""
+
+
 def reserve_r2_upload(
     state: dict,
     *,
@@ -84,9 +99,8 @@ def reserve_r2_upload(
         "objectKey": object_key,
         "month": month,
         "attemptsReserved": attempts,
-        # Consume the full bounded retry budget before any network operation;
-        # interrupted/replayed workflows cannot exceed this reservation.
-        "attemptsConsumed": attempts,
+        # Actual attempts are consumed and persisted immediately before PUT.
+        "attemptsConsumed": 0,
         "reservedAt": timestamp,
         "sizeBytes": size_bytes,
     }

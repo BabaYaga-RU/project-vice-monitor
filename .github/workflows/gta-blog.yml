@@ -131,6 +131,7 @@ jobs:
           SOCIAL_VIDEO_DIR: ${{ runner.temp }}/macca-social-videos
           INSTAGRAM_REEL_MANIFEST_FILE: ${{ runner.temp }}/macca-reel-manifest.json
           R2_USAGE_FILE: blog/r2-upload-usage.json
+          INSTAGRAM_RETRY_ONLY_FIRST: ${{ contains(github.event.head_commit.message, '[instagram-retry]') && 'true' || 'false' }}
           CLOUDFLARE_R2_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_R2_ACCOUNT_ID }}
           CLOUDFLARE_R2_ACCESS_KEY_ID: ${{ secrets.CLOUDFLARE_R2_ACCESS_KEY_ID }}
           CLOUDFLARE_R2_SECRET_ACCESS_KEY: ${{ secrets.CLOUDFLARE_R2_SECRET_ACCESS_KEY }}
@@ -143,6 +144,7 @@ jobs:
           SOCIAL_VIDEO_DIR: ${{ runner.temp }}/macca-social-videos
           INSTAGRAM_QUEUE_FILE: blog/instagram-queue.json
           YOUTUBE_QUEUE_FILE: blog/youtube-queue.json
+          INSTAGRAM_RETRY_ONLY_FIRST: ${{ contains(github.event.head_commit.message, '[instagram-retry]') && 'true' || 'false' }}
         run: |
           python - <<'PY'
           import json
@@ -152,11 +154,15 @@ jobs:
 
           video_dir = Path(os.environ['SOCIAL_VIDEO_DIR'])
           slugs = []
-          for name in ('INSTAGRAM_QUEUE_FILE', 'YOUTUBE_QUEUE_FILE'):
+          only_first_instagram = os.environ.get('INSTAGRAM_RETRY_ONLY_FIRST') == 'true'
+          queue_files = ('INSTAGRAM_QUEUE_FILE',) if only_first_instagram else ('INSTAGRAM_QUEUE_FILE', 'YOUTUBE_QUEUE_FILE')
+          for name in queue_files:
               try:
                   items = json.loads(Path(os.environ[name]).read_text(encoding='utf-8'))
               except FileNotFoundError:
                   items = []
+              if name == 'INSTAGRAM_QUEUE_FILE' and only_first_instagram:
+                  items = items[:1]
               slugs.extend(item['slug'] for item in items if item.get('slug'))
           for slug in dict.fromkeys(slugs):
               video = video_dir / f'{slug}.mp4'
@@ -194,6 +200,7 @@ jobs:
           SITE_URL: https://macca-lab.onrender.com
           INSTAGRAM_QUEUE_FILE: blog/instagram-queue.json
           INSTAGRAM_FORCE_REGENERATE: 'true'
+          INSTAGRAM_RETRY_ONLY_FIRST: ${{ contains(github.event.head_commit.message, '[instagram-retry]') && 'true' || 'false' }}
         run: node scripts/instagram.mjs prepare
       - name: Commit and push generated changes
         id: commit_generated
@@ -267,7 +274,7 @@ jobs:
           fi
       - name: Check YouTube OAuth secrets are configured
         id: youtube_config
-        if: always() && hashFiles('blog/youtube-queue.json') != ''
+        if: always() && !contains(github.event.head_commit.message, '[instagram-retry]') && hashFiles('blog/youtube-queue.json') != ''
         env:
           YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
           YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
@@ -281,7 +288,7 @@ jobs:
           fi
       - name: Publish queued articles to YouTube as public Shorts
         id: youtube_publish
-        if: always() && steps.commit_generated.outcome != 'failure' && steps.build_blog.outcome != 'failure' && steps.build_seo.outcome != 'failure' && steps.youtube_config.outputs.configured == 'true'
+        if: always() && !contains(github.event.head_commit.message, '[instagram-retry]') && steps.commit_generated.outcome != 'failure' && steps.build_blog.outcome != 'failure' && steps.build_seo.outcome != 'failure' && steps.youtube_config.outputs.configured == 'true'
         continue-on-error: true
         env:
           PYTHONDONTWRITEBYTECODE: '1'
@@ -295,7 +302,7 @@ jobs:
           SOCIAL_VIDEO_DIR: ${{ runner.temp }}/macca-social-videos
         run: python -m scripts.youtube_queue
       - name: Save YouTube upload records and retained retry queue
-        if: always() && steps.youtube_config.outcome != 'skipped' && steps.commit_generated.outcome != 'failure'
+        if: always() && !contains(github.event.head_commit.message, '[instagram-retry]') && steps.youtube_config.outcome != 'skipped' && steps.commit_generated.outcome != 'failure'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"

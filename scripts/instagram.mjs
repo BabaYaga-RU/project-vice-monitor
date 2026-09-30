@@ -72,8 +72,10 @@ function renderCard(command, input, output, title, artworkGravity = 'center') {
 }
 
 async function prepare() {
-  const queue = await safeJson(QUEUE_FILE, []);
-  if (!Array.isArray(queue) || !queue.length) { console.log('No new articles to prepare for Instagram.'); return; }
+  let queue = await safeJson(QUEUE_FILE, []);
+  if (!Array.isArray(queue)) throw new Error('blog/instagram-queue.json must contain a JSON array.');
+  if (process.env.INSTAGRAM_RETRY_ONLY_FIRST === 'true') queue = queue.slice(0, 1);
+  if (!queue.length) { console.log('No new articles to prepare for Instagram.'); return; }
   const posts = await safeJson(POSTS_FILE, []);
   const pending = [];
   const forceRegenerate = process.env.INSTAGRAM_FORCE_REGENERATE === 'true';

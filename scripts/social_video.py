@@ -15,7 +15,7 @@ import boto3
 from botocore.config import Config
 
 from src.youtube.shorts import create_short
-from src.youtube.r2_limits import MAX_OBJECTS_PER_RUN, MAX_ATTEMPTS_PER_OBJECT, MAX_OBJECT_BYTES, remaining_r2_attempts_after_cleanup, reserve_r2_upload
+from src.youtube.r2_limits import MAX_OBJECTS_PER_RUN, MAX_ATTEMPTS_PER_OBJECT, MAX_OBJECT_BYTES, consume_reserved_r2_attempt, remaining_r2_attempts_after_cleanup, reserve_r2_upload
 
 ROOT = Path(__file__).resolve().parents[1]
 VIDEO_DIR = Path(os.environ.get("SOCIAL_VIDEO_DIR", Path(os.environ.get("RUNNER_TEMP", ".")) / "macca-social-videos"))
@@ -59,6 +59,10 @@ def _r2_client():
 def main() -> None:
     ig_queue = _read(Path(os.environ.get("INSTAGRAM_QUEUE_FILE", ROOT / "blog" / "instagram-queue.json")), [])
     yt_queue = _read(Path(os.environ.get("YOUTUBE_QUEUE_FILE", ROOT / "blog" / "youtube-queue.json")), [])
+    if os.environ.get("INSTAGRAM_RETRY_ONLY_FIRST") == "true":
+        ig_queue = ig_queue[:1]
+        yt_queue = []
+        print("Instagram-only retry enabled; rendering only the first pending Instagram item.")
     posts = _read(ROOT / "blog" / "posts.json", [])
     slugs = list(dict.fromkeys(item.get("slug") for item in [*ig_queue, *yt_queue] if item.get("slug")))
     by_slug = {item.get("slug"): item for item in posts}
@@ -93,7 +97,6 @@ def main() -> None:
                     object_key = reservation.get("objectKey", "")
                     if object_key.startswith("instagram-reels/"):
                         attempts = remaining
-                        reservation["attemptsConsumed"] = reserved
                         reservation["retryReservedAt"] = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
                         _write(USAGE_FILE, usage)
                         print(f"Resuming the remaining pre-reserved attempt for {slug} with the same R2 object key; no quota increase.")
@@ -163,6 +166,14 @@ def upload_reel_objects() -> None:
         payload = path.read_bytes()
         success = False
         for attempt in range(1, attempts + 1):
+            usage = _read(USAGE_FILE, {"articles": {}})
+            consumed, reason = consume_reserved_r2_attempt(usage, slug=slug, object_key=key)
+            if not consumed:
+                print(f"R2 PUT skipped for {slug}: {reason}")
+                break
+            # Persist the consumed attempt before making the network request so
+            # retries or interrupted runs cannot reuse an already-started PUT.
+            _write(USAGE_FILE, usage)
             try:
                 s3.put_object(
                     Bucket=os.environ["CLOUDFLARE_R2_BUCKET"], Key=key,
