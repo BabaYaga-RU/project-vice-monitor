@@ -18,7 +18,8 @@
       "uploadedAt": "2026-09-30T17:37:45.086825Z",
       "publicVerifiedAt": "2026-09-30T17:37:45.087127Z",
       "deletedAt": "2026-09-30T17:44:17.092640Z",
-      "attemptsConsumed": 1
+      "attemptsConsumed": 2,
+      "retryReservedAt": "2026-09-30T19:32:44.627480Z"
     },
     "alleged-rockstar-games-hacker-arrested-fbi-says-he-led-shinyhunters": {
       "objectKey": "instagram-reels/89f94248cf60473db923365c5b0c88ad-alleged-rockstar-games-hacker-arrested-fbi-says-he-led-shinyhunters.mp4",
