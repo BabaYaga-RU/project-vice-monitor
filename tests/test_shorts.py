@@ -72,6 +72,18 @@ class SharedShortRendererTests(unittest.TestCase):
         self.assertNotIn("GameSpot reports that GTA 6 won't", all_text)
         self.assertTrue(any("Rockstar confirmed" in headline for headline, _ in beats))
 
+    def test_script_prefers_complete_concise_facts_before_slowing_or_rushing_voice(self):
+        long_fact = "Rockstar Games shared a lengthy announcement about a complicated development update affecting several different parts of the Grand Theft Auto community across the global fanbase this week."
+        article = {
+            "title": "Rockstar shares GTA update",
+            "description": f"{long_fact} The studio confirmed the update will arrive later this month.",
+            "sections": [],
+        }
+        beats = _article_script(article)
+        facts = [headline for headline, _ in beats[1:-1]]
+        self.assertIn("The studio confirmed the update will arrive later this month.", facts)
+        self.assertNotIn(long_fact, facts)
+
     def test_text_wrap_stays_within_card_width_and_font_shrinks_for_long_copy(self):
         canvas = Image.new("RGB", (400, 400))
         draw = ImageDraw.Draw(canvas)

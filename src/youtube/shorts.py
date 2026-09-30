@@ -156,8 +156,13 @@ def _article_script(article: dict) -> list[tuple[str, str]]:
         for paragraph in section.get("paragraphs", []):
             source_sentences.extend(_complete_sentences(paragraph))
 
+    # Prefer concise complete source sentences so natural speech fits the
+    # target duration without asking the voice to rush. Longer facts remain
+    # available when the article has no concise alternatives.
+    concise_sentences = [sentence for sentence in source_sentences if len(sentence.split()) <= 24]
+    longer_sentences = [sentence for sentence in source_sentences if len(sentence.split()) > 24]
     selected: list[str] = []
-    for sentence in source_sentences:
+    for sentence in concise_sentences + longer_sentences:
         words = set(re.sub(r"\W+", " ", sentence.casefold()).split())
         if not words:
             continue
