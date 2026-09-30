@@ -189,13 +189,14 @@
 
   async function start() {
     loadState();
-    makeMarkup();
-    bindEvents();
     try {
       const response = await fetch("/skylet/config.json", { cache: "no-store" });
       const config = response.ok ? await response.json() : {};
       state.apiBase = typeof config.apiBase === "string" ? config.apiBase.replace(/\/$/, "") : "";
     } catch { state.apiBase = ""; }
+    if (!state.apiBase) return;
+    makeMarkup();
+    bindEvents();
   }
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start, { once: true });

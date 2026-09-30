@@ -6,6 +6,7 @@ on:
     paths:
       - 'skylet/worker/**'
       - '.github/workflows/deploy-skylet.yml'
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -27,10 +28,18 @@ jobs:
       - name: Deploy the isolated Cloudflare AI Worker
         working-directory: skylet/worker
         env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_WORKERS_DEPLOY_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
           set -euo pipefail
+          if [[ -z "${CLOUDFLARE_API_TOKEN:-}" ]]; then
+            echo "::notice::Deployment is waiting for the CLOUDFLARE_WORKERS_DEPLOY_TOKEN repository secret."
+            exit 0
+          fi
+          if [[ -z "${CLOUDFLARE_ACCOUNT_ID:-}" ]]; then
+            echo "::error::The CLOUDFLARE_ACCOUNT_ID repository secret is required."
+            exit 1
+          fi
           output_file="$(mktemp)"
           npx --yes wrangler@4 deploy 2>&1 | tee "$output_file"
           worker_url="$(grep -Eo 'https://macca-skylet\.[A-Za-z0-9.-]+\.workers\.dev' "$output_file" | head -n 1 || true)"
