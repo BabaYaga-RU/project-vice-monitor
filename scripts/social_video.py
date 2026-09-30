@@ -7,6 +7,7 @@ import os
 import sys
 import tempfile
 import uuid
+from datetime import datetime, timezone
 from pathlib import Path
 from urllib.request import Request, urlopen
 
@@ -150,6 +151,10 @@ def upload_reel_objects() -> None:
             except Exception as error:
                 print(f"R2 upload attempt {attempt}/{attempts} failed ({type(error).__name__}); no unbounded retry.")
         if success:
+            usage = _read(USAGE_FILE, {"schemaVersion": 1, "month": "", "monthlyUploadAttempts": 0, "recentUploadAttempts24h": [], "articles": {}})
+            reservation = usage.get("articles", {}).get(slug)
+            if reservation and reservation.get("objectKey") == key:
+                reservation["uploadedAt"] = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
             public_base = os.environ["CLOUDFLARE_R2_PUBLIC_BASE_URL"].rstrip("/")
             url = f"{public_base}/{key}"
             request = Request(url, method="HEAD", headers={"User-Agent": "MaccaSocialPublisher/1.0"})
@@ -157,11 +162,14 @@ def upload_reel_objects() -> None:
                 with urlopen(request, timeout=20) as response:
                     if response.status == 200 and response.headers.get("content-type", "").startswith("video/mp4"):
                         entry["reelUrl"] = url
+                        if reservation and reservation.get("objectKey") == key:
+                            reservation["publicVerifiedAt"] = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
                         print(f"R2 public URL verified: {url} (HTTP 200, video/mp4).")
                     else:
                         print(f"Temporary R2 video is not publicly reachable as video/mp4 (HTTP {response.status}); image fallback selected.")
             except Exception as error:
                 print(f"Temporary R2 video could not be verified ({type(error).__name__}); image fallback selected.")
+            _write(USAGE_FILE, usage)
         if not entry.get("reelUrl"):
             print(f"Reel staging unavailable for {slug}; Instagram will use the square-image fallback.")
         _write(MANIFEST, manifest)
@@ -170,12 +178,20 @@ def upload_reel_objects() -> None:
 def cleanup() -> None:
     data = _read(MANIFEST, {"videos": {}})
     names = ("CLOUDFLARE_R2_ACCOUNT_ID", "CLOUDFLARE_R2_ACCESS_KEY_ID", "CLOUDFLARE_R2_SECRET_ACCESS_KEY", "CLOUDFLARE_R2_BUCKET")
-    if _r2_configured():
+    if all(os.environ.get(name) for name in names):
         s3 = None
-        for entry in data.get("videos", {}).values():
+        usage = _read(USAGE_FILE, {"articles": {}})
+        pending = {}
+        for slug, entry in data.get("videos", {}).items():
             key = entry.get("r2ObjectKey")
-            if not key or not entry.get("uploadStarted"):
-                continue
+            if key and entry.get("uploadStarted"):
+                pending[key] = slug
+        for slug, reservation in usage.get("articles", {}).items():
+            key = reservation.get("objectKey")
+            if key and reservation.get("uploadedAt") and not reservation.get("deletedAt"):
+                pending[key] = slug
+
+        for key, slug in pending.items():
             try:
                 if s3 is None:
                     s3 = _r2_client()
@@ -188,11 +204,18 @@ def cleanup() -> None:
                     except Exception as error:
                         print(f"R2 cleanup attempt {attempt}/{MAX_ATTEMPTS_PER_OBJECT} failed ({type(error).__name__}).")
                 if deleted:
+                    reservation = usage.get("articles", {}).get(slug)
+                    if reservation and reservation.get("objectKey") == key:
+                        reservation["deletedAt"] = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
                     print("Temporary Instagram Reel object deleted from R2.")
                 else:
                     print("R2 deletion did not complete; the configured one-day lifecycle remains the fallback.")
             except Exception as error:
                 print(f"R2 cleanup unavailable ({type(error).__name__}); the one-day lifecycle remains the fallback.")
+        if pending:
+            _write(USAGE_FILE, usage)
+    else:
+        print("R2 cleanup credentials are unavailable; the one-day lifecycle remains the fallback.")
 
 
 if __name__ == "__main__":

@@ -249,6 +249,9 @@ jobs:
           if [[ -f blog/instagram-published.json ]]; then
             git add blog/instagram-published.json
           fi
+          if [[ -f blog/r2-upload-usage.json ]]; then
+            git add blog/r2-upload-usage.json
+          fi
           if git diff --cached --quiet; then
             echo "No new Instagram publication records."
           else
