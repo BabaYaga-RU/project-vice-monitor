@@ -14,7 +14,7 @@ import boto3
 from botocore.config import Config
 
 from src.youtube.shorts import create_short
-from src.youtube.r2_limits import MAX_OBJECTS_PER_RUN, MAX_OBJECT_ATTEMPTS, MAX_OBJECT_BYTES, reserve_r2_upload
+from src.youtube.r2_limits import MAX_OBJECTS_PER_RUN, MAX_ATTEMPTS_PER_OBJECT, MAX_OBJECT_BYTES, reserve_r2_upload
 
 ROOT = Path(__file__).resolve().parents[1]
 VIDEO_DIR = Path(os.environ.get("SOCIAL_VIDEO_DIR", Path(os.environ.get("RUNNER_TEMP", ".")) / "macca-social-videos"))
@@ -110,7 +110,7 @@ def upload_reel_objects() -> None:
     uploaded_objects_this_run = 0
     for slug, entry in items:
         key = entry.get("r2ObjectKey")
-        attempts = min(MAX_OBJECT_ATTEMPTS, int(entry.get("attemptsReserved", 0)))
+        attempts = min(MAX_ATTEMPTS_PER_OBJECT, int(entry.get("attemptsReserved", 0)))
         if not key or attempts <= 0:
             continue
         if uploaded_objects_this_run >= MAX_OBJECTS_PER_RUN:
@@ -180,13 +180,13 @@ def cleanup() -> None:
                 if s3 is None:
                     s3 = _r2_client()
                 deleted = False
-                for attempt in range(1, MAX_OBJECT_ATTEMPTS + 1):
+                for attempt in range(1, MAX_ATTEMPTS_PER_OBJECT + 1):
                     try:
                         s3.delete_object(Bucket=os.environ["CLOUDFLARE_R2_BUCKET"], Key=key)
                         deleted = True
                         break
                     except Exception as error:
-                        print(f"R2 cleanup attempt {attempt}/{MAX_OBJECT_ATTEMPTS} failed ({type(error).__name__}).")
+                        print(f"R2 cleanup attempt {attempt}/{MAX_ATTEMPTS_PER_OBJECT} failed ({type(error).__name__}).")
                 if deleted:
                     print("Temporary Instagram Reel object deleted from R2.")
                 else:
