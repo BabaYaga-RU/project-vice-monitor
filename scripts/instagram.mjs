@@ -55,8 +55,8 @@ async function downloadImage(url, dest) {
   }
 }
 
-function renderCard(command, input, output, title) {
-  const args = [input, '-auto-orient', '-resize', '1080x1080^', '-gravity', 'center', '-background', '#190d25', '-extent', '1080x1080', '-flatten',
+function renderCard(command, input, output, title, artworkGravity = 'center') {
+  const args = [input, '-auto-orient', '-resize', '1080x1080^', '-gravity', artworkGravity, '-background', '#190d25', '-extent', '1080x1080', '-flatten',
     '-fill', 'rgba(9,6,18,0.80)', '-draw', 'rectangle 0,570 1080,1080',
     '-fill', '#00f3ff', '-draw', 'roundrectangle 72,630 150,640 5,5',
     '-gravity', 'northwest', '-font', 'DejaVu-Sans-Bold', '-pointsize', '27', '-fill', '#00f3ff', '-annotate', '+72+700', 'MACCA BLOG  •  GTA NEWS',
@@ -86,10 +86,10 @@ async function prepare() {
       if (!post) throw new Error(`Instagram queue references missing blog article: ${slug}`);
       const localInput = path.join(tempDir, 'article-image');
       const fromArticle = await downloadImage(post.thumbnail || post.inlineImages?.[0]?.url, localInput);
-      const input = fromArticle ? localInput : path.join(ROOT, 'ads', 'partner.webp');
+      const input = fromArticle ? localInput : path.join(ROOT, 'images', 'macca-blog-banner.webp');
       const output = path.join(ROOT, 'blog', slug, 'instagram.jpg');
       await fs.mkdir(path.dirname(output), {recursive:true});
-      renderCard(command, input, output, post.title);
+      renderCard(command, input, output, post.title, fromArticle ? 'center' : 'east');
       console.log(`Prepared ${output} (${fromArticle ? 'article image' : 'Macca artwork'} + title).`);
     }
   } finally { await fs.rm(tempDir, {recursive:true, force:true}); }
