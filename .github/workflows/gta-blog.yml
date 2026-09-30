@@ -111,6 +111,8 @@ jobs:
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git add -A
             git commit -m "Build blog artwork and whole-site SEO"
+            git fetch origin main
+            git rebase origin/main
             git push origin HEAD:main
           else
             echo "No blog changes to publish."
@@ -136,6 +138,8 @@ jobs:
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git commit -m "Record Instagram blog publications"
+            git fetch origin main
+            git rebase origin/main
             git push origin HEAD:main
           fi
       - name: Set up Python for queued YouTube Shorts
@@ -182,15 +186,19 @@ jobs:
       - name: Save YouTube upload records and retained retry queue
         if: always() && steps.youtube_config.outcome != 'skipped' && steps.commit_generated.outcome != 'failure'
         run: |
-          git fetch origin main
-          git rebase origin/main
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A blog/youtube-queue.json
           if [[ -f blog/youtube-published.json ]]; then git add blog/youtube-published.json; fi
           if git diff --cached --quiet; then
             echo "No YouTube queue changes to save."
           else
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git commit -m "Record YouTube blog Shorts publications"
+            if [[ -n "$(git status --porcelain)" ]]; then
+              echo "::error::Refusing to rebase with uncommitted YouTube job changes."
+              exit 1
+            fi
+            git fetch origin main
+            git rebase origin/main
             git push origin HEAD:main
           fi
