@@ -1,8 +1,8 @@
 """Render deterministic, narrated vertical videos from published article data.
 
 The renderer deliberately uses only facts and wording already present in the
-article. Speech is local eSpeak NG; no extra AI request or remote TTS service is
-used. The returned MP4 is shared by downstream publishers.
+article. Speech is generated locally with Kokoro-82M; eSpeak NG is used only if Kokoro fails.
+No paid API or hosted TTS service is used. The returned MP4 is shared by downstream publishers.
 """
 
 from __future__ import annotations
@@ -11,7 +11,6 @@ import json
 import os
 import random
 import re
-import shlex
 import shutil
 import subprocess
 import urllib.request
@@ -19,6 +18,8 @@ import wave
 from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont, ImageOps
+
+from .kokoro_tts import LocalNarrator
 
 WIDTH, HEIGHT, FPS = 1080, 1920, 30
 ROOT = Path(__file__).resolve().parents[2]
@@ -155,8 +156,13 @@ def _article_script(article: dict) -> list[tuple[str, str]]:
         for paragraph in section.get("paragraphs", []):
             source_sentences.extend(_complete_sentences(paragraph))
 
+    # Prefer concise complete source sentences so natural speech fits the
+    # target duration without asking the voice to rush. Longer facts remain
+    # available when the article has no concise alternatives.
+    concise_sentences = [sentence for sentence in source_sentences if len(sentence.split()) <= 24]
+    longer_sentences = [sentence for sentence in source_sentences if len(sentence.split()) > 24]
     selected: list[str] = []
-    for sentence in source_sentences:
+    for sentence in concise_sentences + longer_sentences:
         words = set(re.sub(r"\W+", " ", sentence.casefold()).split())
         if not words:
             continue
@@ -255,12 +261,8 @@ def _music_track() -> Path | None:
 def _create_narrated_short(article: dict, output: str | Path, workdir: str | Path) -> Path:
     """Render a 15-20 second H.264/AAC video with up to four readable cards."""
     ffmpeg = shutil.which("ffmpeg")
-    tts = shutil.which("espeak-ng") or shutil.which("espeak")
-    tts_command = shlex.split(os.environ.get("SHORTS_TTS_COMMAND", ""), posix=os.name != "nt")
     if not ffmpeg:
         raise RuntimeError("FFmpeg is required to render social videos.")
-    if not tts and not tts_command:
-        raise RuntimeError("Install espeak-ng to render the local narrated video.")
     if not shutil.which("ffprobe"):
         raise RuntimeError("ffprobe is required to validate rendered social videos.")
 
@@ -271,19 +273,13 @@ def _create_narrated_short(article: dict, output: str | Path, workdir: str | Pat
     audio_files: list[Path] = []
     speech_durations: list[float] = []
     card_durations: list[float] = []
-    voice_rate = 180
+    voice_speed = 1.0
+    narrator = LocalNarrator(work / "tts-metadata.json")
 
     while True:
-        audio_files = []
-        speech_durations = []
-        for index, (_, narration) in enumerate(beats):
-            audio_path = work / f"voice-{index:02d}.wav"
-            subprocess.run(
-                [*(tts_command or [tts]), "-v", os.environ.get("SHORTS_TTS_VOICE", "en-us"), "-s", str(voice_rate), "-w", str(audio_path), narration],
-                check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
-            )
-            audio_files.append(audio_path)
-            speech_durations.append(_audio_duration(audio_path))
+        audio_files = [work / f"voice-{index:02d}.wav" for index in range(len(beats))]
+        tts_metadata = narrator.synthesize([narration for _, narration in beats], audio_files, voice_speed)
+        speech_durations = [_audio_duration(audio_path) for audio_path in audio_files]
 
         # Keep each card readable; if the story still runs long, remove the
         # second supporting fact as a whole sentence rather than cutting it.
@@ -297,13 +293,13 @@ def _create_narrated_short(article: dict, output: str | Path, workdir: str | Pat
             # Preserve the hook, main fact, and CTA; remove only the optional context card.
             beats = beats[:2] + beats[-1:]
             continue
-        if voice_rate < 210:
-            voice_rate += 10
+        if voice_speed < 1.06:
+            voice_speed = round(min(1.06, voice_speed + 0.03), 2)
             continue
         raise RuntimeError(f"Narrated video would exceed {MAX_DURATION:.0f} seconds without cutting a complete fact.")
 
-    tts_name = Path(tts).name if tts else Path(tts_command[0]).name
-    print(f"Generated {len(audio_files)} narration clips with {tts_name} at {voice_rate} wpm.")
+    print(f"Generated {len(audio_files)} narration clips with {tts_metadata['engine']} (voice {tts_metadata['voice']}, speed {tts_metadata['speed']:.2f}).")
+    print(f"TTS timing: {tts_metadata['synthesisSeconds']:.2f}s synthesis; {tts_metadata['modelLoadSeconds']:.2f}s model setup.")
     print(f"Rendering {len(beats)} complete visual cards; duplicated lower captions and Ken Burns movement are disabled.")
 
     video_files: list[Path] = []
@@ -346,7 +342,7 @@ def _create_narrated_short(article: dict, output: str | Path, workdir: str | Pat
     command += [
         "-filter_complex", audio_filter, "-map", "0:v:0", "-map", "[aout]", "-r", str(FPS),
         "-c:v", "libx264", "-preset", "veryfast", "-pix_fmt", "yuv420p", "-c:a", "aac",
-        "-ar", "48000", "-b:a", "160k", "-t", f"{total_duration:.3f}", "-shortest",
+        "-ac", "2", "-ar", "48000", "-b:a", "256k", "-t", f"{total_duration:.3f}", "-shortest",
         "-movflags", "+faststart", str(output_path),
     ]
     subprocess.run(command, check=True)
@@ -360,6 +356,8 @@ def _create_narrated_short(article: dict, output: str | Path, workdir: str | Pat
         raise RuntimeError("Rendered video failed the H.264 1080x1920 30 FPS validation.")
     if not audio_stream or audio_stream.get("codec_name") != "aac":
         raise RuntimeError("Rendered video failed the AAC audio validation.")
+    if audio_stream.get("sample_rate") != "48000" or audio_stream.get("channels") != 2:
+        raise RuntimeError("Rendered audio must be stereo AAC at 48 kHz.")
     if not MIN_DURATION <= actual_duration <= MAX_DURATION:
         raise RuntimeError(f"Narrated video duration is {actual_duration:.1f}s; expected 15-20s.")
     return output_path

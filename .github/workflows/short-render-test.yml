@@ -2,7 +2,7 @@ name: Macca Short Renderer Preview
 
 on:
   push:
-    branches: [main]
+    branches: ['**']
     paths:
       - '.github/workflows/short-render-test.yml'
       - 'src/youtube/shorts.py'
@@ -21,17 +21,28 @@ jobs:
   render-preview:
     if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[short-render-preview-only]')
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: main
+          ref: ${{ github.ref }}
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+          cache: pip
+          cache-dependency-path: |
+            requirements-youtube.txt
+            requirements-kokoro.txt
+      - name: Cache Kokoro model and voice weights
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/huggingface/hub
+          key: kokoro-${{ runner.os }}-hexgrad-82m-am-michael-v1
+          restore-keys: |
+            kokoro-${{ runner.os }}-hexgrad-82m-
       - name: Install renderer dependencies
         run: |
-          python -m pip install -r requirements-youtube.txt
+          python -m pip install -r requirements-youtube.txt -r requirements-kokoro.txt
           sudo apt-get update
           sudo apt-get install -y ffmpeg espeak-ng fonts-dejavu-core
       - name: Render selected existing article without publishing
@@ -41,6 +52,7 @@ jobs:
           PREVIEW_DIR: ${{ runner.temp }}/macca-short-render-preview
           SHORTS_RENDERER: narrated
           SHORTS_MUSIC_PATH: ''
+          KOKORO_VOICE: am_michael
         run: |
           python - <<'PY'
           import json, os, subprocess
@@ -64,13 +76,18 @@ jobs:
           duration = float(probe['format']['duration'])
           assert (video['codec_name'], video['width'], video['height'], video['r_frame_rate']) == ('h264', 1080, 1920, '30/1')
           assert audio['codec_name'] == 'aac'
+          assert audio['sample_rate'] == '48000', audio
+          assert audio['channels'] == 2, audio
           assert 15 <= duration <= 20
           slides = len(list(work.glob('scene-*.jpg')))
+          tts = json.loads((work / 'tts-metadata.json').read_text(encoding='utf-8'))
           assert 1 <= slides <= 4
+          assert tts['engine'] == 'kokoro-82m', f"Preview used fallback TTS: {tts['fallbackReason']}"
+          assert tts['voice'] == 'am_michael', tts['voice']
           print(f'::notice::Article: {article["title"]}')
           print(f'::notice::Rendered {slides} cards, {duration:.2f}s, H.264 1080x1920 30 FPS + AAC.')
           with open(os.environ['GITHUB_STEP_SUMMARY'], 'a', encoding='utf-8') as summary:
-              summary.write(f'## Render-only preview\n\n- Article: {article["title"]} (`{slug}`)\n- Cards: {slides}\n- Duration: {duration:.2f}s\n- Format: H.264, 1080x1920, 30 FPS, AAC\n- Publishing: not performed\n')
+              summary.write(f'## Render-only preview\n\n- Article: {article["title"]} (`{slug}`)\n- Cards: {slides}\n- Duration: {duration:.2f}s\n- Format: H.264, 1080x1920, 30 FPS, AAC stereo at 48 kHz, 256 kbps target\n- TTS engine/voice: {tts["engine"]} / {tts["voice"]}\n- TTS synthesis time: {tts["synthesisSeconds"]:.2f}s\n- Model load time: {tts["modelLoadSeconds"]:.2f}s\n- Fallback: {tts["fallbackReason"] or "not used"}\n- Publishing: not performed\n')
           PY
       - name: Upload preview MP4 and rendered card images
         uses: actions/upload-artifact@v4

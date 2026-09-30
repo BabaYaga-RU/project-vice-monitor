@@ -4,12 +4,47 @@ import shutil
 import subprocess
 import tempfile
 import unittest
+import math
+import struct
+import wave
 from pathlib import Path
 from unittest.mock import patch
 
 from PIL import Image, ImageDraw
 
-from src.youtube.shorts import CTA_TEXT, MAX_SLIDES, _article_script, _font, _layout_text, _wrap, create_short
+from src.youtube.shorts import CTA_TEXT, MAX_SLIDES, _article_script, _layout_text, _wrap, create_short
+
+
+class FakeNarrator:
+    """Fast deterministic local WAV source for renderer tests."""
+
+    def __init__(self, metadata_path):
+        self.engine = "test-fake"
+        self.voice = "en-us"
+        self.model_load_seconds = 0.0
+        self.synthesis_seconds = 0.01
+
+    def synthesize(self, texts, paths, speed):
+        for text, path in zip(texts, paths):
+            duration = max(0.4, len(text.split()) * 0.2 / speed)
+            sample_rate = 24000
+            with wave.open(str(path), "wb") as wav:
+                wav.setnchannels(1)
+                wav.setsampwidth(2)
+                wav.setframerate(sample_rate)
+                frames = bytearray()
+                for n in range(int(sample_rate * duration)):
+                    sample = int(800 * math.sin(2 * math.pi * 440 * n / sample_rate))
+                    frames.extend(struct.pack("<h", sample))
+                wav.writeframes(frames)
+        return {
+            "engine": self.engine,
+            "voice": self.voice,
+            "speed": speed,
+            "modelLoadSeconds": self.model_load_seconds,
+            "synthesisSeconds": self.synthesis_seconds,
+            "fallbackReason": "",
+        }
 
 
 class SharedShortRendererTests(unittest.TestCase):
@@ -37,6 +72,18 @@ class SharedShortRendererTests(unittest.TestCase):
         self.assertNotIn("GameSpot reports that GTA 6 won't", all_text)
         self.assertTrue(any("Rockstar confirmed" in headline for headline, _ in beats))
 
+    def test_script_prefers_complete_concise_facts_before_slowing_or_rushing_voice(self):
+        long_fact = "Rockstar Games shared a lengthy announcement about a complicated development update affecting several different parts of the Grand Theft Auto community across the global fanbase this week."
+        article = {
+            "title": "Rockstar shares GTA update",
+            "description": f"{long_fact} The studio confirmed the update will arrive later this month.",
+            "sections": [],
+        }
+        beats = _article_script(article)
+        facts = [headline for headline, _ in beats[1:-1]]
+        self.assertEqual("The studio confirmed the update will arrive later this month.", facts[0])
+        self.assertIn(long_fact, facts[1:])
+
     def test_text_wrap_stays_within_card_width_and_font_shrinks_for_long_copy(self):
         canvas = Image.new("RGB", (400, 400))
         draw = ImageDraw.Draw(canvas)
@@ -56,8 +103,7 @@ class SharedShortRendererTests(unittest.TestCase):
     def test_renders_vertical_h264_aac_30fps_in_target_duration(self):
         with tempfile.TemporaryDirectory(prefix="macca-short-test-") as temp:
             output = Path(temp) / "test.mp4"
-            fake_tts = f"{os.sys.executable} {Path(__file__).with_name('fake_tts.py')}"
-            with patch.dict(os.environ, {"SHORTS_TTS_COMMAND": fake_tts, "SHORTS_MUSIC_PATH": "", "SHORTS_RENDERER": "narrated"}):
+            with patch("src.youtube.shorts.LocalNarrator", FakeNarrator), patch.dict(os.environ, {"SHORTS_MUSIC_PATH": "", "SHORTS_RENDERER": "narrated"}):
                 video = create_short(self.article, output, Path(temp) / "work")
             probe = json.loads(subprocess.check_output([
                 "ffprobe", "-v", "error", "-show_streams", "-show_format", "-of", "json", str(video)
@@ -70,6 +116,8 @@ class SharedShortRendererTests(unittest.TestCase):
             self.assertEqual(1920, stream["height"])
             self.assertEqual("30/1", stream["r_frame_rate"])
             self.assertEqual("aac", audio["codec_name"])
+            self.assertEqual("48000", audio["sample_rate"])
+            self.assertEqual(2, audio["channels"])
             self.assertGreaterEqual(duration, 15)
             self.assertLessEqual(duration, 20)
             self.assertLessEqual(len(list((Path(temp) / "work").glob("scene-*.jpg"))), MAX_SLIDES)
