@@ -24,6 +24,9 @@ on:
 permissions:
   contents: write
 
+env:
+  PYTHONDONTWRITEBYTECODE: '1'
+
 concurrency:
   group: macca-blog-publisher
   cancel-in-progress: false

@@ -176,6 +176,7 @@ jobs:
         if: always() && steps.commit_generated.outcome != 'failure' && steps.build_blog.outcome != 'failure' && steps.build_seo.outcome != 'failure' && steps.youtube_config.outputs.configured == 'true'
         continue-on-error: true
         env:
+          PYTHONDONTWRITEBYTECODE: '1'
           YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
           YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
           YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
@@ -194,8 +195,10 @@ jobs:
             echo "No YouTube queue changes to save."
           else
             git commit -m "Record YouTube blog Shorts publications"
-            if [[ -n "$(git status --porcelain)" ]]; then
+            remaining_changes="$(git status --porcelain --untracked-files=all)"
+            if [[ -n "$remaining_changes" ]]; then
               echo "::error::Refusing to rebase with uncommitted YouTube job changes."
+              printf '%s\n' "$remaining_changes"
               exit 1
             fi
             git fetch origin main
