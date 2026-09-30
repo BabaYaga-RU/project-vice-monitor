@@ -49,7 +49,7 @@ jobs:
           YOUTUBE_ANALYTICS_REFRESH_TOKEN: ${{ secrets.YOUTUBE_ANALYTICS_REFRESH_TOKEN }}
           YOUTUBE_PUBLISHED_FILE: blog/youtube-published.json
           YOUTUBE_METRICS_FILE: blog/youtube-metrics.json
-        run: python scripts/youtube_metrics.py
+        run: python -m scripts.youtube_metrics
       - name: Commit collected metrics
         if: steps.auth.outputs.configured == 'true'
         run: |
