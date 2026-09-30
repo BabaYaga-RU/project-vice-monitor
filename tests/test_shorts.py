@@ -81,8 +81,8 @@ class SharedShortRendererTests(unittest.TestCase):
         }
         beats = _article_script(article)
         facts = [headline for headline, _ in beats[1:-1]]
-        self.assertIn("The studio confirmed the update will arrive later this month.", facts)
-        self.assertNotIn(long_fact, facts)
+        self.assertEqual("The studio confirmed the update will arrive later this month.", facts[0])
+        self.assertIn(long_fact, facts[1:])
 
     def test_text_wrap_stays_within_card_width_and_font_shrinks_for_long_copy(self):
         canvas = Image.new("RGB", (400, 400))
