@@ -76,6 +76,8 @@ jobs:
           duration = float(probe['format']['duration'])
           assert (video['codec_name'], video['width'], video['height'], video['r_frame_rate']) == ('h264', 1080, 1920, '30/1')
           assert audio['codec_name'] == 'aac'
+          assert audio['sample_rate'] == '48000', audio
+          assert int(audio.get('bit_rate', 0)) >= 160000, audio
           assert 15 <= duration <= 20
           slides = len(list(work.glob('scene-*.jpg')))
           tts = json.loads((work / 'tts-metadata.json').read_text(encoding='utf-8'))
