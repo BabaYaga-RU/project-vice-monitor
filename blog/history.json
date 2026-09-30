@@ -1,5 +1,15 @@
 [
   {
+    "sourceUrl": "https://www.gamespot.com/articles/the-witcher-3-is-having-a-record-breaking-comeback-in-a-very-busy-gaming-month/",
+    "title": "The Witcher 3 Is Having A Record-Breaking Comeback In A Very Busy Gaming Month",
+    "date": "2026-09-30T22:39:27.725Z",
+    "status": "ai-rejected",
+    "reason": "Lead item is about The Witcher 3, not Grand Theft Auto or Rockstar Games.",
+    "sourceUrls": [
+      "https://www.gamespot.com/articles/the-witcher-3-is-having-a-record-breaking-comeback-in-a-very-busy-gaming-month/"
+    ]
+  },
+  {
     "slug": "alleged-rockstar-games-hacker-arrested-fbi-says-he-led-shinyhunters",
     "title": "Alleged Rockstar Games Hacker Arrested, FBI Says He Led ShinyHunters",
     "sourceUrl": "https://kotaku.com/alleged-rockstar-games-hacker-arrested-in-connection-with-data-breach-that-revealed-gta-online-profits-2000738638",
