@@ -342,7 +342,7 @@ def _create_narrated_short(article: dict, output: str | Path, workdir: str | Pat
     command += [
         "-filter_complex", audio_filter, "-map", "0:v:0", "-map", "[aout]", "-r", str(FPS),
         "-c:v", "libx264", "-preset", "veryfast", "-pix_fmt", "yuv420p", "-c:a", "aac",
-        "-ar", "48000", "-b:a", "160k", "-t", f"{total_duration:.3f}", "-shortest",
+        "-ac", "2", "-ar", "48000", "-b:a", "256k", "-t", f"{total_duration:.3f}", "-shortest",
         "-movflags", "+faststart", str(output_path),
     ]
     subprocess.run(command, check=True)
@@ -356,6 +356,8 @@ def _create_narrated_short(article: dict, output: str | Path, workdir: str | Pat
         raise RuntimeError("Rendered video failed the H.264 1080x1920 30 FPS validation.")
     if not audio_stream or audio_stream.get("codec_name") != "aac":
         raise RuntimeError("Rendered video failed the AAC audio validation.")
+    if audio_stream.get("sample_rate") != "48000" or audio_stream.get("channels") != 2:
+        raise RuntimeError("Rendered audio must be stereo AAC at 48 kHz.")
     if not MIN_DURATION <= actual_duration <= MAX_DURATION:
         raise RuntimeError(f"Narrated video duration is {actual_duration:.1f}s; expected 15-20s.")
     return output_path

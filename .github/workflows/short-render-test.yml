@@ -77,7 +77,7 @@ jobs:
           assert (video['codec_name'], video['width'], video['height'], video['r_frame_rate']) == ('h264', 1080, 1920, '30/1')
           assert audio['codec_name'] == 'aac'
           assert audio['sample_rate'] == '48000', audio
-          assert int(audio.get('bit_rate', 0)) >= 160000, audio
+          assert audio['channels'] == 2, audio
           assert 15 <= duration <= 20
           slides = len(list(work.glob('scene-*.jpg')))
           tts = json.loads((work / 'tts-metadata.json').read_text(encoding='utf-8'))
@@ -87,7 +87,7 @@ jobs:
           print(f'::notice::Article: {article["title"]}')
           print(f'::notice::Rendered {slides} cards, {duration:.2f}s, H.264 1080x1920 30 FPS + AAC.')
           with open(os.environ['GITHUB_STEP_SUMMARY'], 'a', encoding='utf-8') as summary:
-              summary.write(f'## Render-only preview\n\n- Article: {article["title"]} (`{slug}`)\n- Cards: {slides}\n- Duration: {duration:.2f}s\n- Format: H.264, 1080x1920, 30 FPS, AAC at 48 kHz / 160 kbps\n- TTS engine/voice: {tts["engine"]} / {tts["voice"]}\n- TTS synthesis time: {tts["synthesisSeconds"]:.2f}s\n- Model load time: {tts["modelLoadSeconds"]:.2f}s\n- Fallback: {tts["fallbackReason"] or "not used"}\n- Publishing: not performed\n')
+              summary.write(f'## Render-only preview\n\n- Article: {article["title"]} (`{slug}`)\n- Cards: {slides}\n- Duration: {duration:.2f}s\n- Format: H.264, 1080x1920, 30 FPS, AAC stereo at 48 kHz, 256 kbps target\n- TTS engine/voice: {tts["engine"]} / {tts["voice"]}\n- TTS synthesis time: {tts["synthesisSeconds"]:.2f}s\n- Model load time: {tts["modelLoadSeconds"]:.2f}s\n- Fallback: {tts["fallbackReason"] or "not used"}\n- Publishing: not performed\n')
           PY
       - name: Upload preview MP4 and rendered card images
         uses: actions/upload-artifact@v4

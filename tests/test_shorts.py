@@ -116,6 +116,8 @@ class SharedShortRendererTests(unittest.TestCase):
             self.assertEqual(1920, stream["height"])
             self.assertEqual("30/1", stream["r_frame_rate"])
             self.assertEqual("aac", audio["codec_name"])
+            self.assertEqual("48000", audio["sample_rate"])
+            self.assertEqual(2, audio["channels"])
             self.assertGreaterEqual(duration, 15)
             self.assertLessEqual(duration, 20)
             self.assertLessEqual(len(list((Path(temp) / "work").glob("scene-*.jpg"))), MAX_SLIDES)
