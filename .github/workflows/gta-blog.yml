@@ -6,6 +6,7 @@ on:
     paths:
       - '.github/workflows/gta-blog.yml'
       - 'scripts/blog.mjs'
+      - 'scripts/build-seo.mjs'
       - 'scripts/instagram.mjs'
       - 'blog/instagram-queue.json'
   schedule:

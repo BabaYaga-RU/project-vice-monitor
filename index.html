@@ -1,40 +1,31 @@
-﻿<!doctype html>
-<html lang="pt-BR">
+<!doctype html>
+<html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#f6f7f1">
-  <title>Macca Lab | Software Engineering, Study &amp; Experiments</title>
-  <link rel="stylesheet" href="study/styles.css">
-  <style>
-    body { display: grid; min-height: 100vh; place-items: center; padding: 24px; }
-    main { display: grid; width: min(100%, 680px); grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px 20px; }
-    a { display: flex; min-width: 0; flex-direction: column; align-items: center; gap: 12px; color: var(--dark); font: 700 .9rem/1.2 Arial, sans-serif; text-align: center; text-decoration: none; }
-    a::before { content: ""; display: grid; width: 112px; height: 112px; place-items: center; border: 1px solid var(--line); border-radius: 26px; color: #fff; background: var(--green); box-shadow: 0 8px 18px rgba(21,51,40,.1); font-size: 1.1rem; transition: transform .2s, filter .2s; }
-    a:nth-child(1)::before { content: "STUDY"; }
-    a:nth-child(2)::before { content: "PLAY"; background: var(--coral); }
-    a:nth-child(3)::before { content: "MACCA BLOG"; background: #273a2b; }
-    a:nth-child(4)::before { content: "PRIVACY"; background: #40334f; }
-    main { position: relative; padding-bottom: 72px; }
-    .privacy-link { position: absolute; right: 0; bottom: 0; display: block; color: var(--dark); font: 600 .8rem/1.4 Arial,sans-serif; text-decoration: underline; text-underline-offset: 3px; }
-    a:hover::before { transform: translateY(-4px); filter: brightness(.88); }
-    @media (max-width: 380px) { main { gap: 16px 10px; } a::before { width: 92px; height: 92px; } }
-  </style>
+  <title>Macca Lab | Independent Projects and Macca Blog</title>
+  <meta name="description" content="Macca Lab is an independent home for projects, experiments and editorial coverage of Grand Theft Auto, Rockstar Games and related stories on Macca Blog.">
+  <link rel="stylesheet" href="/assets/site.css">
 
-<meta name="description" content="Macca Lab is a practical software engineering laboratory with study materials, technical experiments, interactive tests, and learning projects.">
 <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
 <link rel="canonical" href="https://macca-lab.onrender.com/">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Macca Lab">
-<meta property="og:title" content="Macca Lab | Software Engineering, Study &amp; Experiments">
-<meta property="og:description" content="Macca Lab is a practical software engineering laboratory with study materials, technical experiments, interactive tests, and learning projects.">
+<meta property="og:title" content="Macca Lab | Independent Projects and Macca Blog">
+<meta property="og:description" content="Macca Lab is an independent home for projects, experiments and editorial coverage of Grand Theft Auto, Rockstar Games and related stories on Macca Blog.">
 <meta property="og:url" content="https://macca-lab.onrender.com/">
 <meta property="og:image" content="https://macca-lab.onrender.com/images/site-card.svg">
-<meta property="og:image:alt" content="Macca Lab — Macca Lab | Software Engineering, Study &amp; Experiments">
-<meta property="og:locale" content="pt_BR">
+<meta property="og:image:alt" content="Macca Lab — Macca Lab | Independent Projects and Macca Blog">
+<meta property="og:locale" content="en_US">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Macca Lab | Software Engineering, Study &amp; Experiments">
-<meta name="twitter:description" content="Macca Lab is a practical software engineering laboratory with study materials, technical experiments, interactive tests, and learning projects.">
+<meta name="twitter:title" content="Macca Lab | Independent Projects and Macca Blog">
+<meta name="twitter:description" content="Macca Lab is an independent home for projects, experiments and editorial coverage of Grand Theft Auto, Rockstar Games and related stories on Macca Blog.">
 <meta name="twitter:image" content="https://macca-lab.onrender.com/images/site-card.svg">
 <link rel="alternate" type="application/rss+xml" title="Macca Blog RSS" href="https://macca-lab.onrender.com/blog/feed.xml">
 
@@ -42,54 +33,70 @@
 
 
 
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1038995366418919" crossorigin="anonymous"></script>
 
-<link rel="icon" href="/favicon.ico" sizes="any">
-<link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
-<link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
-<link rel="manifest" href="/site.webmanifest">
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<link rel="stylesheet" href="/skylet/widget.css?v=20260929.1">
-
-
-
-
-
-
-
-
-
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","@id":"https://macca-lab.onrender.com/#website","url":"https://macca-lab.onrender.com/","name":"Macca Lab | Software Engineering, Study & Experiments","description":"Macca Lab is a practical software engineering laboratory with study materials, technical experiments, interactive tests, and learning projects.","inLanguage":"pt-BR","publisher":{"@type":"Organization","name":"Macca Lab","url":"https://macca-lab.onrender.com/"}}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","@id":"https://macca-lab.onrender.com/#website","url":"https://macca-lab.onrender.com/","name":"Macca Lab | Independent Projects and Macca Blog","description":"Macca Lab is an independent home for projects, experiments and editorial coverage of Grand Theft Auto, Rockstar Games and related stories on Macca Blog.","inLanguage":"en"}</script>
 </head>
 <body>
-  <main aria-label="Escolha uma seÃ§Ã£o">
-    <a href="study/">Study</a>
-    <a href="play/">Play</a>
-    <a href="blog/">Macca Blog</a>
-    <a href="privacy/">Privacy Policy</a>
+  <header class="site-header">
+    <a class="site-brand" href="/" aria-label="Macca Lab home">MACCA <span>LAB</span></a>
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="/blog/">Blog</a>
+      <a href="/study/">Study</a>
+      <a href="/play/">Play</a>
+    </nav>
+  </header>
+
+  <main class="site-main">
+    <section class="home-hero" aria-labelledby="home-title">
+      <div class="home-hero-copy">
+        <p class="eyebrow">Independent projects and editorial</p>
+        <h1 id="home-title">Macca Lab</h1>
+        <p>Macca Lab brings together independent projects, experiments and editorial work. Macca Blog is its public editorial home, covering Grand Theft Auto, Rockstar Games and the stories around them.</p>
+        <div class="hero-actions">
+          <a class="button button-primary" href="/blog/">Explore Macca Blog</a>
+          <a class="button button-secondary" href="#latest-stories">Latest stories</a>
+        </div>
+      </div>
+      <img class="home-hero-image" src="/images/macca-blog-banner.webp" alt="Macca the Gator in a neon-lit Vice City scene" width="1600" height="900" fetchpriority="high">
+    </section>
+
+    <section class="latest-section" id="latest-stories" aria-labelledby="latest-title">
+      <div class="section-heading">
+        <div><p class="eyebrow">From the editorial desk</p><h2 id="latest-title">Latest from Macca Blog</h2></div>
+        <a href="/blog/">Browse all stories <span aria-hidden="true">→</span></a>
+      </div>
+      <!-- LATEST_STORIES_START --><div class="story-grid"><article class="story-card"><a class="story-card-link" href="/blog/dutch-police-arrest-suspect-shinyhunters-investigation/"><img src="/images/macca-blog-banner.jpg" alt="Dutch Police Arrest Suspect in ShinyHunters Investigation" width="800" height="450" loading="lazy" decoding="async"><span class="story-card-copy"><span class="story-meta"><span>Rockstar Games</span><time datetime="2026-09-29">2026-09-29</time></span><h3>Dutch Police Arrest Suspect in ShinyHunters Investigation</h3><p>Dutch police say they arrested a man suspected of involvement with ShinyHunters, the group that claimed an earlier Rockstar Games breach. The arrest and separate murder solicitation allegation remain under investigation.</p><span class="story-more">Read story <span aria-hidden="true">→</span></span></span></a></article><article class="story-card"><a class="story-card-link" href="/blog/gta-6-won-t-spoof-disney-world-says-rockstar-here-s-what-we-know/"><img src="/images/macca-blog-banner.jpg" alt="GTA 6 Won’t Spoof Disney World, Says Rockstar – Here’s What We Know" width="800" height="450" loading="lazy" decoding="async"><span class="story-card-copy"><span class="story-meta"><span>News</span><time datetime="2026-09-29">2026-09-29</time></span><h3>GTA 6 Won’t Spoof Disney World, Says Rockstar – Here’s What We Know</h3><p>GameSpot reports that GTA 6 won&#39;t include a parody of Walt Disney World or other Central Florida landmarks, per Rockstar&#39;s Jack McPherson. The game still aims for the &#39;full Florida experience&#39; elsewhere.</p><span class="story-more">Read story <span aria-hidden="true">→</span></span></span></a></article><article class="story-card"><a class="story-card-link" href="/blog/gta-6-fans-hope-for-gta-4-style-npc-physics/"><img src="/images/macca-blog-banner.jpg" alt="Macca the Gator at sunset in Vice City" width="800" height="450" loading="lazy" decoding="async"><span class="story-card-copy"><span class="story-meta"><span>Gaming News</span><time datetime="2026-09-29">2026-09-29</time></span><h3>GTA 6 Fans Hope for GTA 4-Style NPC Physics</h3><p>A Reddit post sparking nostalgia for GTA 4&#39;s Euphoria physics engine has fans hoping GTA 6 will let them &#39;bully&#39; NPCs like the 2008 classic.</p><span class="story-more">Read story <span aria-hidden="true">→</span></span></span></a></article><article class="story-card"><a class="story-card-link" href="/blog/fan-art-blends-gta-3-style-with-gta-6-setting-posted-on-reddit/"><img src="/images/macca-blog-banner.jpg" alt="Macca the Gator at sunset in Vice City" width="800" height="450" loading="lazy" decoding="async"><span class="story-card-copy"><span class="story-meta"><span>GTA News</span><time datetime="2026-09-29">2026-09-29</time></span><h3>Fan Art Blends GTA 3 Style with GTA 6 Setting, Posted on Reddit</h3><p>A Reddit user named THE_SURMENKO shared artwork inspired by GTA 3&#39;s aesthetic applied to GTA 6. The post, published on September 16, 2026, appears to be a fan creation, but details beyond the title are limited.</p><span class="story-more">Read story <span aria-hidden="true">→</span></span></span></a></article><article class="story-card"><a class="story-card-link" href="/blog/reddit-thread-sparks-zelda-remake-vs-gta-6-discourse-debate/"><img src="/images/macca-blog-banner.jpg" alt="Macca the Gator at sunset in Vice City" width="800" height="450" loading="lazy" decoding="async"><span class="story-card-copy"><span class="story-meta"><span>Gaming</span><time datetime="2026-09-29">2026-09-29</time></span><h3>Reddit Thread Sparks Zelda Remake vs. GTA 6 Discourse Debate</h3><p>A Reddit post highlights the ongoing fan discourse comparing a Zelda remake against GTA 6. The thread&#39;s exact arguments remain unclear, but it underscores the passionate—and sometimes heated—community discussions surrounding Rockstar&#39;s anticipated title.</p><span class="story-more">Read story <span aria-hidden="true">→</span></span></span></a></article><article class="story-card"><a class="story-card-link" href="/blog/reddit-post-dings-rockstar-games-logic-but-details-are-thin/"><img src="/images/macca-blog-banner.jpg" alt="Macca the Gator at sunset in Vice City" width="800" height="450" loading="lazy" decoding="async"><span class="story-card-copy"><span class="story-meta"><span>GTA</span><time datetime="2026-09-29">2026-09-29</time></span><h3>Reddit Post Dings &#39;Rockstar Games Logic&#39; — But Details Are Thin</h3><p>A Reddit post titled &#39;Rockstar Games logic 😭&#39; surfaced this week, but the feed lacks context. Here&#39;s what we know — and what remains unclear.</p><span class="story-more">Read story <span aria-hidden="true">→</span></span></span></a></article></div><!-- LATEST_STORIES_END -->
+    </section>
+
+    <section class="about-band" aria-labelledby="about-title">
+      <div><p class="eyebrow">About the project</p><h2 id="about-title">A lab for ideas, with a blog for the stories.</h2></div>
+      <p>Macca Lab is an independent project that hosts different experiments and editorial content. Macca Blog brings sourced reporting, context and analysis about GTA and Rockstar topics together in one place. Each article links to its sources and marks uncertain claims as unconfirmed.</p>
+    </section>
+
+    <section class="topics-section" aria-labelledby="topics-title">
+      <div class="section-heading">
+        <div><p class="eyebrow">Explore existing coverage</p><h2 id="topics-title">Find a story by topic</h2></div>
+        <a href="/blog/">Visit Macca Blog <span aria-hidden="true">→</span></a>
+      </div>
+      <!-- BLOG_TOPICS_START --><div class="topic-grid"><a class="topic-card" href="/blog/gta-vi-online-called-a-strictly-guarded-secret-as-report-claims-developer-protec/"><h3>GTA 6</h3><p>Reports, updates and community discussion about the next Grand Theft Auto. <span>Explore a related story &rarr;</span></p></a><a class="topic-card" href="/blog/fan-art-blends-gta-3-style-with-gta-6-setting-posted-on-reddit/"><h3>GTA News</h3><p>Recent stories across the Grand Theft Auto series. <span>Explore a related story &rarr;</span></p></a><a class="topic-card" href="/blog/dutch-police-arrest-suspect-shinyhunters-investigation/"><h3>Rockstar Games</h3><p>News and reporting about Rockstar Games and its projects. <span>Explore a related story &rarr;</span></p></a><a class="topic-card" href="/blog/gta-online-event-week-finale-confirmed-for-september-24-30/"><h3>GTA Online</h3><p>Updates and stories about the online world of GTA. <span>Explore a related story &rarr;</span></p></a><a class="topic-card" href="/blog/gta-6-fans-hope-for-gta-4-style-npc-physics/"><h3>Gaming</h3><p>Related gaming news and community stories. <span>Explore a related story &rarr;</span></p></a><a class="topic-card" href="/blog/how-grand-theft-auto-built-its-open-world-identity/"><h3>Game History</h3><p>Context and history from across the Grand Theft Auto series. <span>Explore a related story &rarr;</span></p></a></div><!-- BLOG_TOPICS_END -->
+    </section>
+
+    <section class="what-section" aria-labelledby="what-title">
+      <p class="eyebrow">What you will find here</p>
+      <h2 id="what-title">Coverage built around sources and context</h2>
+      <div class="what-grid">
+        <p>Macca Blog covers news about Grand Theft Auto and Rockstar Games, including GTA 6 and GTA Online, franchise history, gaming, and community reports and discussions.</p>
+        <p>Articles link to the reporting and material they rely on. Rumors and unresolved claims are attributed and labeled so readers can distinguish reporting from confirmation.</p>
+      </div>
+    </section>
   </main>
-  <script defer src="/skylet/widget.js?v=20260929.1"></script>
+
+  <footer class="site-footer">
+    <nav class="site-footer-links" aria-label="Footer navigation">
+      <a href="/">Home</a><a href="/blog/">Macca Blog</a><a href="/about/">About</a><a href="/contact/">Contact</a><a href="/privacy/">Privacy Policy</a><a href="/blog/feed.xml">RSS</a>
+    </nav>
+    <p>Macca Lab is an independent project and is not affiliated with or endorsed by Rockstar Games or Take-Two Interactive.</p>
+  </footer>
 </body>
 </html>

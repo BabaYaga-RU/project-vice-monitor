@@ -1,6 +1,7 @@
 # Macca Lab — Public Page Directory
 
-- [Macca Lab | Software Engineering, Study & Experiments](https://macca-lab.onrender.com/): Macca Lab is a practical software engineering laboratory with study materials, technical experiments, interactive tests, and learning projects.
+- [Macca Lab | Independent Projects and Macca Blog](https://macca-lab.onrender.com/): Macca Lab is an independent home for projects, experiments and editorial coverage of Grand Theft Auto, Rockstar Games and related stories on Macca Blog.
+- [About Macca Lab](https://macca-lab.onrender.com/about/): Learn about Macca Lab, an independent project for experiments and editorial content, including sourced GTA and Rockstar coverage on Macca Blog.
 - [S-800](https://macca-lab.onrender.com/assets/models/t800/): Visualizador interativo S-800 com olhos, cabeça e boca animados.
 - [Alleged GTA 6 Collector’s Edition Pics Leak Online](https://macca-lab.onrender.com/blog/alleged-gta-6-collector-s-edition-pics-leak-online/): Notebookcheck reports on alleged GTA 6 Collector’s Edition images surfacing online, even as physical disc pre-orders appear absent. The leak is unverified and Rockstar has not officially detailed the edition.
 - [Daughter Urges Rockstar to Let Terminally Ill Father Play GTA VI Early](https://macca-lab.onrender.com/blog/daughter-urges-rockstar-to-let-terminally-ill-father-play-gta-vi-early/): A report from ixbt.games tells of a daughter's plea for Rockstar to grant her terminally ill father early access to GTA VI. Details are sparse.
@@ -58,9 +59,10 @@
 - [Take-Two Chief: GTA 6 Is a Single-Player Experience, GTA Online Support Continues](https://macca-lab.onrender.com/blog/take-two-chief-gta-6-is-a-single-player-experience-gta-online-support-continues/): A new report citing a Take-Two executive suggests GTA 6 will be a single-player focused game, while GTA Online will keep receiving support. Details remain unverified.
 - [TalkEsport Asks Whether GTA 6 Will Feature Hurricanes and Tropical Storms](https://macca-lab.onrender.com/blog/talkesport-asks-whether-gta-6-will-feature-hurricanes-and-tropical-storms/): TalkEsport has published a report asking if GTA 6 will include hurricanes and tropical storms. The full article text is not included in the summary, so the claim remains unverified.
 - [YouTuber CityEd Unveils Detailed GTA-Style Map of London](https://macca-lab.onrender.com/blog/youtuber-cityed-unveils-detailed-gta-style-map-of-london/): A fan cartographer has reimagined London within the Grand Theft Auto universe, applying Rockstar Games' signature satirical naming conventions and exaggerated landmarks to the city.
+- [Contact Macca Lab](https://macca-lab.onrender.com/contact/): Contact Macca Lab through the official Macca the Gator Instagram account.
 - [Play — Lab](https://macca-lab.onrender.com/play/): Play
 - [CS 1.6 no navegador](https://macca-lab.onrender.com/play/cs16/): Carregue os arquivos da sua instalação local. O jogo inicia diretamente em de_dust2 .
-- [Privacy Policy | Macca the Gator](https://macca-lab.onrender.com/privacy/): Privacy Policy for Macca the Gator&amp;amp;#39;s YouTube publishing application.
+- [Privacy Policy | Macca Lab](https://macca-lab.onrender.com/privacy/): Privacy information for Macca Lab and Macca Blog, including website data, cookies, partner advertising, future Google AdSense, and the YouTube publishing integration.
 - [Matérias](https://macca-lab.onrender.com/study/): Matérias at Macca Lab.
 - [Laboratório de Eletrônica Digital | Práticas](https://macca-lab.onrender.com/study/Laboratorio-de-Eletronica-Digital/): Roteiro para entender e repetir as nove práticas do Manual de Sistemas Digitais. Em cada prática: monte seguindo a figura do PDF, execute a sequência, observe o…
 - [Bancada lógica | Laboratório](https://macca-lab.onrender.com/study/Laboratorio-de-Eletronica-Digital/simulador/): Arraste chaves, portas e LEDs para a folha. Ligue os terminais com o mouse e teste a saída.

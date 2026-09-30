@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://macca-lab.onrender.com/</loc></url>
+  <url><loc>https://macca-lab.onrender.com/about/</loc></url>
   <url><loc>https://macca-lab.onrender.com/assets/models/t800/</loc></url>
+  <url><loc>https://macca-lab.onrender.com/contact/</loc></url>
   <url><loc>https://macca-lab.onrender.com/play/</loc></url>
   <url><loc>https://macca-lab.onrender.com/play/cs16/</loc></url>
   <url><loc>https://macca-lab.onrender.com/privacy/</loc></url>

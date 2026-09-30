@@ -28,3 +28,12 @@ a:hover,.article-body a{color:var(--cyan)}
 .footer-social svg{width:1.25rem;height:1.25rem;flex:none}
 .footer-social:hover{color:var(--accent)}
 .footer-social:focus-visible{outline:2px solid var(--cyan);outline-offset:4px;border-radius:4px}
+
+footer{align-items:flex-start;flex-wrap:wrap;gap:1rem 2rem;padding-top:1.5rem;padding-bottom:1.5rem}
+.footer-about{display:grid;gap:.25rem;min-width:170px}
+.footer-about>a{color:var(--text);font-weight:800;text-decoration:none}
+.footer-about>span{color:var(--muted);font-size:.78rem}
+.footer-links,.footer-socials{display:flex;flex-wrap:wrap;gap:.65rem 1rem}
+.footer-links a{font-size:.78rem}
+.footer-disclaimer{flex-basis:100%;margin:.4rem 0 0;color:var(--muted);font-size:.75rem}
+@media(max-width:520px){footer{gap:.9rem}.footer-links{gap:.7rem 1rem}}
