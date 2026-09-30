@@ -12,6 +12,8 @@ const POSTS_FILE = path.join(ROOT, 'blog', 'posts.json');
 const PUBLISHED_FILE = path.join(ROOT, 'blog', 'instagram-published.json');
 const REEL_MANIFEST_FILE = process.env.INSTAGRAM_REEL_MANIFEST_FILE || path.join(os.tmpdir(), 'macca-reel-manifest.json');
 const token = process.env.INSTAGRAM_ACCESS_TOKEN;
+const configuredPageId = process.env.INSTAGRAM_PAGE_ID || '';
+const configuredInstagramId = process.env.INSTAGRAM_BUSINESS_ACCOUNT_ID || '';
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 const safeJson = async (file, fallback) => { try { return JSON.parse(await fs.readFile(file, 'utf8')); } catch { return fallback; } };
 const saveJson = async (file, value) => { await fs.mkdir(path.dirname(file), {recursive:true}); await fs.writeFile(file, JSON.stringify(value, null, 2) + '\n'); };
@@ -125,6 +127,14 @@ async function resolveAccount() {
     }
     console.log('Facebook Page token resolved, but /me did not return instagram_business_account; trying the linked Pages lookup.');
   } catch (error) { console.log(`Facebook Page token check: ${error.message}`); }
+  // Page Access Tokens are not user tokens: Meta's Page lookup flow requires a
+  // user token, while publishing endpoints accept the Page token. If the
+  // account IDs are already configured, use those directly without requiring
+  // additional read permissions or attempting to exchange the token.
+  if (configuredInstagramId) {
+    console.log(`Using configured Instagram Business Account ${configuredInstagramId}${configuredPageId ? ` for Page ${configuredPageId}` : ''} with the Page Access Token.`);
+    return {host:'graph.facebook.com', id:configuredInstagramId, username:''};
+  }
   try {
     const pages = await graphGet('graph.facebook.com', 'me/accounts', 'id,name,instagram_business_account{id,username}');
     for (const page of pages.data || []) {
@@ -224,13 +234,19 @@ async function publish() {
   const reelManifest = await safeJson(REEL_MANIFEST_FILE, {videos:{}});
   const account = await resolveAccount();
   if (account.username) console.log(`Instagram account resolved: @${account.username} through ${account.host}`);
-  for (const {slug} of queue) {
+  const retryOnlyFirst = process.env.INSTAGRAM_RETRY_ONLY_FIRST === 'true';
+  const itemsToPublish = retryOnlyFirst ? queue.slice(0, 1) : queue;
+  for (const {slug} of itemsToPublish) {
     const post = posts.find(item => item.slug === slug);
     if (!post) throw new Error(`Instagram queue references missing blog article: ${slug}`);
     const storyUrl = `${BASE}/blog/${encodeURIComponent(slug)}/`;
     // Meta's documented Reels Publishing request currently uses the Facebook
     // Login / Page-token flow. Do not send it through an Instagram Login host.
     const reelUrl = account.host === 'graph.facebook.com' ? (reelManifest.videos?.[slug]?.reelUrl || '') : '';
+    if (retryOnlyFirst && !reelUrl) {
+      console.log(`No staged Reel URL is available for ${slug}; keeping it queued and skipping image fallback during the Reel-only retry.`);
+      continue;
+    }
     if (!reelUrl && reelManifest.videos?.[slug]?.reelUrl) {
       console.log('Instagram Login token detected; retaining the existing image post because Meta documents this Reel flow for Facebook Login.');
     }
