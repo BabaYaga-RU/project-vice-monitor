@@ -8,7 +8,7 @@ Macca Blog links stories to their sources and labels rumors and unresolved repor
 
 - [Macca Lab | Independent Projects and Macca Blog](https://macca-lab.onrender.com/): Macca Lab is an independent home for projects, experiments and editorial coverage of Grand Theft Auto, Rockstar Games and related stories on Macca Blog.
 - [About Macca Lab](https://macca-lab.onrender.com/about/): Learn about Macca Lab, an independent project for experiments and editorial content, including sourced GTA and Rockstar coverage on Macca Blog.
-- [Contact Macca Lab](https://macca-lab.onrender.com/contact/): Contact Macca Lab through the official Macca the Gator Instagram account.
+- [Contact Macca Lab](https://macca-lab.onrender.com/contact/): Contact Macca Lab by email or through the official Macca the Gator Instagram account.
 - [Privacy Policy | Macca Lab](https://macca-lab.onrender.com/privacy/): Privacy information for Macca Lab and Macca Blog, including website data, cookies, partner advertising, future Google AdSense, and the YouTube publishing integration.
 
 ## Blog and feeds

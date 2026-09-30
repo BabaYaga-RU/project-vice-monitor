@@ -1,0 +1,63 @@
+[
+  {
+    "slug": "alleged-rockstar-games-hacker-arrested-fbi-says-he-led-shinyhunters",
+    "articleUrl": "https://macca-lab.onrender.com/blog/alleged-rockstar-games-hacker-arrested-fbi-says-he-led-shinyhunters/",
+    "sourceUrl": "https://kotaku.com/alleged-rockstar-games-hacker-arrested-in-connection-with-data-breach-that-revealed-gta-online-profits-2000738638",
+    "title": "Alleged Rockstar Games Hacker Arrested, FBI Says He Led ShinyHunters",
+    "description": "Dutch police arrested a 24-year-old Amsterdam man on suspicion of involvement with the hacking group ShinyHunters, which breached Rockstar Games earlier this year and leaked GTA Online financial data. The FBI alleges he was one of the group's leaders.",
+    "sections": [
+      {
+        "heading": "Arrest and Allegations",
+        "paragraphs": [
+          "Dutch National Police arrested a 24-year-old man from Amsterdam on September 28 in relation to the infamous hacking group ShinyHunters, as reported by Kotaku. The FBI has claimed the arrested individual, identified by Reuters as Pepijn van der Stap, has been one of the group's leaders since 2025. Van der Stap had previously been convicted of hacking-related crimes but had reportedly claimed to be reformed and worked as offensive cybersecurity lead at Amsterdam-based Neo Security.",
+          "Following the arrest, FBI Assistant Director Brett Leatherman addressed remaining ShinyHunters members, warning that arrests have a way of changing who is willing to talk and urging them to surrender. The Dutch police also stated that separate from the ShinyHunters investigation, Van der Stap is suspected of attempted incitement to commit two murders, based on information found on his laptop."
+        ]
+      },
+      {
+        "heading": "The Rockstar Games Breach",
+        "paragraphs": [
+          "In April, ShinyHunters was behind a data breach of Rockstar Games, reportedly attempting to extort the company. Rockstar did not pay, and the group released data that revealed detailed financial information about GTA Online, including that the game makes over a million dollars daily. This leaked information was so positive that Take-Two's stock price rose.",
+          "Rockstar confirmed the breach in a statement, saying a limited amount of non-material company information was accessed via a third-party data breach. The leaked data also provided insights into player counts and other operational details, offering a rare look at the live-service game's performance."
+        ]
+      },
+      {
+        "heading": "Denial and Context",
+        "paragraphs": [
+          "ShinyHunters has denied that Van der Stap was involved with the group and suggested Dutch police were incompetent. The group has been linked to numerous high-profile hacks, including Ticketmaster, SoundCloud, and the FBI. The arrest is part of an ongoing international effort to dismantle the hacking organization.",
+          "As of now, Van der Stap remains in custody in isolation while investigations continue. The full scope of his alleged involvement and the separate murder charges remain under investigation."
+        ]
+      }
+    ],
+    "tags": [
+      "Rockstar Games",
+      "GTA Online",
+      "ShinyHunters",
+      "Data Breach",
+      "Hacking",
+      "Arrest"
+    ],
+    "thumbnail": "https://kotaku.com/app/uploads/2025/11/copsss.jpg",
+    "thumbnailAlt": "Police officers in a scene",
+    "inlineImages": [
+      {
+        "url": "https://rockstarintel.com/wp-content/uploads/2025/05/Raul_Bautista_01-scaled.jpg",
+        "alt": "Person associated with the story",
+        "caption": "Image from related RockstarINTEL coverage",
+        "sourceUrl": "https://rockstarintel.com/alleged-rockstar-games-hacker-arrested-ordered-multiple-murders/"
+      }
+    ],
+    "sources": [
+      {
+        "title": "Alleged Rockstar Games Hacker Arrested In Connection With Data Breach That Revealed GTA Online Profits",
+        "url": "https://kotaku.com/alleged-rockstar-games-hacker-arrested-in-connection-with-data-breach-that-revealed-gta-online-profits-2000738638",
+        "publisher": "kotaku.com"
+      },
+      {
+        "title": "Alleged Rockstar Games Hacker Arrested, Ordered Multiple Murders - RockstarINTEL",
+        "url": "https://rockstarintel.com/alleged-rockstar-games-hacker-arrested-ordered-multiple-murders/",
+        "publisher": "rockstarintel.com"
+      }
+    ],
+    "queuedAt": "2026-09-30T18:27:53.355Z"
+  }
+]

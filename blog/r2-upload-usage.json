@@ -1,10 +1,12 @@
 {
   "schemaVersion": 1,
   "month": "2026-09",
-  "monthlyUploadAttempts": 2,
+  "monthlyUploadAttempts": 4,
   "recentUploadAttempts24h": [
     "2026-09-30T17:37:33.683415Z",
-    "2026-09-30T17:37:33.683415Z"
+    "2026-09-30T17:37:33.683415Z",
+    "2026-09-30T18:29:23.368384Z",
+    "2026-09-30T18:29:23.368384Z"
   ],
   "articles": {
     "gta-6-won-t-spoof-disney-world-says-rockstar-here-s-what-we-know": {
@@ -16,6 +18,13 @@
       "uploadedAt": "2026-09-30T17:37:45.086825Z",
       "publicVerifiedAt": "2026-09-30T17:37:45.087127Z",
       "deletedAt": "2026-09-30T17:44:17.092640Z"
+    },
+    "alleged-rockstar-games-hacker-arrested-fbi-says-he-led-shinyhunters": {
+      "objectKey": "instagram-reels/89f94248cf60473db923365c5b0c88ad-alleged-rockstar-games-hacker-arrested-fbi-says-he-led-shinyhunters.mp4",
+      "month": "2026-09",
+      "attemptsReserved": 2,
+      "reservedAt": "2026-09-30T18:29:23.368384Z",
+      "sizeBytes": 1860350
     }
   }
 }
