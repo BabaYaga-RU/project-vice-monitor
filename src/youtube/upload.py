@@ -54,7 +54,7 @@ def upload_video(
             "status": {"privacyStatus": privacy_status},
         },
         media_body=MediaFileUpload(
-            str(path), mimetype="video/*", chunksize=8 * 1024 * 1024, resumable=True
+            str(path), mimetype="video/mp4", chunksize=8 * 1024 * 1024, resumable=True
         ),
     )
 
