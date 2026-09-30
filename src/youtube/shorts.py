@@ -23,6 +23,10 @@ from PIL import Image, ImageDraw, ImageFont, ImageOps
 WIDTH, HEIGHT, FPS = 1080, 1920, 30
 ROOT = Path(__file__).resolve().parents[2]
 MUSIC_DIR = ROOT / "assets" / "audio" / "shorts"
+MAX_SLIDES = 4
+MIN_DURATION = 15.0
+MAX_DURATION = 20.0
+CTA_TEXT = "Full story \u2192 link in bio."
 
 
 def _font(size: int, bold: bool = False) -> ImageFont.FreeTypeFont:
@@ -40,62 +44,140 @@ def _font(size: int, bold: bool = False) -> ImageFont.FreeTypeFont:
 
 
 def _wrap(draw: ImageDraw.ImageDraw, text: str, font: ImageFont.FreeTypeFont, width: int) -> list[str]:
-    words, lines, line = str(text).split(), [], ""
+    """Wrap at word boundaries, balancing lines and avoiding orphan words."""
+    words = str(text).split()
+    if not words:
+        return []
+
+    expanded: list[str] = []
     for word in words:
-        candidate = f"{line} {word}".strip()
-        if draw.textbbox((0, 0), candidate, font=font)[2] <= width:
-            line = candidate
-        else:
-            if line:
-                lines.append(line)
-            line = word
-    if line:
-        lines.append(line)
+        while draw.textbbox((0, 0), word, font=font)[2] > width and len(word) > 1:
+            split_at = max(
+                (index for index in range(1, len(word))
+                 if draw.textbbox((0, 0), word[:index] + "-", font=font)[2] <= width),
+                default=0,
+            )
+            if not split_at:
+                break
+            expanded.append(word[:split_at] + "-")
+            word = word[split_at:]
+        expanded.append(word)
+
+    def text_width(value: str) -> int:
+        box = draw.textbbox((0, 0), value, font=font)
+        return box[2] - box[0]
+
+    count = len(expanded)
+    costs = [float("inf")] * (count + 1)
+    next_break = [count] * count
+    costs[count] = 0.0
+    for start in range(count - 1, -1, -1):
+        for end in range(start + 1, count + 1):
+            line = " ".join(expanded[start:end])
+            line_width = text_width(line)
+            if line_width > width:
+                break
+            slack = width - line_width
+            is_last = end == count
+            cost = (slack / max(width, 1)) ** 2 * (0.42 if is_last else 1.0)
+            if end - start == 1 and count > 2:
+                cost += 0.65
+            if is_last and end - start == 1 and count > 3:
+                cost += 1.2
+            total_cost = cost + costs[end]
+            if total_cost < costs[start]:
+                costs[start] = total_cost
+                next_break[start] = end
+
+    lines: list[str] = []
+    start = 0
+    while start < count:
+        end = next_break[start]
+        if end <= start:
+            end = start + 1
+        lines.append(" ".join(expanded[start:end]))
+        start = end
     return lines
 
 
+def _layout_text(
+    draw: ImageDraw.ImageDraw,
+    text: str,
+    max_width: int,
+    max_height: int,
+    *,
+    max_font_size: int = 86,
+    min_font_size: int = 26,
+) -> tuple[ImageFont.FreeTypeFont, list[str], int]:
+    """Choose the largest readable font whose balanced lines fit the card."""
+    value = re.sub(r"\s+", " ", str(text)).strip()
+    if not value:
+        raise ValueError("A video card cannot contain empty text.")
+    for size in range(max_font_size, min_font_size - 1, -2):
+        font = _font(size, True)
+        lines = _wrap(draw, value, font, max_width)
+        line_height = round(size * 1.22)
+        if lines and len(lines) * line_height <= max_height and all(
+            draw.textbbox((0, 0), line, font=font)[2] - draw.textbbox((0, 0), line, font=font)[0] <= max_width
+            for line in lines
+        ):
+            return font, lines, line_height
+    raise ValueError("Card text cannot fit inside the safe area, even at the minimum font size.")
+
+
+_FRAGMENT_ENDINGS = {
+    "a", "an", "and", "as", "at", "because", "but", "by", "for", "from", "if",
+    "in", "into", "is", "of", "on", "or", "that", "the", "to", "was", "were",
+    "which", "while", "with", "who", "will", "would", "won't", "hasn't", "haven't",
+}
+
+
+def _complete_sentences(text: str) -> list[str]:
+    normalized = re.sub(r"\s+", " ", str(text)).strip()
+    sentences = re.split(r"(?<=[.!?])\s+", normalized)
+    result = []
+    for sentence in sentences:
+        sentence = sentence.strip()
+        words = sentence.split()
+        if len(words) < 7 or not re.search(r"[.!?][\"'\u2019)]*$", sentence):
+            continue
+        if words[-1].rstrip(".!?\"'\u2019)").lower() in _FRAGMENT_ENDINGS:
+            continue
+        result.append(sentence)
+    return result
+
+
 def _article_script(article: dict) -> list[tuple[str, str]]:
-    """Return concise (screen text, narration) beats from the supplied article."""
+    """Make no more than four complete, useful cards from existing article text."""
     title = re.sub(r"\s+", " ", str(article.get("title", "GTA and Rockstar news"))).strip()
-    description = re.sub(r"\s+", " ", str(article.get("description", ""))).strip()
-    source_sentences: list[str] = []
-    if description:
-        source_sentences.extend(re.split(r"(?<=[.!?])\s+", description))
+    source_sentences = _complete_sentences(article.get("description", ""))
     for section in article.get("sections", []):
         for paragraph in section.get("paragraphs", []):
-            source_sentences.extend(re.split(r"(?<=[.!?])\s+", re.sub(r"\s+", " ", str(paragraph)).strip()))
+            source_sentences.extend(_complete_sentences(paragraph))
 
-    beats: list[tuple[str, str]] = [(title, f"GTA update. {title}")]
-    remaining = 15
-    used = {title.casefold()}
+    selected: list[str] = []
     for sentence in source_sentences:
-        sentence = sentence.strip()
-        if not sentence or sentence.casefold() in used:
+        words = set(re.sub(r"\W+", " ", sentence.casefold()).split())
+        if not words:
             continue
-        words = sentence.split()
-        if len(words) > remaining:
-            words = words[:remaining]
-            sentence = " ".join(words).rstrip(" ,;:-") + "."
-        if len(words) < 4:
-            continue
-        beats.append((sentence, sentence))
-        remaining -= len(words)
-        used.add(sentence.casefold())
-        if remaining <= 0 or len(beats) >= 5:
+        duplicate = False
+        for previous in selected:
+            previous_words = set(re.sub(r"\W+", " ", previous.casefold()).split())
+            shared = len(words & previous_words)
+            if shared >= 8 and shared / min(len(words), len(previous_words)) >= 0.48:
+                duplicate = True
+                break
+        if not duplicate:
+            selected.append(sentence)
+        if len(selected) >= 2:
             break
 
-    cta = "Read the full story on Macca Blog."
-    beats.append(("FULL STORY  •  MACCA BLOG", cta))
-    # Each short phrase gets its own cut/card and matching spoken segment.
-    # At the selected local TTS rate this usually changes visuals every ~2s.
-    phrase_beats: list[tuple[str, str]] = []
-    for screen, narration in beats:
-        words = narration.split()
-        for start in range(0, len(words), 6):
-            phrase = " ".join(words[start:start + 6])
-            phrase_beats.append((phrase, phrase))
-    return phrase_beats
-
+    beats: list[tuple[str, str]] = [(title, "Rockstar fans, here is the latest story.")]
+    beats.extend((sentence, sentence) for sentence in selected)
+    beats.append((CTA_TEXT, CTA_TEXT))
+    if len(beats) > MAX_SLIDES:
+        raise RuntimeError(f"The shared renderer produced more than {MAX_SLIDES} slides.")
+    return beats
 
 def _load_background(article: dict, work: Path) -> Image.Image:
     candidates = [article.get("thumbnail", ""), *[item.get("url", "") for item in article.get("inlineImages", [])]]
@@ -118,80 +200,42 @@ def _load_background(article: dict, work: Path) -> Image.Image:
 
 
 def _render_card(path: Path, background: Image.Image, headline: str, beat_index: int, total: int) -> None:
-    # Small per-beat crop changes complement FFmpeg's gentle Ken Burns movement.
-    x_shift = ((beat_index * 73) % 150) - 75
-    y_shift = ((beat_index * 41) % 100) - 50
     image = ImageOps.fit(
         background,
         (WIDTH, HEIGHT),
         method=Image.Resampling.LANCZOS,
-        centering=(max(0.05, min(0.95, 0.5 + x_shift / 1200)), max(0.05, min(0.95, 0.5 + y_shift / 1800))),
+        centering=(0.5, 0.5),
     ).convert("RGBA")
-    shade = Image.new("RGBA", image.size, (8, 5, 17, 88))
-    image = Image.alpha_composite(image, shade)
+    image = Image.alpha_composite(image, Image.new("RGBA", image.size, (8, 5, 17, 112)))
     draw = ImageDraw.Draw(image, "RGBA")
-    draw.rounded_rectangle((48, 255, 1032, 1510), radius=44, fill=(14, 9, 27, 205), outline=(255, 104, 173, 210), width=4)
-    draw.text((96, 322), "MACCA THE GATOR  •  GTA & ROCKSTAR", font=_font(29, True), fill=(77, 224, 237, 255))
-    draw.rounded_rectangle((96, 390, 260, 400), radius=5, fill=(255, 104, 173, 255))
-    words = headline.split()
-    screen_text = " ".join(words[:8]) + ("…" if len(words) > 8 else "")
-    font = _font(64 if len(screen_text) < 90 else 53, True)
-    lines = _wrap(draw, screen_text, font, 860)
-    if len(lines) > 8:
-        lines = lines[:7] + [lines[7].rstrip(" ,;:-") + "…"]
-    total_height = len(lines) * (font.size + 20)
-    y = 890 - total_height // 2
+
+    draw.text((76, 235), "MACCA THE GATOR  |  GTA & ROCKSTAR", font=_font(28, True), fill=(77, 224, 237, 255))
+    draw.rounded_rectangle((76, 300, 1004, 309), radius=5, fill=(52, 43, 64, 255))
+    progress_right = 76 + round(928 * (beat_index + 1) / max(total, 1))
+    draw.rounded_rectangle((76, 300, progress_right, 309), radius=5, fill=(255, 104, 173, 255))
+
+    font, lines, line_height = _layout_text(draw, headline, 820, 780, max_font_size=86, min_font_size=26)
+    text_height = len(lines) * line_height
+    panel_height = max(380, text_height + 144)
+    panel_top = 965 - panel_height // 2
+    panel_bottom = panel_top + panel_height
+    draw.rounded_rectangle(
+        (54, panel_top, 1026, panel_bottom), radius=42,
+        fill=(14, 9, 27, 226), outline=(255, 104, 173, 205), width=3,
+    )
+    draw.rounded_rectangle((91, panel_top + 46, 101, panel_top + 116), radius=5, fill=(77, 224, 237, 255))
+
+    y = panel_top + (panel_height - text_height) // 2
     for line in lines:
-        draw.text((96, y), line, font=font, fill=(255, 245, 240, 255), stroke_width=2, stroke_fill=(10, 7, 20, 220))
-        y += font.size + 20
-    draw.text((96, 1370), f"{beat_index + 1:02d}  /  {total:02d}", font=_font(27, True), fill=(255, 154, 107, 255))
-    if beat_index == total - 1:
-        draw.text((96, 1370), "MACCA BLOG  →  FULL STORY", font=_font(31, True), fill=(77, 224, 237, 255))
+        box = draw.textbbox((0, 0), line, font=font, stroke_width=1)
+        line_width = box[2] - box[0]
+        x = (WIDTH - line_width) // 2
+        draw.text((x, y), line, font=font, fill=(255, 247, 242, 255), stroke_width=1, stroke_fill=(10, 7, 20, 220))
+        y += line_height
+
+    footer = f"MACCA BLOG                                      {beat_index + 1:02d} / {total:02d}"
+    draw.text((76, 1570), footer, font=_font(25, True), fill=(230, 215, 232, 255))
     image.convert("RGB").save(path, quality=92)
-
-
-def _ass_time(seconds: float) -> str:
-    centiseconds = max(0, round(seconds * 100))
-    hours, remainder = divmod(centiseconds, 360000)
-    minutes, remainder = divmod(remainder, 6000)
-    secs, cs = divmod(remainder, 100)
-    return f"{hours}:{minutes:02d}:{secs:02d}.{cs:02d}"
-
-
-def _escape_ass(text: str) -> str:
-    return text.replace("\\", "\\\\").replace("{", "\\{").replace("}", "\\}").replace("\n", " ")
-
-
-def _write_subtitles(path: Path, beats: list[tuple[str, str]], durations: list[float]) -> None:
-    header = """[Script Info]
-ScriptType: v4.00+
-PlayResX: 1080
-PlayResY: 1920
-WrapStyle: 2
-ScaledBorderAndShadow: yes
-
-[V4+ Styles]
-Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
-Style: Caption,DejaVu Sans,54,&H00FFFFFF,&H0000F3FF,&H00130C20,&HCC130C20,1,0,0,0,100,100,0,0,1,4,1,2,70,70,300,1
-
-[Events]
-Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
-"""
-    events = []
-    elapsed = 0.0
-    for (_, caption), duration in zip(beats, durations):
-        words = caption.split()
-        chunks = [" ".join(words[index:index + 6]) for index in range(0, len(words), 6)] or [caption]
-        total_words = max(1, len(words))
-        cursor = elapsed
-        for chunk in chunks:
-            chunk_duration = duration * len(chunk.split()) / total_words
-            end = cursor + chunk_duration
-            events.append(f"Dialogue: 0,{_ass_time(cursor)},{_ass_time(end)},Caption,,0,0,0,,{_escape_ass(chunk)}")
-            cursor = end
-        elapsed = end
-    path.write_text(header + "\n".join(events) + "\n", encoding="utf-8")
-
 
 def _audio_duration(path: Path) -> float:
     with wave.open(str(path), "rb") as audio:
@@ -209,7 +253,7 @@ def _music_track() -> Path | None:
 
 
 def _create_narrated_short(article: dict, output: str | Path, workdir: str | Path) -> Path:
-    """Render an H.264/AAC 1080x1920 video with local TTS and burned captions."""
+    """Render a 15-20 second H.264/AAC video with up to four readable cards."""
     ffmpeg = shutil.which("ffmpeg")
     tts = shutil.which("espeak-ng") or shutil.which("espeak")
     tts_command = shlex.split(os.environ.get("SHORTS_TTS_COMMAND", ""), posix=os.name != "nt")
@@ -217,70 +261,108 @@ def _create_narrated_short(article: dict, output: str | Path, workdir: str | Pat
         raise RuntimeError("FFmpeg is required to render social videos.")
     if not tts and not tts_command:
         raise RuntimeError("Install espeak-ng to render the local narrated video.")
+    if not shutil.which("ffprobe"):
+        raise RuntimeError("ffprobe is required to validate rendered social videos.")
 
     work = Path(workdir)
     work.mkdir(parents=True, exist_ok=True)
     beats = _article_script(article)
     background = _load_background(article, work)
-    durations: list[float] = []
     audio_files: list[Path] = []
+    speech_durations: list[float] = []
+    card_durations: list[float] = []
+    voice_rate = 180
+
+    while True:
+        audio_files = []
+        speech_durations = []
+        for index, (_, narration) in enumerate(beats):
+            audio_path = work / f"voice-{index:02d}.wav"
+            subprocess.run(
+                [*(tts_command or [tts]), "-v", os.environ.get("SHORTS_TTS_VOICE", "en-us"), "-s", str(voice_rate), "-w", str(audio_path), narration],
+                check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+            )
+            audio_files.append(audio_path)
+            speech_durations.append(_audio_duration(audio_path))
+
+        # Keep each card readable; if the story still runs long, remove the
+        # second supporting fact as a whole sentence rather than cutting it.
+        card_durations = [max(duration + 0.14, 2.8) for duration in speech_durations]
+        # Add a small frame-boundary margin so the encoded MP4 probes at 15s or longer.
+        total_duration = max(MIN_DURATION + 0.2, sum(card_durations))
+        if total_duration <= MAX_DURATION:
+            card_durations[-1] += total_duration - sum(card_durations)
+            break
+        if len(beats) == MAX_SLIDES:
+            # Preserve the hook, main fact, and CTA; remove only the optional context card.
+            beats = beats[:2] + beats[-1:]
+            continue
+        if voice_rate < 210:
+            voice_rate += 10
+            continue
+        raise RuntimeError(f"Narrated video would exceed {MAX_DURATION:.0f} seconds without cutting a complete fact.")
+
+    tts_name = Path(tts).name if tts else Path(tts_command[0]).name
+    print(f"Generated {len(audio_files)} narration clips with {tts_name} at {voice_rate} wpm.")
+    print(f"Rendering {len(beats)} complete visual cards; duplicated lower captions and Ken Burns movement are disabled.")
+
     video_files: list[Path] = []
-    for index, (_, narration) in enumerate(beats):
-        audio_path = work / f"voice-{index:02d}.wav"
-        subprocess.run([*(tts_command or [tts]), "-v", os.environ.get("SHORTS_TTS_VOICE", "en-us"), "-s", "165", "-w", str(audio_path), narration], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        # A short tail prevents consonants from being cut between visual beats.
-        duration = _audio_duration(audio_path) + 0.12
-        durations.append(duration)
-        audio_files.append(audio_path)
+    for index, (headline, _) in enumerate(beats):
         card = work / f"scene-{index:02d}.jpg"
-        _render_card(card, background, beats[index][0], index, len(beats))
+        _render_card(card, background, headline, index, len(beats))
         clip = work / f"scene-{index:02d}.mp4"
-        frames = max(1, round(duration * FPS))
         subprocess.run([
-            ffmpeg, "-hide_banner", "-loglevel", "error", "-y", "-loop", "1", "-i", str(card), "-t", f"{duration:.3f}",
-            "-vf", f"zoompan=z='min(zoom+0.00045,1.035)':d={frames}:s={WIDTH}x{HEIGHT}:fps={FPS},format=yuv420p",
-            "-an", "-c:v", "libx264", "-preset", "veryfast", "-tune", "stillimage", "-movflags", "+faststart", str(clip),
+            ffmpeg, "-hide_banner", "-loglevel", "error", "-y", "-loop", "1", "-i", str(card),
+            "-t", f"{card_durations[index]:.3f}", "-vf", f"fps={FPS},format=yuv420p",
+            "-an", "-c:v", "libx264", "-preset", "veryfast", "-tune", "stillimage",
+            "-movflags", "+faststart", str(clip),
         ], check=True)
         video_files.append(clip)
-    tts_name = Path(tts).name if tts else Path(tts_command[0]).name
-    print(f"Generated {len(audio_files)} narration clips with {tts_name}.")
 
     joined_audio = work / "voice.wav"
     with wave.open(str(audio_files[0]), "rb") as first:
         params = first.getparams()
         with wave.open(str(joined_audio), "wb") as combined:
             combined.setparams(params)
-            for audio_path in audio_files:
+            for audio_path, card_duration in zip(audio_files, card_durations):
                 with wave.open(str(audio_path), "rb") as audio:
                     if audio.getparams()[:3] != params[:3]:
                         raise RuntimeError("TTS returned inconsistent audio formats between narration beats.")
                     combined.writeframes(audio.readframes(audio.getnframes()))
-                    combined.writeframes(b"\0" * round(params.framerate * 0.12) * params.nchannels * params.sampwidth)
+                silence_frames = max(0, round((card_duration - _audio_duration(audio_path)) * params.framerate))
+                combined.writeframes(b"\0" * silence_frames * params.nchannels * params.sampwidth)
 
     listing = work / "clips.txt"
     listing.write_text("\n".join(f"file '{clip.as_posix()}'" for clip in video_files) + "\n", encoding="utf-8")
-    subtitles = work / "captions.ass"
-    _write_subtitles(subtitles, beats, durations)
-    print(f"Burning synchronized captions from {subtitles.name} into {len(beats)} visual beats.")
     output_path = Path(output)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     music = _music_track()
-    caption_filter_path = str(subtitles).replace("\\", "/").replace(":", "\\:").replace("'", "\\'")
     command = [ffmpeg, "-hide_banner", "-loglevel", "error", "-y", "-f", "concat", "-safe", "0", "-i", str(listing), "-i", str(joined_audio)]
     if music:
         command += ["-stream_loop", "-1", "-i", str(music)]
         audio_filter = "[1:a]loudnorm=I=-16:TP=-1.5:LRA=11[voice];[2:a]loudnorm=I=-32:TP=-8:LRA=7[music];[voice][music]amix=inputs=2:duration=first:dropout_transition=2[aout]"
     else:
         audio_filter = "[1:a]loudnorm=I=-16:TP=-1.5:LRA=11[aout]"
-    command += ["-filter_complex", audio_filter, "-vf", f"ass='{caption_filter_path}'", "-map", "0:v:0", "-map", "[aout]", "-r", str(FPS), "-c:v", "libx264", "-preset", "veryfast", "-pix_fmt", "yuv420p", "-c:a", "aac", "-ar", "48000", "-b:a", "160k", "-shortest", "-movflags", "+faststart", str(output_path)]
+    command += [
+        "-filter_complex", audio_filter, "-map", "0:v:0", "-map", "[aout]", "-r", str(FPS),
+        "-c:v", "libx264", "-preset", "veryfast", "-pix_fmt", "yuv420p", "-c:a", "aac",
+        "-ar", "48000", "-b:a", "160k", "-t", f"{total_duration:.3f}", "-shortest",
+        "-movflags", "+faststart", str(output_path),
+    ]
     subprocess.run(command, check=True)
-    duration = sum(durations)
-    if not 15 <= duration <= 25:
-        # The words are capped to keep typical output within range; reject outliers
-        # rather than unexpectedly upload a video outside the requested duration.
-        raise RuntimeError(f"Narrated video duration is {duration:.1f}s; expected 15-25s. Reduce article summary text.")
+    probe = json.loads(subprocess.check_output([
+        shutil.which("ffprobe"), "-v", "error", "-show_streams", "-show_format", "-of", "json", str(output_path)
+    ], text=True))
+    video_stream = next((stream for stream in probe["streams"] if stream.get("codec_type") == "video"), None)
+    audio_stream = next((stream for stream in probe["streams"] if stream.get("codec_type") == "audio"), None)
+    actual_duration = float(probe.get("format", {}).get("duration", 0))
+    if not video_stream or (video_stream.get("codec_name"), video_stream.get("width"), video_stream.get("height"), video_stream.get("r_frame_rate")) != ("h264", WIDTH, HEIGHT, f"{FPS}/1"):
+        raise RuntimeError("Rendered video failed the H.264 1080x1920 30 FPS validation.")
+    if not audio_stream or audio_stream.get("codec_name") != "aac":
+        raise RuntimeError("Rendered video failed the AAC audio validation.")
+    if not MIN_DURATION <= actual_duration <= MAX_DURATION:
+        raise RuntimeError(f"Narrated video duration is {actual_duration:.1f}s; expected 15-20s.")
     return output_path
-
 
 def create_legacy_short(article: dict, output: str | Path, workdir: str | Path) -> Path:
     """Retained 7-second-per-card renderer for explicit rollback/diagnostics."""

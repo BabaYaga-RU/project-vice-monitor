@@ -7,40 +7,58 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from src.youtube.shorts import _article_script, create_short
+from PIL import Image, ImageDraw
+
+from src.youtube.shorts import CTA_TEXT, MAX_SLIDES, _article_script, _font, _layout_text, _wrap, create_short
 
 
 class SharedShortRendererTests(unittest.TestCase):
-    def test_script_uses_article_content_and_short_cta(self):
-        article = {
+    def setUp(self):
+        self.article = {
             "title": "Rockstar confirms a new GTA six update today",
             "description": "Rockstar confirmed a new trailer date for Grand Theft Auto six. The studio shared the announcement on its official newsroom.",
-            "sections": [{"heading": "The announcement", "paragraphs": ["The trailer will arrive on the date stated in the company's official announcement."]}],
+            "sections": [{"heading": "The announcement", "paragraphs": [
+                "The trailer will arrive on the date stated in the company's official announcement.",
+                "GameSpot reports that GTA 6 won't launch with a multiplayer mode, according to its sources.",
+                "World or other.",
+            ]}],
             "articleUrl": "https://example.test/blog/article/",
-        }
-        beats = _article_script(article)
-        self.assertTrue("GTA update" in " ".join(beat[1] for beat in beats[:2]))
-        self.assertTrue(beats[-1][1].endswith("Blog."))
-        self.assertTrue(all(len(narration.split()) <= 6 for _, narration in beats))
-
-    @unittest.skipUnless(shutil.which("ffmpeg") and shutil.which("ffprobe"), "FFmpeg/ffprobe required")
-    def test_renders_vertical_h264_with_audio_and_burned_captions(self):
-        article = {
-            "title": "Rockstar confirms a new Grand Theft Auto six trailer date today",
-            "description": "Rockstar Games confirmed the next trailer date for Grand Theft Auto six. The studio published the announcement through its official newsroom today.",
-            "sections": [{"heading": "Official announcement", "paragraphs": ["The published statement also confirmed that the trailer will arrive on the date the studio announced."]}],
-            "articleUrl": "https://example.test/blog/test-story/",
             "thumbnail": "",
             "inlineImages": [],
         }
+
+    def test_script_has_at_most_four_nonempty_useful_cards_and_short_cta(self):
+        beats = _article_script(self.article)
+        self.assertLessEqual(len(beats), MAX_SLIDES)
+        self.assertTrue(all(headline.strip() and narration.strip() for headline, narration in beats))
+        self.assertEqual(CTA_TEXT, beats[-1][0])
+        all_text = " ".join(headline for headline, _ in beats)
+        self.assertNotIn("World or other.", all_text)
+        self.assertNotIn("GameSpot reports that GTA 6 won't", all_text)
+        self.assertTrue(any("Rockstar confirmed" in headline for headline, _ in beats))
+
+    def test_text_wrap_stays_within_card_width_and_font_shrinks_for_long_copy(self):
+        canvas = Image.new("RGB", (400, 400))
+        draw = ImageDraw.Draw(canvas)
+        short = "A useful complete story block fits clearly inside this card."
+        font_short, lines_short, _ = _layout_text(draw, short, 340, 250, max_font_size=86)
+        long = " ".join([short] * 4)
+        font_long, lines_long, _ = _layout_text(draw, long, 340, 250, max_font_size=86, min_font_size=18)
+        self.assertLess(font_long.size, font_short.size)
+        for font, lines in ((font_short, lines_short), (font_long, lines_long)):
+            self.assertTrue(lines)
+            for line in lines:
+                box = draw.textbbox((0, 0), line, font=font)
+                self.assertLessEqual(box[2] - box[0], 340)
+        self.assertGreater(len(_wrap(draw, long, font_long, 340)), 1)
+
+    @unittest.skipUnless(shutil.which("ffmpeg") and shutil.which("ffprobe"), "FFmpeg/ffprobe required")
+    def test_renders_vertical_h264_aac_30fps_in_target_duration(self):
         with tempfile.TemporaryDirectory(prefix="macca-short-test-") as temp:
             output = Path(temp) / "test.mp4"
-            if os.name == "nt":
-                tts_command = f'powershell.exe -NoProfile -ExecutionPolicy Bypass -File {Path(__file__).with_name("windows_sapi_tts.ps1")}'
-            else:
-                tts_command = f'"{os.sys.executable}" "{Path(__file__).with_name("fake_tts.py")}"'
-            with patch.dict(os.environ, {"SHORTS_TTS_COMMAND": tts_command, "SHORTS_MUSIC_PATH": "", "SHORTS_RENDERER": "narrated"}):
-                video = create_short(article, output, Path(temp) / "work")
+            fake_tts = f"{os.sys.executable} {Path(__file__).with_name('fake_tts.py')}"
+            with patch.dict(os.environ, {"SHORTS_TTS_COMMAND": fake_tts, "SHORTS_MUSIC_PATH": "", "SHORTS_RENDERER": "narrated"}):
+                video = create_short(self.article, output, Path(temp) / "work")
             probe = json.loads(subprocess.check_output([
                 "ffprobe", "-v", "error", "-show_streams", "-show_format", "-of", "json", str(video)
             ], text=True))
@@ -53,7 +71,9 @@ class SharedShortRendererTests(unittest.TestCase):
             self.assertEqual("30/1", stream["r_frame_rate"])
             self.assertEqual("aac", audio["codec_name"])
             self.assertGreaterEqual(duration, 15)
-            self.assertLessEqual(duration, 25)
+            self.assertLessEqual(duration, 20)
+            self.assertLessEqual(len(list((Path(temp) / "work").glob("scene-*.jpg"))), MAX_SLIDES)
+            self.assertFalse((Path(temp) / "work" / "captions.ass").exists())
             self.assertGreater(output.stat().st_size, 50000)
 
     @unittest.skipUnless(shutil.which("ffmpeg") and shutil.which("ffprobe"), "FFmpeg/ffprobe required")

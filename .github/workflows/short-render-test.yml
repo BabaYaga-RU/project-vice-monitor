@@ -1,0 +1,81 @@
+name: Macca Short Renderer Preview
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/short-render-test.yml'
+      - 'src/youtube/shorts.py'
+      - 'tests/test_shorts.py'
+  workflow_dispatch:
+    inputs:
+      article_slug:
+        description: Existing article slug from blog/posts.json
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  render-preview:
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[short-render-preview-only]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install renderer dependencies
+        run: |
+          python -m pip install -r requirements-youtube.txt
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg espeak-ng fonts-dejavu-core
+      - name: Render selected existing article without publishing
+        id: render
+        env:
+          ARTICLE_SLUG: ${{ inputs.article_slug || 'alleged-rockstar-games-hacker-arrested-fbi-says-he-led-shinyhunters' }}
+          PREVIEW_DIR: ${{ runner.temp }}/macca-short-render-preview
+          SHORTS_RENDERER: narrated
+          SHORTS_MUSIC_PATH: ''
+        run: |
+          python - <<'PY'
+          import json, os, subprocess
+          from pathlib import Path
+          from src.youtube.shorts import _article_script, create_short
+
+          slug = os.environ['ARTICLE_SLUG'].strip()
+          posts = json.loads(Path('blog/posts.json').read_text(encoding='utf-8'))
+          article = next((post for post in posts if post.get('slug') == slug and not post.get('skip')), None)
+          if article is None:
+              raise SystemExit(f'No published article found for slug: {slug}')
+          preview = Path(os.environ['PREVIEW_DIR'])
+          work = preview / 'work'
+          output = preview / f'{slug}.mp4'
+          create_short(article, output, work)
+          probe = json.loads(subprocess.check_output([
+              'ffprobe', '-v', 'error', '-show_streams', '-show_format', '-of', 'json', str(output)
+          ], text=True))
+          video = next(s for s in probe['streams'] if s['codec_type'] == 'video')
+          audio = next(s for s in probe['streams'] if s['codec_type'] == 'audio')
+          duration = float(probe['format']['duration'])
+          assert (video['codec_name'], video['width'], video['height'], video['r_frame_rate']) == ('h264', 1080, 1920, '30/1')
+          assert audio['codec_name'] == 'aac'
+          assert 15 <= duration <= 20
+          slides = len(list(work.glob('scene-*.jpg')))
+          assert 1 <= slides <= 4
+          print(f'::notice::Article: {article["title"]}')
+          print(f'::notice::Rendered {slides} cards, {duration:.2f}s, H.264 1080x1920 30 FPS + AAC.')
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a', encoding='utf-8') as summary:
+              summary.write(f'## Render-only preview\n\n- Article: {article["title"]} (`{slug}`)\n- Cards: {slides}\n- Duration: {duration:.2f}s\n- Format: H.264, 1080x1920, 30 FPS, AAC\n- Publishing: not performed\n')
+          PY
+      - name: Upload preview MP4 and rendered card images
+        uses: actions/upload-artifact@v4
+        with:
+          name: macca-short-render-preview
+          path: ${{ runner.temp }}/macca-short-render-preview/
+          if-no-files-found: error
+          retention-days: 7
