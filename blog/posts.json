@@ -1,5 +1,54 @@
 [
   {
+    "title": "GTA 6 map is twice the size of GTA 5, features hurricanes and tropical storms, Rockstar confirms",
+    "description": "Rockstar has confirmed GTA 6's map is the largest it has ever created 'by some degree,' twice as large as GTA 5, with a new localized weather system that includes tropical storms and hurricanes.",
+    "category": "News",
+    "tags": [
+      "GTA 6",
+      "Rockstar Games",
+      "map size",
+      "weather system",
+      "hurricanes"
+    ],
+    "featured": true,
+    "sections": [
+      {
+        "heading": "Map size revealed",
+        "paragraphs": [
+          "According to a new preview in Game Informer, Rockstar's head of development Aaron Garbut said Leonida, the fictional Florida setting of GTA 6, is the biggest map Rockstar has ever created 'by some degree,' describing it as twice as large as GTA 5 with more detail. The report was published by Video Games Chronicle on September 29, 2026."
+        ]
+      },
+      {
+        "heading": "Dynamic weather systems",
+        "paragraphs": [
+          "The preview details a re-engineered weather system that makes conditions more localized and persistent. Owen Shepherd, vice president of art for lighting and rendering, said the world features 'new fully dynamic cloudscapes' that allow different areas to experience radically different weather simultaneously. Tropical storms and hurricanes are included, with severe storms causing water to pour from rooftops and lightning illuminating clouds. Rockstar has not yet revealed how frequently major weather events occur or their gameplay impact."
+        ]
+      }
+    ],
+    "thumbnail": "https://www.videogameschronicle.com/files/2025/05/Jason_Duval_03.jpg",
+    "thumbnailAlt": "GTA 6 artwork featuring a character in a tropical setting",
+    "inlineImages": [
+      {
+        "url": "https://www.videogameschronicle.com/files/2025/05/Jason_Duval_03.jpg",
+        "alt": "GTA 6 artwork featuring a character in a tropical setting",
+        "caption": "GTA 6 promotional image showing a tropical environment.",
+        "sourceUrl": "https://www.videogameschronicle.com/news/gta-6-map-is-officially-twice-as-large-as-gta-5-features-hurricanes-and-tropical-storms/"
+      }
+    ],
+    "sources": [
+      {
+        "title": "GTA 6 map officially twice as large as GTA 5, features hurricanes and tropical storms",
+        "url": "https://www.videogameschronicle.com/news/gta-6-map-is-officially-twice-as-large-as-gta-5-features-hurricanes-and-tropical-storms/",
+        "publisher": "www.videogameschronicle.com"
+      }
+    ],
+    "date": "2026-09-30",
+    "slug": "gta-6-map-is-twice-the-size-of-gta-5-features-hurricanes-and-tropical-storms-roc",
+    "sourceUrl": "https://www.videogameschronicle.com/news/gta-6-map-is-officially-twice-as-large-as-gta-5-features-hurricanes-and-tropical-storms/",
+    "image": "/images/macca-blog-banner.jpg",
+    "imageAlt": "Macca the Gator at sunset in Vice City"
+  },
+  {
     "skip": false,
     "title": "Dutch Police Arrest Suspect in ShinyHunters Investigation",
     "description": "Dutch police say they arrested a man suspected of involvement with ShinyHunters, the group that claimed an earlier Rockstar Games breach. The arrest and separate murder solicitation allegation remain under investigation.",
