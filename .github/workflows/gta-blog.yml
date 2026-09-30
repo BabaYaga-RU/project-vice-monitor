@@ -136,7 +136,44 @@ jobs:
           CLOUDFLARE_R2_SECRET_ACCESS_KEY: ${{ secrets.CLOUDFLARE_R2_SECRET_ACCESS_KEY }}
           CLOUDFLARE_R2_BUCKET: ${{ secrets.CLOUDFLARE_R2_BUCKET }}
           CLOUDFLARE_R2_PUBLIC_BASE_URL: ${{ secrets.CLOUDFLARE_R2_PUBLIC_BASE_URL }}
-        run: python scripts/social_video.py
+        run: python -m scripts.social_video
+      - name: Validate rendered vertical MP4
+        if: steps.render_social_videos.outcome == 'success'
+        env:
+          SOCIAL_VIDEO_DIR: ${{ runner.temp }}/macca-social-videos
+          INSTAGRAM_QUEUE_FILE: blog/instagram-queue.json
+          YOUTUBE_QUEUE_FILE: blog/youtube-queue.json
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          import subprocess
+          from pathlib import Path
+
+          video_dir = Path(os.environ['SOCIAL_VIDEO_DIR'])
+          slugs = []
+          for name in ('INSTAGRAM_QUEUE_FILE', 'YOUTUBE_QUEUE_FILE'):
+              try:
+                  items = json.loads(Path(os.environ[name]).read_text(encoding='utf-8'))
+              except FileNotFoundError:
+                  items = []
+              slugs.extend(item['slug'] for item in items if item.get('slug'))
+          for slug in dict.fromkeys(slugs):
+              video = video_dir / f'{slug}.mp4'
+              probe = json.loads(subprocess.check_output([
+                  'ffprobe', '-v', 'error', '-show_entries',
+                  'stream=codec_type,codec_name,width,height,r_frame_rate',
+                  '-show_entries', 'format=duration', '-of', 'json', str(video)
+              ], text=True))
+              streams = probe['streams']
+              video_stream = next(stream for stream in streams if stream['codec_type'] == 'video')
+              audio_stream = next(stream for stream in streams if stream['codec_type'] == 'audio')
+              duration = float(probe['format']['duration'])
+              assert (video_stream['codec_name'], video_stream['width'], video_stream['height'], video_stream['r_frame_rate']) == ('h264', 1080, 1920, '30/1'), video_stream
+              assert audio_stream['codec_name'] == 'aac', audio_stream
+              assert 15 <= duration <= 25, duration
+              print(f'Validated {video.name}: H.264 1080x1920, AAC, 30 FPS, {duration:.2f}s.')
+          PY
       - name: Inspect pending Instagram posts
         id: instagram_queue
         if: always()
@@ -184,7 +221,7 @@ jobs:
           CLOUDFLARE_R2_SECRET_ACCESS_KEY: ${{ secrets.CLOUDFLARE_R2_SECRET_ACCESS_KEY }}
           CLOUDFLARE_R2_BUCKET: ${{ secrets.CLOUDFLARE_R2_BUCKET }}
           CLOUDFLARE_R2_PUBLIC_BASE_URL: ${{ secrets.CLOUDFLARE_R2_PUBLIC_BASE_URL }}
-        run: python scripts/social_video.py upload
+        run: python -m scripts.social_video upload
       - name: Publish new stories to Instagram
         id: instagram_publish
         if: always() && steps.instagram_queue.outcome == 'success' && steps.prepare_instagram.outcome == 'success' && steps.commit_generated.outcome != 'failure' && steps.build_blog.outcome != 'failure' && steps.build_seo.outcome != 'failure'
@@ -204,7 +241,7 @@ jobs:
           CLOUDFLARE_R2_ACCESS_KEY_ID: ${{ secrets.CLOUDFLARE_R2_ACCESS_KEY_ID }}
           CLOUDFLARE_R2_SECRET_ACCESS_KEY: ${{ secrets.CLOUDFLARE_R2_SECRET_ACCESS_KEY }}
           CLOUDFLARE_R2_BUCKET: ${{ secrets.CLOUDFLARE_R2_BUCKET }}
-        run: python scripts/social_video.py cleanup
+        run: python -m scripts.social_video cleanup
       - name: Save Instagram publication IDs
         if: always() && steps.instagram_publish.outcome != 'skipped' && hashFiles('blog/instagram-queue.json') != ''
         run: |

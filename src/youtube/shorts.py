@@ -242,6 +242,8 @@ def _create_narrated_short(article: dict, output: str | Path, workdir: str | Pat
             "-an", "-c:v", "libx264", "-preset", "veryfast", "-tune", "stillimage", "-movflags", "+faststart", str(clip),
         ], check=True)
         video_files.append(clip)
+    tts_name = Path(tts).name if tts else Path(tts_command[0]).name
+    print(f"Generated {len(audio_files)} narration clips with {tts_name}.")
 
     joined_audio = work / "voice.wav"
     with wave.open(str(audio_files[0]), "rb") as first:
@@ -259,6 +261,7 @@ def _create_narrated_short(article: dict, output: str | Path, workdir: str | Pat
     listing.write_text("\n".join(f"file '{clip.as_posix()}'" for clip in video_files) + "\n", encoding="utf-8")
     subtitles = work / "captions.ass"
     _write_subtitles(subtitles, beats, durations)
+    print(f"Burning synchronized captions from {subtitles.name} into {len(beats)} visual beats.")
     output_path = Path(output)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     music = _music_track()

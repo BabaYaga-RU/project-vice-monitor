@@ -157,6 +157,7 @@ def upload_reel_objects() -> None:
                 with urlopen(request, timeout=20) as response:
                     if response.status == 200 and response.headers.get("content-type", "").startswith("video/mp4"):
                         entry["reelUrl"] = url
+                        print(f"R2 public URL verified: {url} (HTTP 200, video/mp4).")
                     else:
                         print(f"Temporary R2 video is not publicly reachable as video/mp4 (HTTP {response.status}); image fallback selected.")
             except Exception as error:
