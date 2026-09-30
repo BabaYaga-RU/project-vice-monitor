@@ -60,7 +60,7 @@
 - [YouTuber CityEd Unveils Detailed GTA-Style Map of London](https://macca-lab.onrender.com/blog/youtuber-cityed-unveils-detailed-gta-style-map-of-london/): A fan cartographer has reimagined London within the Grand Theft Auto universe, applying Rockstar Games' signature satirical naming conventions and exaggerated landmarks to the city.
 - [Play — Lab](https://macca-lab.onrender.com/play/): Play
 - [CS 1.6 no navegador](https://macca-lab.onrender.com/play/cs16/): Carregue os arquivos da sua instalação local. O jogo inicia diretamente em de_dust2 .
-- [Privacy Policy | Macca the Gator](https://macca-lab.onrender.com/privacy/): Privacy Policy for Macca the Gator's YouTube publishing application.
+- [Privacy Policy | Macca the Gator](https://macca-lab.onrender.com/privacy/): Privacy Policy for Macca the Gator&#39;s YouTube publishing application.
 - [Matérias](https://macca-lab.onrender.com/study/): Matérias at Macca Lab.
 - [Laboratório de Eletrônica Digital | Práticas](https://macca-lab.onrender.com/study/Laboratorio-de-Eletronica-Digital/): Roteiro para entender e repetir as nove práticas do Manual de Sistemas Digitais. Em cada prática: monte seguindo a figura do PDF, execute a sequência, observe o…
 - [Bancada lógica | Laboratório](https://macca-lab.onrender.com/study/Laboratorio-de-Eletronica-Digital/simulador/): Arraste chaves, portas e LEDs para a folha. Ligue os terminais com o mouse e teste a saída.
