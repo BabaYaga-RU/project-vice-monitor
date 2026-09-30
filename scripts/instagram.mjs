@@ -245,10 +245,6 @@ async function publish() {
     // Meta's documented Reels Publishing request currently uses the Facebook
     // Login / Page-token flow. Do not send it through an Instagram Login host.
     const reelUrl = account.host === 'graph.facebook.com' ? (reelManifest.videos?.[slug]?.reelUrl || '') : '';
-    if (retryOnlyFirst && !reelUrl) {
-      console.log(`No staged Reel URL is available for ${slug}; keeping it queued and skipping image fallback during the Reel-only retry.`);
-      continue;
-    }
     if (!reelUrl && reelManifest.videos?.[slug]?.reelUrl) {
       console.log('Instagram Login token detected; retaining the existing image post because Meta documents this Reel flow for Facebook Login.');
     }
@@ -266,7 +262,7 @@ async function publish() {
       continue;
     }
     const container = reelUrl
-      ? await graphPost(account.host, `${account.id}/media`, {media_type:'REELS', video_url:reelUrl, caption:caption(post), share_to_feed:'true'})
+      ? await graphPost(account.host, `${account.id}/media`, {media_type:'REELS', video_url:reelUrl, caption:caption(post), share_to_feed:'false'})
       : await graphPost(account.host, `${account.id}/media`, {image_url:imageUrl, caption:caption(post), alt_text:post.title});
     if (!container.id) throw new Error('Meta did not return a media container ID.');
     await waitForContainer(account.host, container.id);
