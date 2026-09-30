@@ -24,6 +24,17 @@ To enable temporary video URLs:
 
 R2 provides a free monthly allowance and free egress, but usage above the included allowance can be billed. The public `r2.dev` endpoint is for development; use a custom domain for steady production delivery.
 
+### Hard R2 limits
+
+`blog/r2-upload-usage.json` is the committed quota ledger. It reserves upload attempts before network transfer, so failures or interrupted runners still consume the budget. Retries count against the caps, which is deliberately stricter than counting only completed objects.
+
+- At most one distinct article object per workflow run and one object reservation per article.
+- At most 24 R2 PUT attempts in any rolling 24 hours and 750 reserved PUT attempts per UTC calendar month.
+- At most two explicit PUT attempts for the same object; SDK-level automatic retries are disabled.
+- MP4 files larger than 25 MiB are rejected before R2 transfer.
+- Limits are constants in `src/youtube/r2_limits.py`; the workflow never raises them. A blocked upload leaves YouTube's local MP4 untouched and selects the square-image Instagram fallback.
+- Cleanup makes up to two delete attempts after Instagram publishing; the one-day bucket lifecycle remains the final fallback if deletion or the runner fails.
+
 ## Optional YouTube Analytics
 
 Upload credentials remain in `src/youtube/auth.py` with the existing `youtube.upload` scope. Analytics uses a separate module and the additional GitHub secret `YOUTUBE_ANALYTICS_REFRESH_TOKEN`; no code replaces or modifies `YOUTUBE_REFRESH_TOKEN`.

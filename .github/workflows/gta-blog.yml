@@ -130,6 +130,7 @@ jobs:
           SHORTS_RENDERER: ${{ vars.SHORTS_RENDERER || 'narrated' }}
           SOCIAL_VIDEO_DIR: ${{ runner.temp }}/macca-social-videos
           INSTAGRAM_REEL_MANIFEST_FILE: ${{ runner.temp }}/macca-reel-manifest.json
+          R2_USAGE_FILE: blog/r2-upload-usage.json
           CLOUDFLARE_R2_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_R2_ACCOUNT_ID }}
           CLOUDFLARE_R2_ACCESS_KEY_ID: ${{ secrets.CLOUDFLARE_R2_ACCESS_KEY_ID }}
           CLOUDFLARE_R2_SECRET_ACCESS_KEY: ${{ secrets.CLOUDFLARE_R2_SECRET_ACCESS_KEY }}
@@ -159,7 +160,7 @@ jobs:
         run: node scripts/instagram.mjs prepare
       - name: Commit and push generated changes
         id: commit_generated
-        if: always() && ((steps.build_blog.outcome == 'success' && steps.build_seo.outcome == 'success' && steps.prepare_instagram.outcome == 'success' && (github.event_name != 'schedule' || steps.monitor.outputs.should_generate == 'true')) || steps.record_failure.outcome == 'success')
+        if: always() && ((steps.build_blog.outcome == 'success' && steps.build_seo.outcome == 'success' && steps.prepare_instagram.outcome == 'success' && (github.event_name != 'schedule' || steps.monitor.outputs.should_generate == 'true' || steps.social_video_work.outputs.has_work == 'true')) || steps.record_failure.outcome == 'success')
         run: |
           if [[ -n "$(git status --porcelain)" ]]; then
             git config user.name "github-actions[bot]"
@@ -172,6 +173,18 @@ jobs:
           else
             echo "No blog changes to publish."
           fi
+      - name: Upload the reserved Reel object to R2
+        if: always() && steps.render_social_videos.outcome == 'success' && steps.commit_generated.outcome != 'failure'
+        continue-on-error: true
+        env:
+          PYTHONDONTWRITEBYTECODE: '1'
+          INSTAGRAM_REEL_MANIFEST_FILE: ${{ runner.temp }}/macca-reel-manifest.json
+          CLOUDFLARE_R2_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_R2_ACCOUNT_ID }}
+          CLOUDFLARE_R2_ACCESS_KEY_ID: ${{ secrets.CLOUDFLARE_R2_ACCESS_KEY_ID }}
+          CLOUDFLARE_R2_SECRET_ACCESS_KEY: ${{ secrets.CLOUDFLARE_R2_SECRET_ACCESS_KEY }}
+          CLOUDFLARE_R2_BUCKET: ${{ secrets.CLOUDFLARE_R2_BUCKET }}
+          CLOUDFLARE_R2_PUBLIC_BASE_URL: ${{ secrets.CLOUDFLARE_R2_PUBLIC_BASE_URL }}
+        run: python scripts/social_video.py upload
       - name: Publish new stories to Instagram
         id: instagram_publish
         if: always() && steps.instagram_queue.outcome == 'success' && steps.prepare_instagram.outcome == 'success' && steps.commit_generated.outcome != 'failure' && steps.build_blog.outcome != 'failure' && steps.build_seo.outcome != 'failure'
