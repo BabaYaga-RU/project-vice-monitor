@@ -267,6 +267,18 @@ Article excerpts: ${s.excerpt||'[No body available]'}`).join('\n\n')}
     const queue=await readJson(process.env.INSTAGRAM_QUEUE_FILE,[]);
     if(!queue.some(item=>item.slug===p.slug)) { queue.push({slug:p.slug}); await writeJson(process.env.INSTAGRAM_QUEUE_FILE,queue); }
   }
+  if(process.env.YOUTUBE_QUEUE_FILE) {
+    try {
+      const queue=await readJson(process.env.YOUTUBE_QUEUE_FILE,[]);
+      if(!queue.some(item=>item.slug===p.slug)) {
+        queue.push({slug:p.slug,articleUrl:`${BASE}/blog/${encodeURIComponent(p.slug)}/`,sourceUrl:p.sourceUrl,title:p.title,description:p.description,sections:p.sections||[],thumbnail:p.thumbnail||'',thumbnailAlt:p.thumbnailAlt||'',inlineImages:p.inlineImages||[],sources:p.sources||[],queuedAt:new Date().toISOString()});
+        await writeJson(process.env.YOUTUBE_QUEUE_FILE,queue);
+        console.log(`Queued ${p.slug} for YouTube Shorts publication.`);
+      }
+    } catch(error) {
+      console.error(`Could not add ${p.slug} to the YouTube queue; blog publication will continue: ${error.message}`);
+    }
+  }
   await build(); console.log(`Published ${p.slug}`);
 }
 function similarity(a,b){const words=x=>new Set(String(x).toLowerCase().split(/[^a-z0-9]+/).filter(w=>w.length>2));const x=words(a),y=words(b);if(!x.size||!y.size)return 0;return [...x].filter(v=>y.has(v)).length/new Set([...x,...y]).size;}

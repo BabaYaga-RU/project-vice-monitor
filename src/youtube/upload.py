@@ -25,19 +25,6 @@ def build_youtube_service():
     )
 
 
-def authenticated_channel(youtube: Any) -> dict[str, str]:
-    """Return the channel ID/title for the account behind the OAuth token."""
-    response = youtube.channels().list(part="snippet", mine=True).execute()
-    items = response.get("items", [])
-    if not items:
-        raise RuntimeError("The authenticated YouTube account has no accessible channel.")
-    channel = items[0]
-    return {
-        "id": channel["id"],
-        "title": channel.get("snippet", {}).get("title", "Unknown channel"),
-    }
-
-
 def upload_video(
     video_path: str | Path,
     *,

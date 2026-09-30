@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: Run a safe OAuth/channel check or upload one prepared video
+        description: Refresh OAuth only or upload a temporary private smoke-test video
         type: choice
-        options: [check, upload]
+        options: [check, smoke-test, upload]
         default: check
       video_path:
         description: Repository-relative path to a prepared video (upload mode only)
@@ -43,13 +43,25 @@ jobs:
           cache-dependency-path: requirements-youtube.txt
       - name: Install YouTube API client
         run: python -m pip install -r requirements-youtube.txt
-      - name: Refresh access token and identify authenticated channel
+      - name: Install FFmpeg for temporary smoke-test video
+        if: inputs.mode == 'smoke-test'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg fonts-dejavu-core
+      - name: Refresh access token using the upload-only scope
         id: channel
         env:
           YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
           YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
           YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
         run: python -m scripts.youtube_manual_test
+      - name: Upload a generated private OAuth smoke-test video
+        if: inputs.mode == 'smoke-test'
+        env:
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+        run: python -m scripts.youtube_smoke_test
       - name: Upload prepared video privately
         if: inputs.mode == 'upload'
         env:

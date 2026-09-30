@@ -55,6 +55,7 @@ jobs:
           CANDIDATE_FILE: ${{ runner.temp }}/macca-blog-candidate.json
           MAX_POSTS_PER_RUN: ${{ github.event.inputs.posts_to_generate || '1' }}
           INSTAGRAM_QUEUE_FILE: blog/instagram-queue.json
+          YOUTUBE_QUEUE_FILE: blog/youtube-queue.json
           BACKFILL_FLAG: ${{ github.event.inputs.retroactive_backfill == 'true' && '--backfill' || '' }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -134,5 +135,59 @@ jobs:
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git commit -m "Record Instagram blog publications"
+            git push origin HEAD:main
+          fi
+      - name: Set up Python for queued YouTube Shorts
+        if: always() && steps.commit_generated.outcome != 'failure' && hashFiles('blog/youtube-queue.json') != ''
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: requirements-youtube.txt
+      - name: Install YouTube API and Shorts dependencies
+        if: always() && steps.commit_generated.outcome != 'failure' && hashFiles('blog/youtube-queue.json') != ''
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg fonts-dejavu-core
+          python -m pip install -r requirements-youtube.txt
+      - name: Check YouTube OAuth secrets are configured
+        id: youtube_config
+        if: always() && hashFiles('blog/youtube-queue.json') != ''
+        env:
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+        run: |
+          if [[ -n "$YOUTUBE_CLIENT_ID" && -n "$YOUTUBE_CLIENT_SECRET" && -n "$YOUTUBE_REFRESH_TOKEN" ]]; then
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "YouTube secrets are not configured; queued Shorts remain available for retry."
+          fi
+      - name: Publish queued articles to YouTube as private Shorts
+        id: youtube_publish
+        if: always() && steps.commit_generated.outcome != 'failure' && steps.build_blog.outcome != 'failure' && steps.build_seo.outcome != 'failure' && steps.youtube_config.outputs.configured == 'true'
+        continue-on-error: true
+        env:
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+          YOUTUBE_QUEUE_FILE: blog/youtube-queue.json
+          YOUTUBE_PUBLISHED_FILE: blog/youtube-published.json
+          SITE_URL: https://macca-lab.onrender.com
+        run: python -m scripts.youtube_queue
+      - name: Save YouTube upload records and retained retry queue
+        if: always() && steps.youtube_config.outcome != 'skipped' && steps.commit_generated.outcome != 'failure'
+        run: |
+          git fetch origin main
+          git rebase origin/main
+          git add -A blog/youtube-queue.json
+          if [[ -f blog/youtube-published.json ]]; then git add blog/youtube-published.json; fi
+          if git diff --cached --quiet; then
+            echo "No YouTube queue changes to save."
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git commit -m "Record YouTube blog Shorts publications"
             git push origin HEAD:main
           fi
