@@ -230,6 +230,7 @@ jobs:
           INSTAGRAM_ACCESS_TOKEN: ${{ secrets.INSTAGRAM_ACCESS_TOKEN }}
           INSTAGRAM_QUEUE_FILE: blog/instagram-queue.json
           INSTAGRAM_REEL_MANIFEST_FILE: ${{ runner.temp }}/macca-reel-manifest.json
+          INSTAGRAM_RETRY_ONLY_FIRST: ${{ contains(github.event.head_commit.message, '[instagram-retry]') && 'true' || 'false' }}
         run: node scripts/instagram.mjs publish
       - name: Delete temporary Instagram Reel videos from R2
         if: always() && steps.render_social_videos.outcome != 'skipped'

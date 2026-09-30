@@ -195,7 +195,8 @@ async function inspectQueue() {
   const queue = await safeJson(QUEUE_FILE, []);
   if (!Array.isArray(queue)) throw new Error('blog/instagram-queue.json must contain a JSON array.');
   let needsArtwork = process.env.INSTAGRAM_FORCE_REGENERATE === 'true' && queue.length > 0;
-  for (const {slug} of queue) {
+  const itemsToPublish = process.env.INSTAGRAM_RETRY_ONLY_FIRST === 'true' ? queue.slice(0, 1) : queue;
+  for (const {slug} of itemsToPublish) {
     try { await fs.access(path.join(ROOT, 'blog', slug, 'instagram.jpg')); }
     catch { needsArtwork = true; break; }
   }
