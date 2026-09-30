@@ -31,7 +31,7 @@ def upload_video(
     title: str,
     description: str,
     tags: list[str] | None = None,
-    privacy_status: str = "private",
+    privacy_status: str = "public",
     youtube: Any | None = None,
 ) -> dict[str, str]:
     """Upload a video resumably and retry transient API/network errors."""

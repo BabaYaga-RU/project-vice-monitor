@@ -166,7 +166,7 @@ jobs:
             echo "configured=false" >> "$GITHUB_OUTPUT"
             echo "YouTube secrets are not configured; queued Shorts remain available for retry."
           fi
-      - name: Publish queued articles to YouTube as private Shorts
+      - name: Publish queued articles to YouTube as public Shorts
         id: youtube_publish
         if: always() && steps.commit_generated.outcome != 'failure' && steps.build_blog.outcome != 'failure' && steps.build_seo.outcome != 'failure' && steps.youtube_config.outputs.configured == 'true'
         continue-on-error: true

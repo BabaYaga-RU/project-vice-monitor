@@ -271,7 +271,7 @@ Article excerpts: ${s.excerpt||'[No body available]'}`).join('\n\n')}
     try {
       const queue=await readJson(process.env.YOUTUBE_QUEUE_FILE,[]);
       if(!queue.some(item=>item.slug===p.slug)) {
-        queue.push({slug:p.slug,articleUrl:`${BASE}/blog/${encodeURIComponent(p.slug)}/`,sourceUrl:p.sourceUrl,title:p.title,description:p.description,sections:p.sections||[],thumbnail:p.thumbnail||'',thumbnailAlt:p.thumbnailAlt||'',inlineImages:p.inlineImages||[],sources:p.sources||[],queuedAt:new Date().toISOString()});
+        queue.push({slug:p.slug,articleUrl:`${BASE}/blog/${encodeURIComponent(p.slug)}/`,sourceUrl:p.sourceUrl,title:p.title,description:p.description,sections:p.sections||[],tags:p.tags||[],thumbnail:p.thumbnail||'',thumbnailAlt:p.thumbnailAlt||'',inlineImages:p.inlineImages||[],sources:p.sources||[],queuedAt:new Date().toISOString()});
         await writeJson(process.env.YOUTUBE_QUEUE_FILE,queue);
         console.log(`Queued ${p.slug} for YouTube Shorts publication.`);
       }

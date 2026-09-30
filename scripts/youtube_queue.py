@@ -28,6 +28,32 @@ def write_json(path: Path, data) -> None:
     path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
+def youtube_description(item: dict) -> str:
+    blocks = [str(item.get("description", "")).strip()[:900]]
+    for section in item.get("sections", []):
+        if len(blocks) >= 4:
+            break
+        heading = str(section.get("heading", "")).strip()
+        paragraphs = [str(value).strip() for value in section.get("paragraphs", []) if str(value).strip()]
+        if heading and paragraphs:
+            blocks.append(f"{heading}\n" + "\n\n".join(paragraphs)[:750])
+    blocks.append(f"Read the full story: {item.get('articleUrl', '')}")
+    sources = item.get("sources", [])
+    references = [f"- {source.get('title', 'Source')}: {source.get('url', '')}" for source in sources[:5] if source.get("url")]
+    if references:
+        blocks.append("Sources\n" + "\n".join(references)[:1300])
+    blocks.append("Subscribe to Macca the Gator: https://www.youtube.com/@macca_the_gator_oficial")
+
+    hashtags = ["#GTA", "#GrandTheftAuto", "#RockstarGames", "#MaccaTheGator", "#Shorts"]
+    for tag in item.get("tags", []):
+        compact = "".join(ch for ch in str(tag).title() if ch.isalnum())
+        if compact:
+            hashtags.append("#" + compact)
+    hashtag_text = " ".join(dict.fromkeys(hashtags))
+    body = "\n\n".join(block for block in blocks if block)
+    return body[:5000 - len(hashtag_text) - 2] + "\n\n" + hashtag_text
+
+
 def publish_pending() -> int:
     queue = read_json(QUEUE, [])
     published = read_json(PUBLISHED, [])
@@ -39,12 +65,7 @@ def publish_pending() -> int:
         if not slug or slug in published_slugs:
             continue
         title = f"{item.get('title', 'GTA & Rockstar News')} | Macca the Gator"[:100]
-        description = "\n\n".join(filter(None, [
-            item.get("description", ""),
-            f"Read the full story: {item.get('articleUrl', '')}",
-            f"Source: {item.get('sourceUrl', '')}" if item.get("sourceUrl") else "",
-            "#GTA #RockstarGames #MaccaTheGator #Shorts",
-        ]))[:5000]
+        description = youtube_description(item)
         try:
             with tempfile.TemporaryDirectory(prefix="macca-youtube-") as temp:
                 path = create_short(item, Path(temp) / "macca-short.mp4", temp)
@@ -52,8 +73,8 @@ def publish_pending() -> int:
                     path,
                     title=title,
                     description=description,
-                    tags=["GTA", "Grand Theft Auto", "Rockstar Games", "Macca the Gator", "Shorts"],
-                    privacy_status="private",
+                    tags=list(dict.fromkeys(["GTA", "Grand Theft Auto", "Rockstar Games", "Macca the Gator", "Shorts", *item.get("tags", [])]))[:500],
+                    privacy_status="public",
                 )
             record = {
                 "slug": slug,
@@ -65,7 +86,7 @@ def publish_pending() -> int:
             published.append(record)
             published_slugs.add(slug)
             success_count += 1
-            print(f"Private YouTube Short uploaded for {slug}: {result['url']}")
+            print(f"Public YouTube Short uploaded for {slug}: {result['url']}")
         except YouTubeAuthenticationError as exc:
             remaining.append(item)
             retained_slugs = {entry.get("slug") for entry in remaining}

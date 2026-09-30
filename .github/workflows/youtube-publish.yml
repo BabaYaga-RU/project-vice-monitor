@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: Refresh OAuth only or upload a temporary private smoke-test video
+        description: Refresh OAuth only or upload a temporary public smoke-test video
         type: choice
         options: [check, smoke-test, upload]
         default: check
@@ -55,14 +55,14 @@ jobs:
           YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
           YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
         run: python -m scripts.youtube_manual_test
-      - name: Upload a generated private OAuth smoke-test video
+      - name: Upload a generated public OAuth smoke-test video
         if: inputs.mode == 'smoke-test'
         env:
           YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
           YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
           YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
         run: python -m scripts.youtube_smoke_test
-      - name: Upload prepared video privately
+      - name: Upload prepared video publicly
         if: inputs.mode == 'upload'
         env:
           YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
@@ -87,12 +87,12 @@ jobs:
                   title=title,
                   description=description,
                   tags=["GTA", "Rockstar Games", "Macca the Gator"],
-                  privacy_status="private",
+              privacy_status="public",
               )
           except Exception:
               raise SystemExit("YouTube upload failed; inspect non-sensitive API configuration and retry.") from None
-          print(f"Private YouTube upload completed: {result['url']}")
+          print(f"Public YouTube upload completed: {result['url']}")
           with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as summary:
-              summary.write("## Private YouTube upload\n\n")
+              summary.write("## Public YouTube upload\n\n")
               summary.write(f"Video ID: `{result['id']}`\n\nURL: {result['url']}\n")
           PY
