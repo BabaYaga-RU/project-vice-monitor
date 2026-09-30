@@ -1,0 +1,12 @@
+name = "macca-skylet"
+main = "src/index.js"
+compatibility_date = "2026-09-29"
+workers_dev = true
+
+[vars]
+SITE_URL = "https://macca-lab.onrender.com"
+PKLAVC_URL = "https://pklavc.com"
+ALLOWED_ORIGINS = "https://macca-lab.onrender.com,http://localhost:5500,http://127.0.0.1:5500"
+
+[ai]
+binding = "AI"

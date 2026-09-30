@@ -1,0 +1,58 @@
+name: Deploy Macca Skylet on Cloudflare Workers AI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'skylet/worker/**'
+      - '.github/workflows/deploy-skylet.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: macca-skylet-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Deploy the isolated Cloudflare AI Worker
+        working-directory: skylet/worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          output_file="$(mktemp)"
+          npx --yes wrangler@4 deploy 2>&1 | tee "$output_file"
+          worker_url="$(grep -Eo 'https://macca-skylet\.[A-Za-z0-9.-]+\.workers\.dev' "$output_file" | head -n 1 || true)"
+          if [[ -z "$worker_url" ]]; then
+            subdomain_json="$(curl --fail --silent --show-error \
+              -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+              "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/subdomain")"
+            worker_subdomain="$(node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const j=JSON.parse(s);if(!j.success||!j.result?.subdomain)process.exit(1);process.stdout.write(j.result.subdomain)})' <<< "$subdomain_json")"
+            worker_url="https://macca-skylet.${worker_subdomain}.workers.dev"
+          fi
+          printf 'Deployed Skylet API: %s\n' "$worker_url"
+          cd ../..
+          SKYLET_API_BASE_URL="$worker_url" node --input-type=module -e '
+            import fs from "node:fs";
+            const file = "skylet/config.json";
+            const contents = JSON.stringify({ apiBase: process.env.SKYLET_API_BASE_URL }, null, 2) + "\n";
+            if (!fs.existsSync(file) || fs.readFileSync(file, "utf8") !== contents) fs.writeFileSync(file, contents);
+          '
+          git add skylet/config.json
+          if ! git diff --cached --quiet; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git commit -m "Configure deployed Skylet API endpoint"
+            git push origin HEAD:main
+          fi
