@@ -108,12 +108,22 @@ jobs:
         with:
           python-version: '3.12'
           cache: pip
-          cache-dependency-path: requirements-youtube.txt
+          cache-dependency-path: |
+            requirements-youtube.txt
+            requirements-kokoro.txt
+      - name: Cache Kokoro model and voice weights
+        if: always() && (hashFiles('blog/youtube-queue.json') != '' || steps.social_video_work.outputs.has_work == 'true')
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/huggingface/hub
+          key: kokoro-${{ runner.os }}-hexgrad-82m-am-michael-v1
+          restore-keys: |
+            kokoro-${{ runner.os }}-hexgrad-82m-
       - name: Install shared video renderer dependencies
         id: install_social_renderer
         if: always() && steps.build_blog.outcome != 'failure' && steps.build_seo.outcome != 'failure' && (hashFiles('blog/youtube-queue.json') != '' || steps.social_video_work.outputs.has_work == 'true')
         continue-on-error: true
-        run: python -m pip install -r requirements-youtube.txt
+        run: python -m pip install -r requirements-youtube.txt -r requirements-kokoro.txt
       - name: Install FFmpeg and local TTS for queued videos
         id: install_video_system_deps
         if: always() && steps.social_video_work.outputs.has_work == 'true' && steps.build_blog.outcome != 'failure' && steps.build_seo.outcome != 'failure'
@@ -129,6 +139,7 @@ jobs:
           PYTHONDONTWRITEBYTECODE: '1'
           SITE_URL: https://macca-lab.onrender.com
           SHORTS_RENDERER: ${{ vars.SHORTS_RENDERER || 'narrated' }}
+          KOKORO_VOICE: am_michael
           SOCIAL_VIDEO_DIR: ${{ runner.temp }}/macca-social-videos
           INSTAGRAM_REEL_MANIFEST_FILE: ${{ runner.temp }}/macca-reel-manifest.json
           R2_USAGE_FILE: blog/r2-upload-usage.json
