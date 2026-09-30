@@ -59,7 +59,7 @@ function renderCard(command, input, output, title) {
   const args = [input, '-auto-orient', '-resize', '1080x1080^', '-gravity', 'center', '-background', '#190d25', '-extent', '1080x1080', '-flatten',
     '-fill', 'rgba(9,6,18,0.80)', '-draw', 'rectangle 0,570 1080,1080',
     '-fill', '#00f3ff', '-draw', 'roundrectangle 72,630 150,640 5,5',
-    '-font', 'DejaVu-Sans-Bold', '-pointsize', '27', '-fill', '#00f3ff', '-annotate', '+72+700', 'MACCA BLOG  •  GTA NEWS',
+    '-gravity', 'northwest', '-font', 'DejaVu-Sans-Bold', '-pointsize', '27', '-fill', '#00f3ff', '-annotate', '+72+700', 'MACCA BLOG  •  GTA NEWS',
     '-font', 'DejaVu-Sans-Bold', '-pointsize', '58', '-fill', '#ffffff'];
   const lines = wrapTitle(title);
   lines.forEach((line, index) => args.push('-annotate', `+72+${790 + index * 77}`, line));
