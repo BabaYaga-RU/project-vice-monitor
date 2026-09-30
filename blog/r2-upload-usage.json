@@ -24,7 +24,10 @@
       "month": "2026-09",
       "attemptsReserved": 2,
       "reservedAt": "2026-09-30T18:29:23.368384Z",
-      "sizeBytes": 1860350
+      "sizeBytes": 1860350,
+      "uploadedAt": "2026-09-30T18:33:10.180620Z",
+      "publicVerifiedAt": "2026-09-30T18:33:10.327256Z",
+      "deletedAt": "2026-09-30T18:33:11.163030Z"
     }
   }
 }
