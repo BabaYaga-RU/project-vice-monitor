@@ -60,7 +60,7 @@ function renderCard(command, input, output, title, artworkGravity = 'center') {
     '-fill', 'rgba(9,6,18,0.80)', '-draw', 'rectangle 0,570 1080,1080',
     '-fill', '#00f3ff', '-draw', 'roundrectangle 72,630 150,640 5,5',
     '-gravity', 'northwest', '-font', 'DejaVu-Sans-Bold', '-pointsize', '27', '-fill', '#00f3ff', '-annotate', '+72+700', 'MACCA BLOG  •  GTA NEWS',
-    '-font', 'DejaVu-Sans-Bold', '-pointsize', '58', '-fill', '#ffffff'];
+    '-font', 'DejaVu-Sans-Bold', '-pointsize', '50', '-fill', '#ffffff'];
   const lines = wrapTitle(title);
   lines.forEach((line, index) => args.push('-annotate', `+72+${790 + index * 77}`, line));
   args.push('-font', 'DejaVu-Sans', '-pointsize', '23', '-fill', '#f4e9fa', '-annotate', '+72+1034', 'Read the full story at macca-lab.onrender.com', '-strip', '-quality', '88', '-sampling-factor', '4:2:0', output);
