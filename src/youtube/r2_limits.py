@@ -19,6 +19,15 @@ def _parse_timestamp(value: str) -> datetime | None:
         return None
 
 
+def remaining_r2_attempts_after_cleanup(article_reservation: dict) -> int:
+    """Return only an already-reserved retry for a deleted temporary object."""
+    reserved = min(MAX_ATTEMPTS_PER_OBJECT, max(0, int(article_reservation.get("attemptsReserved", 0))))
+    consumed = min(reserved, max(0, int(article_reservation.get("attemptsConsumed", reserved))))
+    if not article_reservation.get("deletedAt"):
+        return 0
+    return reserved - consumed
+
+
 def reserve_r2_upload(
     state: dict,
     *,
@@ -75,6 +84,9 @@ def reserve_r2_upload(
         "objectKey": object_key,
         "month": month,
         "attemptsReserved": attempts,
+        # Consume the full bounded retry budget before any network operation;
+        # interrupted/replayed workflows cannot exceed this reservation.
+        "attemptsConsumed": attempts,
         "reservedAt": timestamp,
         "sizeBytes": size_bytes,
     }

@@ -1,7 +1,7 @@
 import unittest
 from datetime import datetime, timedelta, timezone
 
-from src.youtube.r2_limits import MAX_OBJECT_BYTES, reserve_r2_upload
+from src.youtube.r2_limits import MAX_ATTEMPTS_PER_OBJECT, MAX_OBJECT_BYTES, remaining_r2_attempts_after_cleanup, reserve_r2_upload
 
 
 class R2LimitsTests(unittest.TestCase):
@@ -80,6 +80,15 @@ class R2LimitsTests(unittest.TestCase):
         self.assertEqual(self.state["month"], "2026-10")
         self.assertEqual(self.state["monthlyUploadAttempts"], 2)
         self.assertEqual(len(self.state["recentUploadAttempts24h"]), 2)
+
+    def test_retry_reuses_only_an_unused_pre_reserved_attempt_after_cleanup(self):
+        reservation = {"attemptsReserved": 2, "attemptsConsumed": 1, "deletedAt": "2026-09-30T12:00:00Z"}
+        self.assertEqual(remaining_r2_attempts_after_cleanup(reservation), 1)
+        reservation["deletedAt"] = ""
+        self.assertEqual(remaining_r2_attempts_after_cleanup(reservation), 0)
+        reservation["deletedAt"] = "2026-09-30T12:00:00Z"
+        reservation["attemptsConsumed"] = MAX_ATTEMPTS_PER_OBJECT
+        self.assertEqual(remaining_r2_attempts_after_cleanup(reservation), 0)
 
 
 if __name__ == "__main__":

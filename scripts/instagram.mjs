@@ -98,8 +98,8 @@ async function prepare() {
   } finally { await fs.rm(tempDir, {recursive:true, force:true}); }
 }
 
-async function graphGet(host, resource, fields) {
-  const url = new URL(`https://${host}/${GRAPH_VERSION}/${resource}`);
+async function graphGet(host, resource, fields, version = GRAPH_VERSION) {
+  const url = new URL(`https://${host}/${version}/${resource}`);
   if (fields) url.searchParams.set('fields', fields);
   const response = await fetch(url, {headers:{authorization:`Bearer ${token}`}, signal:AbortSignal.timeout(20000)});
   const body = await response.json().catch(() => ({}));
@@ -116,6 +116,15 @@ async function resolveAccount() {
     const id = user.user_id || user.id;
     if (id) return {host:'graph.instagram.com', id, username:user.username || ''};
   } catch (error) { console.log(`Instagram Login token check: ${error.message}`); }
+  try {
+    const page = await graphGet('graph.facebook.com', 'me', 'id,name,instagram_business_account', 'v26.0');
+    const instagramId = page.instagram_business_account?.id;
+    if (instagramId) {
+      console.log(`Facebook Page resolved: ${page.id || 'unknown'}; Instagram Business Account: ${instagramId}.`);
+      return {host:'graph.facebook.com', id:instagramId, username:page.instagram_business_account.username || ''};
+    }
+    console.log('Facebook Page token resolved, but /me did not return instagram_business_account; trying the linked Pages lookup.');
+  } catch (error) { console.log(`Facebook Page token check: ${error.message}`); }
   try {
     const pages = await graphGet('graph.facebook.com', 'me/accounts', 'id,name,instagram_business_account{id,username}');
     for (const page of pages.data || []) {

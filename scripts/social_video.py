@@ -15,7 +15,7 @@ import boto3
 from botocore.config import Config
 
 from src.youtube.shorts import create_short
-from src.youtube.r2_limits import MAX_OBJECTS_PER_RUN, MAX_ATTEMPTS_PER_OBJECT, MAX_OBJECT_BYTES, reserve_r2_upload
+from src.youtube.r2_limits import MAX_OBJECTS_PER_RUN, MAX_ATTEMPTS_PER_OBJECT, MAX_OBJECT_BYTES, remaining_r2_attempts_after_cleanup, reserve_r2_upload
 
 ROOT = Path(__file__).resolve().parents[1]
 VIDEO_DIR = Path(os.environ.get("SOCIAL_VIDEO_DIR", Path(os.environ.get("RUNNER_TEMP", ".")) / "macca-social-videos"))
@@ -80,16 +80,41 @@ def main() -> None:
         entry = {"localPath": str(output)}
         queued_for_instagram = any(item.get("slug") == slug for item in ig_queue)
         if r2_ready and os.environ.get("SHORTS_RENDERER", "narrated").lower() != "legacy" and queued_for_instagram:
+            reservation = usage.get("articles", {}).get(slug)
             object_key = f"instagram-reels/{uuid.uuid4().hex}-{slug}.mp4"
-            attempts, reason = reserve_r2_upload(
-                usage, slug=slug, object_key=object_key, size_bytes=output.stat().st_size,
-                objects_reserved_this_run=objects_reserved_this_run,
-            )
+            attempts = 0
+            reason = ""
+            if objects_reserved_this_run >= MAX_OBJECTS_PER_RUN:
+                reason = "Per-run R2 object limit reached."
+            elif reservation:
+                reserved = min(MAX_ATTEMPTS_PER_OBJECT, int(reservation.get("attemptsReserved", 0)))
+                remaining = remaining_r2_attempts_after_cleanup(reservation)
+                if reservation.get("deletedAt") and remaining > 0 and output.stat().st_size <= MAX_OBJECT_BYTES:
+                    object_key = reservation.get("objectKey", "")
+                    if object_key.startswith("instagram-reels/"):
+                        attempts = remaining
+                        reservation["attemptsConsumed"] = reserved
+                        reservation["retryReservedAt"] = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+                        _write(USAGE_FILE, usage)
+                        print(f"Resuming the remaining pre-reserved attempt for {slug} with the same R2 object key; no quota increase.")
+                    else:
+                        reason = "Existing R2 object key is outside the Instagram Reel prefix."
+                elif reservation.get("deletedAt") and remaining > 0:
+                    reason = "MP4 exceeds the 25 MB R2 limit."
+                else:
+                    reason = "This article has no unused pre-reserved R2 attempt."
+            else:
+                attempts, reason = reserve_r2_upload(
+                    usage, slug=slug, object_key=object_key, size_bytes=output.stat().st_size,
+                    objects_reserved_this_run=objects_reserved_this_run,
+                )
+                if attempts:
+                    reservation = usage["articles"][slug]
+                    _write(USAGE_FILE, usage)
+                    print(f"Reserved {attempts} bounded R2 attempt(s) for {slug}; quota is persisted before network upload.")
             if attempts:
                 objects_reserved_this_run += 1
-                _write(USAGE_FILE, usage)
                 entry.update({"r2ObjectKey": object_key, "attemptsReserved": attempts, "uploadStarted": False})
-                print(f"Reserved {attempts} bounded R2 attempt(s) for {slug}; quota is persisted before network upload.")
             else:
                 print(f"R2 blocked for {slug}: {reason} Instagram will use the square-image fallback.")
         manifest["videos"][slug] = entry
