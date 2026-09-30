@@ -14,6 +14,7 @@ from src.youtube.upload import upload_video
 ROOT = Path(__file__).resolve().parents[1]
 QUEUE = Path(os.environ.get("YOUTUBE_QUEUE_FILE", ROOT / "blog" / "youtube-queue.json"))
 PUBLISHED = Path(os.environ.get("YOUTUBE_PUBLISHED_FILE", ROOT / "blog" / "youtube-published.json"))
+SOCIAL_VIDEO_DIR = Path(os.environ.get("SOCIAL_VIDEO_DIR", Path(os.environ.get("RUNNER_TEMP", ".")) / "macca-social-videos"))
 
 
 def read_json(path: Path, fallback):
@@ -67,15 +68,19 @@ def publish_pending() -> int:
         title = f"{item.get('title', 'GTA & Rockstar News')} | Macca the Gator"[:100]
         description = youtube_description(item)
         try:
-            with tempfile.TemporaryDirectory(prefix="macca-youtube-") as temp:
-                path = create_short(item, Path(temp) / "macca-short.mp4", temp)
-                result = upload_video(
-                    path,
-                    title=title,
-                    description=description,
-                    tags=list(dict.fromkeys(["GTA", "Grand Theft Auto", "Rockstar Games", "Macca the Gator", "Shorts", *item.get("tags", [])]))[:500],
-                    privacy_status="public",
-                )
+            cached_video = SOCIAL_VIDEO_DIR / f"{slug}.mp4"
+            upload_options = {
+                "title": title,
+                "description": description,
+                "tags": list(dict.fromkeys(["GTA", "Grand Theft Auto", "Rockstar Games", "Macca the Gator", "Shorts", *item.get("tags", [])]))[:500],
+                "privacy_status": "public",
+            }
+            if cached_video.is_file():
+                result = upload_video(cached_video, **upload_options)
+            else:
+                with tempfile.TemporaryDirectory(prefix="macca-youtube-") as temp:
+                    path = create_short(item, Path(temp) / "macca-short.mp4", temp)
+                    result = upload_video(path, **upload_options)
             record = {
                 "slug": slug,
                 "articleUrl": item.get("articleUrl", ""),
