@@ -8,6 +8,7 @@ const SKIP=new Set(['.git','node_modules','blog','scripts','.github','coverage',
 const HOME_TITLE='Macca Lab | Independent Projects and Macca Blog';
 const HOME_DESCRIPTION='Macca Lab is an independent home for projects, experiments and editorial coverage of Grand Theft Auto, Rockstar Games and related stories on Macca Blog.';
 const ADSENSE_SCRIPT='<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1038995366418919" crossorigin="anonymous"></script>';
+const GOOGLE_VERIFICATION_META='<meta name="google-site-verification" content="d6Rh9rH8TsBuT5o4NK7mKh25IQXbBOB0qLDCJgXgxBE">';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const decode=s=>String(s||'').replace(/&amp;/g,'&').replace(/&quot;/g,'"').replace(/&#39;|&apos;/g,"'").replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/Ã¡/g,'á').replace(/Ã©/g,'é').replace(/Ã­/g,'í').replace(/Ã³/g,'ó').replace(/Ãº/g,'ú').replace(/Ã£/g,'ã').replace(/Ãµ/g,'õ').replace(/Ã§/g,'ç').replace(/Ã‰/g,'É').replace(/Ã“/g,'Ó').replace(/Ã€/g,'À').replace(/Ã‚/g,'Â').replace(/Â(?=\s|[·…])/g,'');
 const strip=s=>decode(String(s||'').replace(/<script\b[\s\S]*?<\/script>|<style\b[\s\S]*?<\/style>/gi,' ').replace(/<[^>]+>/g,' ')).replace(/\s+/g,' ').trim();
@@ -91,6 +92,9 @@ for(const file of files){
   }
   const image=`${SITE}/images/site-card.svg`;
   let head=html.match(/<head\b[^>]*>([\s\S]*?)<\/head>/i)[1];
+  if(routePath==='/'){
+    head=head.replace(/<meta\b(?=[^>]*\bname=["']google-site-verification["'])[^>]*>/gi,'');
+  }
   head=replaceTag(head,`<title>${esc(title)}</title>`,/<title\b[^>]*>[\s\S]*?<\/title>/i);
   head=replaceTag(head,`<meta name="description" content="${esc(description)}">`,/<meta\b(?=[^>]*\bname=["']description["'])[^>]*>/i);
   head=replaceTag(head,`<meta name="robots" content="${internalToolRoute?'noindex, follow':'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1'}">`,/<meta\b(?=[^>]*\bname=["']robots["'])[^>]*>/i);
@@ -105,7 +109,9 @@ for(const file of files){
   head=replaceTag(head,`<link rel="alternate" type="application/rss+xml" title="Macca Blog RSS" href="${SITE}/blog/feed.xml">`,/<link\b(?=[^>]*\btype=["']application\/rss\+xml["'])[^>]*>/i);
   const schema=pageSchema(url,title,description,Object.assign(new String(file),{__html:html}));
   const ld=`<script type="application/ld+json">${JSON.stringify(schema).replace(/</g,'\\u003c')}</script>`;
-  head=head.replace(/<script\b(?=[^>]*\btype=["']application\/ld\+json["'])[^>]*>[\s\S]*?<\/script>/gi,'');head+=`\n${ld}\n`;
+  head=head.replace(/<script\b(?=[^>]*\btype=["']application\/ld\+json["'])[^>]*>[\s\S]*?<\/script>/gi,'').trimEnd();
+  if(routePath==='/')head+=`\n${GOOGLE_VERIFICATION_META}`;
+  head+=`\n${ld}\n`;
   html=html.replace(/<head\b[^>]*>[\s\S]*?<\/head>/i,m=>m.replace(/>[\s\S]*<\/head>/,`>${head}</head>`));
   await fs.writeFile(path.join(ROOT,file),html);
   if(!internalToolRoute){urls.push(url);directory.push({url,title,description,lang});}
