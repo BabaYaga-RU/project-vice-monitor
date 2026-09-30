@@ -1,7 +1,18 @@
 {
   "schemaVersion": 1,
-  "month": "",
-  "monthlyUploadAttempts": 0,
-  "recentUploadAttempts24h": [],
-  "articles": {}
+  "month": "2026-09",
+  "monthlyUploadAttempts": 2,
+  "recentUploadAttempts24h": [
+    "2026-09-30T17:37:33.683415Z",
+    "2026-09-30T17:37:33.683415Z"
+  ],
+  "articles": {
+    "gta-6-won-t-spoof-disney-world-says-rockstar-here-s-what-we-know": {
+      "objectKey": "instagram-reels/eec05f2f0d0d4ea98df570c9feeb92df-gta-6-won-t-spoof-disney-world-says-rockstar-here-s-what-we-know.mp4",
+      "month": "2026-09",
+      "attemptsReserved": 2,
+      "reservedAt": "2026-09-30T17:37:33.683415Z",
+      "sizeBytes": 1911085
+    }
+  }
 }
