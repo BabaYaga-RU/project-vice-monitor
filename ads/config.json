@@ -3,37 +3,67 @@
     "blog-top": [
       {
         "enabled": true,
-        "label": "The PKLAVC Blog Is Coming Soon",
-        "href": "https://pklavc.com",
+        "label": "PKLAVC Technology Blog",
+        "href": "https://pklavc.com/blog",
         "image": "/ads/partner.webp",
-        "alt": "The PKLAVC blog is coming soon. Visit pklavc.com for open-source projects, blogs, and more.",
+        "alt": "PKLAVC technology and engineering blog: open-source projects, technical writing, and more.",
         "kicker": "MACCA BLOG PRESENTS",
-        "headline": "THE PKLAVC BLOG IS COMING SOON",
-        "description": "Visit pklavc.com and stay tuned for open-source projects, blogs, and more."
+        "headline": "THE PKLAVC BLOG",
+        "description": "Technology, engineering, open-source projects, and more. Read the blog."
+      },
+      {
+        "enabled": true,
+        "label": "PKLAVC Store",
+        "href": "https://pklavc.com/store",
+        "image": "/ads/partner.webp",
+        "alt": "Visit the PKLAVC Store at pklavc.com/store.",
+        "kicker": "MACCA BLOG PRESENTS",
+        "headline": "THE PKLAVC STORE",
+        "description": "Explore the PKLAVC Store. Visit pklavc.com/store."
       }
     ],
     "article-inline": [
       {
         "enabled": true,
-        "label": "The PKLAVC Blog Is Coming Soon",
-        "href": "https://pklavc.com",
+        "label": "PKLAVC Technology Blog",
+        "href": "https://pklavc.com/blog",
         "image": "/ads/partner.webp",
-        "alt": "The PKLAVC blog is coming soon. Visit pklavc.com for open-source projects, blogs, and more.",
+        "alt": "PKLAVC technology and engineering blog: open-source projects, technical writing, and more.",
         "kicker": "MACCA BLOG PRESENTS",
-        "headline": "THE PKLAVC BLOG IS COMING SOON",
-        "description": "Visit pklavc.com and stay tuned for open-source projects, blogs, and more."
+        "headline": "THE PKLAVC BLOG",
+        "description": "Technology, engineering, open-source projects, and more. Read the blog."
+      },
+      {
+        "enabled": true,
+        "label": "PKLAVC Store",
+        "href": "https://pklavc.com/store",
+        "image": "/ads/partner.webp",
+        "alt": "Visit the PKLAVC Store at pklavc.com/store.",
+        "kicker": "MACCA BLOG PRESENTS",
+        "headline": "THE PKLAVC STORE",
+        "description": "Explore the PKLAVC Store. Visit pklavc.com/store."
       }
     ],
     "sidebar": [
       {
         "enabled": true,
-        "label": "The PKLAVC Blog Is Coming Soon",
-        "href": "https://pklavc.com",
+        "label": "PKLAVC Technology Blog",
+        "href": "https://pklavc.com/blog",
         "image": "/ads/partner.webp",
-        "alt": "The PKLAVC blog is coming soon. Visit pklavc.com for open-source projects, blogs, and more.",
+        "alt": "PKLAVC technology and engineering blog: open-source projects, technical writing, and more.",
         "kicker": "MACCA BLOG PRESENTS",
-        "headline": "THE PKLAVC BLOG IS COMING SOON",
-        "description": "Visit pklavc.com and stay tuned for open-source projects, blogs, and more."
+        "headline": "THE PKLAVC BLOG",
+        "description": "Technology, engineering, open-source projects, and more. Read the blog."
+      },
+      {
+        "enabled": true,
+        "label": "PKLAVC Store",
+        "href": "https://pklavc.com/store",
+        "image": "/ads/partner.webp",
+        "alt": "Visit the PKLAVC Store at pklavc.com/store.",
+        "kicker": "MACCA BLOG PRESENTS",
+        "headline": "THE PKLAVC STORE",
+        "description": "Explore the PKLAVC Store. Visit pklavc.com/store."
       }
     ]
   }
