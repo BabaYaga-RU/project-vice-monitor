@@ -37,9 +37,12 @@
       "objectKey": "instagram-reels/07fd68ae0d6043dcbe73baa174b8738f-gta-6-doesn-t-compromise-scale-for-detail-rockstar-says.mp4",
       "month": "2026-10",
       "attemptsReserved": 2,
-      "attemptsConsumed": 0,
+      "attemptsConsumed": 1,
       "reservedAt": "2026-10-01T16:29:26.190272Z",
-      "sizeBytes": 969580
+      "sizeBytes": 969580,
+      "uploadedAt": "2026-10-01T16:29:35.918928Z",
+      "publicVerifiedAt": "2026-10-01T16:29:36.078554Z",
+      "deletedAt": "2026-10-01T16:30:11.440534Z"
     }
   }
 }
