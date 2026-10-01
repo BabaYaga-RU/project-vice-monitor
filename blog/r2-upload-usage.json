@@ -46,9 +46,12 @@
       "objectKey": "instagram-reels/aadf3951c44a443d8f7f98bd40719cb9-gta-6-s-weather-system-sounds-like-a-big-step-up.mp4",
       "month": "2026-10",
       "attemptsReserved": 2,
-      "attemptsConsumed": 0,
+      "attemptsConsumed": 1,
       "reservedAt": "2026-10-01T21:54:27.160050Z",
-      "sizeBytes": 956934
+      "sizeBytes": 956934,
+      "uploadedAt": "2026-10-01T21:54:40.333287Z",
+      "publicVerifiedAt": "2026-10-01T21:54:40.487228Z",
+      "deletedAt": "2026-10-01T21:56:03.856192Z"
     }
   }
 }
