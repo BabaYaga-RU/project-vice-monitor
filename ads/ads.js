@@ -44,7 +44,7 @@ async function mountAds() {
 
     render();
     if (placements.some(({ads}) => ads.length > 1)) {
-      window.setInterval(() => { index += 1; render(); }, 5000);
+      window.setInterval(() => { index += 1; render(); }, 10000);
     }
   } catch (error) {
     console.warn('Ad configuration unavailable', error);
