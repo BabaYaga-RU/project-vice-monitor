@@ -1,12 +1,14 @@
 {
   "schemaVersion": 1,
-  "month": "2026-09",
-  "monthlyUploadAttempts": 4,
+  "month": "2026-10",
+  "monthlyUploadAttempts": 2,
   "recentUploadAttempts24h": [
     "2026-09-30T17:37:33.683415Z",
     "2026-09-30T17:37:33.683415Z",
     "2026-09-30T18:29:23.368384Z",
-    "2026-09-30T18:29:23.368384Z"
+    "2026-09-30T18:29:23.368384Z",
+    "2026-10-01T16:29:26.190272Z",
+    "2026-10-01T16:29:26.190272Z"
   ],
   "articles": {
     "gta-6-won-t-spoof-disney-world-says-rockstar-here-s-what-we-know": {
@@ -30,6 +32,14 @@
       "uploadedAt": "2026-09-30T18:33:10.180620Z",
       "publicVerifiedAt": "2026-09-30T18:33:10.327256Z",
       "deletedAt": "2026-09-30T18:33:11.163030Z"
+    },
+    "gta-6-doesn-t-compromise-scale-for-detail-rockstar-says": {
+      "objectKey": "instagram-reels/07fd68ae0d6043dcbe73baa174b8738f-gta-6-doesn-t-compromise-scale-for-detail-rockstar-says.mp4",
+      "month": "2026-10",
+      "attemptsReserved": 2,
+      "attemptsConsumed": 0,
+      "reservedAt": "2026-10-01T16:29:26.190272Z",
+      "sizeBytes": 969580
     }
   }
 }
