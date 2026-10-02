@@ -1,5 +1,58 @@
 [
   {
+    "title": "Warhorse Co-Founder Hopes GTA 6 Will 'Blaze a Trail' to Higher Game Prices",
+    "description": "Kingdom Come: Deliverance studio co-founder Martin Klima tells PC Gamer he hopes Grand Theft Auto 6 will lead the industry toward higher game prices as development costs rise.",
+    "category": "News",
+    "tags": [
+      "Grand Theft Auto 6",
+      "GTA 6",
+      "Rockstar Games",
+      "Take-Two Interactive",
+      "Martin Klima",
+      "Warhorse Studios",
+      "Game pricing"
+    ],
+    "featured": false,
+    "sections": [
+      {
+        "heading": "Warhorse co-founder comments on game costs",
+        "paragraphs": [
+          "PC Gamer reports that Martin Klima, co-founder of Kingdom Come: Deliverance developer Warhorse Studios, hopes Grand Theft Auto 6 will 'blaze a trail' to higher game prices. Klima said games keep getting more expensive to make and that 'money has to come from somewhere.'",
+          "The remarks are presented as Klima's own industry observation rather than as an official statement from Rockstar Games or Take-Two Interactive. PC Gamer's story does not include any confirmation from either company about GTA 6 pricing."
+        ]
+      },
+      {
+        "heading": "What remains unknown",
+        "paragraphs": [
+          "It is still unclear whether Grand Theft Auto 6 will actually launch with a higher price than typical AAA releases, or whether any other publisher will follow the trail Klima hopes GTA 6 will set. No specific price point, timing, or internal Rockstar decision has been reported.",
+          "For now, the only public detail is Klima's hopeful comment, as reported by PC Gamer. Any concrete pricing plans for GTA 6 would need to come directly from Rockstar Games or Take-Two Interactive."
+        ]
+      }
+    ],
+    "thumbnail": "https://cdn.mos.cms.futurecdn.net/KAVCkMQ6m9p7Ayo6NQ3BdD-2560-80.jpg",
+    "thumbnailAlt": "Kingdom Come: Deliverance studio co-founder hopes Grand Theft Auto 6 will 'blaze a trail' to higher game prices",
+    "inlineImages": [
+      {
+        "url": "https://cdn.mos.cms.futurecdn.net/KAVCkMQ6m9p7Ayo6NQ3BdD-2560-80.jpg",
+        "alt": "Kingdom Come: Deliverance studio co-founder hopes Grand Theft Auto 6 will 'blaze a trail' to higher game prices",
+        "caption": "Image accompanying the source report",
+        "sourceUrl": "https://www.pcgamer.com/games/grand-theft-auto/kingdom-come-deliverance-studio-co-founder-hopes-grand-theft-auto-6-will-blaze-a-trail-to-higher-game-prices/"
+      }
+    ],
+    "sources": [
+      {
+        "title": "Kingdom Come: Deliverance studio co-founder hopes Grand Theft Auto 6 will 'blaze a trail' to higher game prices",
+        "url": "https://www.pcgamer.com/games/grand-theft-auto/kingdom-come-deliverance-studio-co-founder-hopes-grand-theft-auto-6-will-blaze-a-trail-to-higher-game-prices/",
+        "publisher": "www.pcgamer.com"
+      }
+    ],
+    "date": "2026-10-02",
+    "slug": "warhorse-co-founder-hopes-gta-6-will-blaze-a-trail-to-higher-game-prices",
+    "sourceUrl": "https://www.pcgamer.com/games/grand-theft-auto/kingdom-come-deliverance-studio-co-founder-hopes-grand-theft-auto-6-will-blaze-a-trail-to-higher-game-prices/",
+    "image": "/images/macca-blog-banner.jpg",
+    "imageAlt": "Macca the Gator at sunset in Vice City"
+  },
+  {
     "skip": false,
     "title": "GTA 6's Weather System Sounds Like A Big Step Up",
     "description": "Rockstar's Owen Shepherd told Game Informer that Grand Theft Auto 6 features a re-engineered weather system with localized rain, dynamic cloudscapes, new wind effects, and tropical storms, with gameplay impacts still unknown.",

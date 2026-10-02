@@ -1,12 +1,14 @@
 {
   "schemaVersion": 1,
   "month": "2026-10",
-  "monthlyUploadAttempts": 4,
+  "monthlyUploadAttempts": 6,
   "recentUploadAttempts24h": [
     "2026-10-01T16:29:26.190272Z",
     "2026-10-01T16:29:26.190272Z",
     "2026-10-01T21:54:27.160050Z",
-    "2026-10-01T21:54:27.160050Z"
+    "2026-10-01T21:54:27.160050Z",
+    "2026-10-02T01:46:28.933584Z",
+    "2026-10-02T01:46:28.933584Z"
   ],
   "articles": {
     "gta-6-won-t-spoof-disney-world-says-rockstar-here-s-what-we-know": {
@@ -52,6 +54,14 @@
       "uploadedAt": "2026-10-01T21:54:40.333287Z",
       "publicVerifiedAt": "2026-10-01T21:54:40.487228Z",
       "deletedAt": "2026-10-01T21:56:03.856192Z"
+    },
+    "warhorse-co-founder-hopes-gta-6-will-blaze-a-trail-to-higher-game-prices": {
+      "objectKey": "instagram-reels/60be206a4578457b80dfe95bd90e10de-warhorse-co-founder-hopes-gta-6-will-blaze-a-trail-to-higher-game-prices.mp4",
+      "month": "2026-10",
+      "attemptsReserved": 2,
+      "attemptsConsumed": 0,
+      "reservedAt": "2026-10-02T01:46:28.933584Z",
+      "sizeBytes": 746423
     }
   }
 }
