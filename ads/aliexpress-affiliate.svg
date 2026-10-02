@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="240" viewBox="0 0 320 240" role="img" aria-labelledby="title desc">
+  <title id="title">AliExpress shopping bag and parcel</title>
+  <desc id="desc">A bright orange shopping bag with a parcel and golden sparkle.</desc>
+  <defs>
+    <linearGradient id="bag" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ff6842"/><stop offset="1" stop-color="#e52f25"/></linearGradient>
+    <linearGradient id="parcel" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffc34a"/><stop offset="1" stop-color="#ff9129"/></linearGradient>
+  </defs>
+  <circle cx="165" cy="122" r="94" fill="#ff4b2c" opacity=".13"/>
+  <path d="M99 90h138l-12 122H111z" fill="url(#bag)" stroke="#ffb27a" stroke-width="4" stroke-linejoin="round"/>
+  <path d="M133 94V71a35 35 0 0 1 70 0v23" fill="none" stroke="#fff0dc" stroke-width="9" stroke-linecap="round"/>
+  <path d="m167 112 8 19 20 2-15 13 5 20-18-11-18 11 5-20-15-13 20-2z" fill="#fff0dc"/>
+  <path d="m206 158 41-22 42 22-42 23z" fill="#ffd36c" stroke="#fff0bd" stroke-width="3" stroke-linejoin="round"/>
+  <path d="m206 158 41 23v46l-41-24z" fill="#ef7830" stroke="#ffc27a" stroke-width="3" stroke-linejoin="round"/>
+  <path d="m247 181 42-23v45l-42 24z" fill="url(#parcel)" stroke="#ffc27a" stroke-width="3" stroke-linejoin="round"/>
+  <path d="m247 181 1-45 41 22z" fill="#ffe08b" stroke="#fff0bd" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M54 62v29m-14-14h29" stroke="#ffd05a" stroke-width="6" stroke-linecap="round"/>
+  <path d="M263 67v20m-10-10h20" stroke="#fff0dc" stroke-width="5" stroke-linecap="round"/>
+</svg>

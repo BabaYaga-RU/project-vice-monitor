@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="240" viewBox="0 0 320 240" role="img" aria-labelledby="title desc">
+  <title id="title">Alibaba.com marketplace packages</title>
+  <desc id="desc">Illustration of orange shipping boxes in front of a golden globe.</desc>
+  <defs>
+    <linearGradient id="box" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ff9a22"/><stop offset="1" stop-color="#f36b12"/></linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffe49a"/><stop offset="1" stop-color="#ffad28"/></linearGradient>
+  </defs>
+  <circle cx="188" cy="108" r="82" fill="#ff8a1e" opacity=".12"/>
+  <circle cx="188" cy="108" r="64" fill="none" stroke="url(#gold)" stroke-width="5" opacity=".9"/>
+  <ellipse cx="188" cy="108" rx="29" ry="64" fill="none" stroke="#ffd475" stroke-width="3" opacity=".78"/>
+  <path d="M126 108h124M136 78h104M136 138h104" fill="none" stroke="#ffd475" stroke-width="3" opacity=".78"/>
+  <path d="m72 112 64-34 67 34-65 35z" fill="#ffc45a" stroke="#ffe2a0" stroke-width="3" stroke-linejoin="round"/>
+  <path d="m72 112 66 35v75l-66-37z" fill="#e96712" stroke="#ffd27e" stroke-width="3" stroke-linejoin="round"/>
+  <path d="m138 147 65-35v74l-65 36z" fill="url(#box)" stroke="#ffd27e" stroke-width="3" stroke-linejoin="round"/>
+  <path d="m138 147 1-69 66 34z" fill="#ffad31" stroke="#ffe2a0" stroke-width="3" stroke-linejoin="round"/>
+  <path d="m72 112 64-34 3 69z" fill="#ffbd45" stroke="#ffe2a0" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M137 147v74" fill="none" stroke="#ffdc8c" stroke-width="3" opacity=".8"/>
+  <circle cx="248" cy="179" r="22" fill="#fff0cf"/>
+  <path d="M248 165v28m-14-14h28" stroke="#ec6d14" stroke-width="5" stroke-linecap="round"/>
+</svg>
