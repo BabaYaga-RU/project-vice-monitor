@@ -72,9 +72,12 @@
       "objectKey": "instagram-reels/5314cb233c034626b198abed1b2b3e3f-gta-6-screenshots-and-story-details-revealed-in-love-magazine.mp4",
       "month": "2026-10",
       "attemptsReserved": 2,
-      "attemptsConsumed": 0,
+      "attemptsConsumed": 1,
       "reservedAt": "2026-10-02T15:52:02.677733Z",
-      "sizeBytes": 941083
+      "sizeBytes": 941083,
+      "uploadedAt": "2026-10-02T15:52:16.638474Z",
+      "publicVerifiedAt": "2026-10-02T15:52:16.858220Z",
+      "deletedAt": "2026-10-02T15:52:55.043445Z"
     }
   }
 }
