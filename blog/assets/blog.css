@@ -63,7 +63,7 @@ footer{align-items:flex-start;flex-wrap:wrap;gap:1rem 2rem;padding-top:1.5rem;pa
 .next-story-peek>a:hover{color:var(--accent)}
 .next-story-close{position:absolute;top:.45rem;right:.5rem;width:1.8rem;height:1.8rem;border:0;border-radius:50%;background:transparent;color:var(--muted);font:1.2rem/1 system-ui;cursor:pointer}
 .next-story-close:hover,.next-story-close:focus-visible{background:#ffffff12;color:var(--text)}
-.continuous-feed{width:min(820px,90vw);margin:4rem auto 0}
+.continuous-feed{width:100%;max-width:100%;margin:2rem 0 0}
 .continuous-feed-heading{display:flex;align-items:end;justify-content:space-between;gap:1rem;margin-bottom:1.25rem;padding-bottom:1rem;border-bottom:1px solid var(--line)}
 .continuous-feed-heading>span,.continuous-divider>span{color:var(--cyan);font-size:.68rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase}
 .continuous-feed-heading>strong{font-size:1.25rem}
@@ -76,5 +76,11 @@ footer{align-items:flex-start;flex-wrap:wrap;gap:1rem 2rem;padding-top:1.5rem;pa
 .continuous-sentinel.is-loading span::after{content:"…"}
 .continuous-sentinel a{color:var(--cyan)}
 @media(max-width:900px){.trending-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.related-feature-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.related-feature:last-child:nth-child(odd){grid-column:1/-1}}
-@media(max-width:520px){.section-heading{align-items:flex-start;flex-direction:column;gap:.25rem}.trending-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:.7rem}.trending-grid .feature{padding:.75rem}.trending-grid .feature p{display:none}.trending-grid .feature h2{font-size:.9rem}.related-feature-grid{grid-template-columns:1fr}.related-feature:last-child:nth-child(odd){grid-column:auto}.next-story-peek{right:.65rem;bottom:.65rem;width:calc(100vw - 1.3rem)}.continuous-feed{width:90vw;margin-top:3rem}.continuous-feed-heading{align-items:flex-start;flex-direction:column;gap:.2rem}}
+@media(max-width:520px){.section-heading{align-items:flex-start;flex-direction:column;gap:.25rem}.trending-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:.7rem}.trending-grid .feature{padding:.75rem}.trending-grid .feature p{display:none}.trending-grid .feature h2{font-size:.9rem}.related-feature-grid{grid-template-columns:1fr}.related-feature:last-child:nth-child(odd){grid-column:auto}.next-story-peek{right:.65rem;bottom:.65rem;width:calc(100vw - 1.3rem)}.continuous-feed{width:100%;margin-top:1.6rem}.continuous-feed-heading{align-items:flex-start;flex-direction:column;gap:.2rem}}
 @media(prefers-reduced-motion:reduce){.related-feature,.next-story-peek{transition:none}}
+
+/* Keep affiliate inventory visible while readers continue down long articles. */
+.sidebar-ad-rail{position:sticky;top:1rem;display:grid;gap:.75rem;margin-top:1rem;padding-bottom:1rem}
+.sidebar-ad-rail .ad-slot{min-height:0;margin:0}
+.sidebar-ad-rail .ad-creative{min-height:132px}
+@media(max-width:800px){.sidebar-ad-rail{display:none}}
