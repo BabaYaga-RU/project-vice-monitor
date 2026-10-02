@@ -1,5 +1,57 @@
 [
   {
+    "skip": false,
+    "title": "GTA 6 Screenshots and Story Details Revealed in LOVE Magazine",
+    "description": "New Grand Theft Auto VI screenshots and narrative insights have been published via LOVE magazine issue 27, featuring interviews with Rockstar developers and writers.",
+    "category": "GTA News",
+    "tags": [
+      "GTA 6",
+      "Grand Theft Auto VI",
+      "Rockstar Games",
+      "LOVE magazine",
+      "screenshots",
+      "story details"
+    ],
+    "featured": false,
+    "sections": [
+      {
+        "heading": "New Screenshots and Cover Art",
+        "paragraphs": [
+          "RockstarINTEL reports that LOVE magazine has revealed an exclusive article and images for Grand Theft Auto VI. Issue 27 features Lucia and Jason on the cover, along with a couple of new in-game screenshots. The publication also includes interviews with various writers and Rob Nelson, Co-Studio Head and Head of Development at Rockstar North."
+        ]
+      },
+      {
+        "heading": "Story and Character Insights",
+        "paragraphs": [
+          "The article excerpt shared by RockstarINTEL includes quotes from the head of narrative at Rockstar and other writers. One quote explains the game's setting: \"[It's] a pressure cooker for all kinds of insanity. If you are going to put all this effort into creating a version of today’s world, it has to be more over the top, more insane, more in your face. Otherwise, you could just go outside and live in the real world.\" Another describes Lucia: \"Lucia had to be someone who wanted a better life for herself, and wouldn't let the obstacles in the way of that life stop her from getting it.\" The writers also emphasize the protagonists' flaws and growth, stating \"We wanted both protagonists to be vulnerable, tough, flawed, right sometimes, wrong sometimes, able to learn from each other.\"",
+          "This is the latest in a series of promotional reveals for GTA 6, following earlier trailers and official artwork. The full magazine issue is expected to provide more context, though only these excerpts and images have been made public so far."
+        ]
+      }
+    ],
+    "thumbnail": "https://rockstarintel.com/wp-content/uploads/2026/10/lucia-jason-diner-1280.webp",
+    "thumbnailAlt": "Lucia and Jason in a diner from GTA 6",
+    "inlineImages": [
+      {
+        "url": "https://rockstarintel.com/wp-content/uploads/2026/10/lucia-jason-diner-1280.webp",
+        "alt": "Lucia and Jason in a diner from GTA 6",
+        "caption": "A new screenshot from GTA 6 featured in LOVE magazine.",
+        "sourceUrl": "https://rockstarintel.com/2-new-gta-6-screenshots-released-in-a-magazine-and-here-they-are/"
+      }
+    ],
+    "sources": [
+      {
+        "title": "4 New GTA 6 Screenshots Released Alongside Story Details",
+        "url": "https://rockstarintel.com/2-new-gta-6-screenshots-released-in-a-magazine-and-here-they-are/",
+        "publisher": "rockstarintel.com"
+      }
+    ],
+    "date": "2026-10-02",
+    "slug": "gta-6-screenshots-and-story-details-revealed-in-love-magazine",
+    "sourceUrl": "https://rockstarintel.com/2-new-gta-6-screenshots-released-in-a-magazine-and-here-they-are/",
+    "image": "/images/macca-blog-banner.jpg",
+    "imageAlt": "Macca the Gator at sunset in Vice City"
+  },
+  {
     "title": "Warhorse Co-Founder Hopes GTA 6 Will 'Blaze a Trail' to Higher Game Prices",
     "description": "Kingdom Come: Deliverance studio co-founder Martin Klima tells PC Gamer he hopes Grand Theft Auto 6 will lead the industry toward higher game prices as development costs rise.",
     "category": "News",

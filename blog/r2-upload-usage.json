@@ -1,14 +1,16 @@
 {
   "schemaVersion": 1,
   "month": "2026-10",
-  "monthlyUploadAttempts": 6,
+  "monthlyUploadAttempts": 8,
   "recentUploadAttempts24h": [
     "2026-10-01T16:29:26.190272Z",
     "2026-10-01T16:29:26.190272Z",
     "2026-10-01T21:54:27.160050Z",
     "2026-10-01T21:54:27.160050Z",
     "2026-10-02T01:46:28.933584Z",
-    "2026-10-02T01:46:28.933584Z"
+    "2026-10-02T01:46:28.933584Z",
+    "2026-10-02T15:52:02.677733Z",
+    "2026-10-02T15:52:02.677733Z"
   ],
   "articles": {
     "gta-6-won-t-spoof-disney-world-says-rockstar-here-s-what-we-know": {
@@ -65,6 +67,14 @@
       "uploadedAt": "2026-10-02T01:46:41.808015Z",
       "publicVerifiedAt": "2026-10-02T01:46:41.944358Z",
       "deletedAt": "2026-10-02T01:47:16.350828Z"
+    },
+    "gta-6-screenshots-and-story-details-revealed-in-love-magazine": {
+      "objectKey": "instagram-reels/5314cb233c034626b198abed1b2b3e3f-gta-6-screenshots-and-story-details-revealed-in-love-magazine.mp4",
+      "month": "2026-10",
+      "attemptsReserved": 2,
+      "attemptsConsumed": 0,
+      "reservedAt": "2026-10-02T15:52:02.677733Z",
+      "sizeBytes": 941083
     }
   }
 }
