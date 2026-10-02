@@ -59,9 +59,12 @@
       "objectKey": "instagram-reels/60be206a4578457b80dfe95bd90e10de-warhorse-co-founder-hopes-gta-6-will-blaze-a-trail-to-higher-game-prices.mp4",
       "month": "2026-10",
       "attemptsReserved": 2,
-      "attemptsConsumed": 0,
+      "attemptsConsumed": 1,
       "reservedAt": "2026-10-02T01:46:28.933584Z",
-      "sizeBytes": 746423
+      "sizeBytes": 746423,
+      "uploadedAt": "2026-10-02T01:46:41.808015Z",
+      "publicVerifiedAt": "2026-10-02T01:46:41.944358Z",
+      "deletedAt": "2026-10-02T01:47:16.350828Z"
     }
   }
 }
