@@ -6,42 +6,288 @@
       "articleUrl": "https://macca-lab.onrender.com/blog/dutch-police-arrest-suspect-shinyhunters-investigation/",
       "youtubeUrl": "https://www.youtube.com/watch?v=42WIX7eXCkM",
       "publishedAt": "2026-09-30T02:34:39+00:00",
-      "snapshots": []
+      "snapshots": [
+        {
+          "targetHours": 6,
+          "actualAgeHours": 68.0,
+          "collectedAt": "2026-10-02T22:36:50.244846+00:00",
+          "dataPeriod": {
+            "startDate": "2026-09-30",
+            "endDate": "2026-10-02",
+            "basis": "UTC calendar days; not an exact rolling-hour window"
+          },
+          "metrics": {
+            "views": 18,
+            "engagedViews": 4,
+            "averageViewDuration": 1060,
+            "averageViewPercentage": 3786.67,
+            "likes": 0,
+            "comments": 0,
+            "shares": 0,
+            "subscribersGained": 0
+          }
+        },
+        {
+          "targetHours": 24,
+          "actualAgeHours": 68.0,
+          "collectedAt": "2026-10-02T22:36:50.244846+00:00",
+          "dataPeriod": {
+            "startDate": "2026-09-30",
+            "endDate": "2026-10-02",
+            "basis": "UTC calendar days; not an exact rolling-hour window"
+          },
+          "metrics": {
+            "views": 18,
+            "engagedViews": 4,
+            "averageViewDuration": 1060,
+            "averageViewPercentage": 3786.67,
+            "likes": 0,
+            "comments": 0,
+            "shares": 0,
+            "subscribersGained": 0
+          }
+        }
+      ]
     },
     "bDGhxAO7_b8": {
       "slug": "gta-6-map-is-twice-the-size-of-gta-5-features-hurricanes-and-tropical-storms-roc",
       "articleUrl": "https://macca-lab.onrender.com/blog/gta-6-map-is-twice-the-size-of-gta-5-features-hurricanes-and-tropical-storms-roc/",
       "youtubeUrl": "https://www.youtube.com/watch?v=bDGhxAO7_b8",
       "publishedAt": "2026-09-30T05:33:42.942000+00:00",
-      "snapshots": []
+      "snapshots": [
+        {
+          "targetHours": 6,
+          "actualAgeHours": 65.1,
+          "collectedAt": "2026-10-02T22:36:50.244846+00:00",
+          "dataPeriod": {
+            "startDate": "2026-09-30",
+            "endDate": "2026-10-02",
+            "basis": "UTC calendar days; not an exact rolling-hour window"
+          },
+          "metrics": {
+            "views": 222,
+            "engagedViews": 45,
+            "averageViewDuration": 8,
+            "averageViewPercentage": 30.269999999999996,
+            "likes": 1,
+            "comments": 0,
+            "shares": 0,
+            "subscribersGained": 0
+          }
+        },
+        {
+          "targetHours": 24,
+          "actualAgeHours": 65.1,
+          "collectedAt": "2026-10-02T22:36:50.244846+00:00",
+          "dataPeriod": {
+            "startDate": "2026-09-30",
+            "endDate": "2026-10-02",
+            "basis": "UTC calendar days; not an exact rolling-hour window"
+          },
+          "metrics": {
+            "views": 222,
+            "engagedViews": 45,
+            "averageViewDuration": 8,
+            "averageViewPercentage": 30.269999999999996,
+            "likes": 1,
+            "comments": 0,
+            "shares": 0,
+            "subscribersGained": 0
+          }
+        }
+      ]
     },
     "yMB194YSMKg": {
       "slug": "gta-6-map-is-twice-the-size-of-gta-5-features-hurricanes-and-tropical-storms-roc",
       "articleUrl": "https://macca-lab.onrender.com/blog/gta-6-map-is-twice-the-size-of-gta-5-features-hurricanes-and-tropical-storms-roc/",
       "youtubeUrl": "https://www.youtube.com/watch?v=yMB194YSMKg",
       "publishedAt": "2026-09-30T12:36:56.667000+00:00",
-      "snapshots": []
+      "snapshots": [
+        {
+          "targetHours": 6,
+          "actualAgeHours": 58.0,
+          "collectedAt": "2026-10-02T22:36:50.244846+00:00",
+          "dataPeriod": {
+            "startDate": "2026-09-30",
+            "endDate": "2026-10-02",
+            "basis": "UTC calendar days; not an exact rolling-hour window"
+          },
+          "metrics": {
+            "views": 3,
+            "engagedViews": 1,
+            "averageViewDuration": 4,
+            "averageViewPercentage": 17,
+            "likes": 0,
+            "comments": 0,
+            "shares": 0,
+            "subscribersGained": 0
+          }
+        },
+        {
+          "targetHours": 24,
+          "actualAgeHours": 58.0,
+          "collectedAt": "2026-10-02T22:36:50.244846+00:00",
+          "dataPeriod": {
+            "startDate": "2026-09-30",
+            "endDate": "2026-10-02",
+            "basis": "UTC calendar days; not an exact rolling-hour window"
+          },
+          "metrics": {
+            "views": 3,
+            "engagedViews": 1,
+            "averageViewDuration": 4,
+            "averageViewPercentage": 17,
+            "likes": 0,
+            "comments": 0,
+            "shares": 0,
+            "subscribersGained": 0
+          }
+        }
+      ]
     },
     "9vs2svvreFA": {
       "slug": "modder-who-taunted-try-me-rockstar-with-gta-5-switch-port-is-thankful-for-take-t",
       "articleUrl": "https://macca-lab.onrender.com/blog/modder-who-taunted-try-me-rockstar-with-gta-5-switch-port-is-thankful-for-take-t/",
       "youtubeUrl": "https://www.youtube.com/watch?v=9vs2svvreFA",
       "publishedAt": "2026-09-30T12:36:56.667000+00:00",
-      "snapshots": []
+      "snapshots": [
+        {
+          "targetHours": 6,
+          "actualAgeHours": 58.0,
+          "collectedAt": "2026-10-02T22:36:50.244846+00:00",
+          "dataPeriod": {
+            "startDate": "2026-09-30",
+            "endDate": "2026-10-02",
+            "basis": "UTC calendar days; not an exact rolling-hour window"
+          },
+          "metrics": {
+            "views": 25,
+            "engagedViews": 7,
+            "averageViewDuration": 12,
+            "averageViewPercentage": 44.04,
+            "likes": 0,
+            "comments": 0,
+            "shares": 0,
+            "subscribersGained": 0
+          }
+        },
+        {
+          "targetHours": 24,
+          "actualAgeHours": 58.0,
+          "collectedAt": "2026-10-02T22:36:50.244846+00:00",
+          "dataPeriod": {
+            "startDate": "2026-09-30",
+            "endDate": "2026-10-02",
+            "basis": "UTC calendar days; not an exact rolling-hour window"
+          },
+          "metrics": {
+            "views": 25,
+            "engagedViews": 7,
+            "averageViewDuration": 12,
+            "averageViewPercentage": 44.04,
+            "likes": 0,
+            "comments": 0,
+            "shares": 0,
+            "subscribersGained": 0
+          }
+        }
+      ]
     },
     "Ya-UxU_aDso": {
       "slug": "gta-6-won-t-spoof-disney-world-says-rockstar-here-s-what-we-know",
       "articleUrl": "https://macca-lab.onrender.com/blog/gta-6-won-t-spoof-disney-world-says-rockstar-here-s-what-we-know/",
       "youtubeUrl": "https://www.youtube.com/watch?v=Ya-UxU_aDso",
       "publishedAt": "2026-09-30T17:27:28.813461+00:00",
-      "snapshots": []
+      "snapshots": [
+        {
+          "targetHours": 6,
+          "actualAgeHours": 53.2,
+          "collectedAt": "2026-10-02T22:36:50.244846+00:00",
+          "dataPeriod": {
+            "startDate": "2026-09-30",
+            "endDate": "2026-10-02",
+            "basis": "UTC calendar days; not an exact rolling-hour window"
+          },
+          "metrics": {
+            "views": 10,
+            "engagedViews": 3,
+            "averageViewDuration": 14,
+            "averageViewPercentage": 81.02,
+            "likes": 0,
+            "comments": 0,
+            "shares": 0,
+            "subscribersGained": 0
+          }
+        },
+        {
+          "targetHours": 24,
+          "actualAgeHours": 53.2,
+          "collectedAt": "2026-10-02T22:36:50.244846+00:00",
+          "dataPeriod": {
+            "startDate": "2026-09-30",
+            "endDate": "2026-10-02",
+            "basis": "UTC calendar days; not an exact rolling-hour window"
+          },
+          "metrics": {
+            "views": 10,
+            "engagedViews": 3,
+            "averageViewDuration": 14,
+            "averageViewPercentage": 81.02,
+            "likes": 0,
+            "comments": 0,
+            "shares": 0,
+            "subscribersGained": 0
+          }
+        }
+      ]
     },
     "53kgNcM3CKs": {
       "slug": "alleged-rockstar-games-hacker-arrested-fbi-says-he-led-shinyhunters",
       "articleUrl": "https://macca-lab.onrender.com/blog/alleged-rockstar-games-hacker-arrested-fbi-says-he-led-shinyhunters/",
       "youtubeUrl": "https://www.youtube.com/watch?v=53kgNcM3CKs",
       "publishedAt": "2026-09-30T18:33:15.904505+00:00",
-      "snapshots": []
+      "snapshots": [
+        {
+          "targetHours": 6,
+          "actualAgeHours": 52.1,
+          "collectedAt": "2026-10-02T22:36:50.244846+00:00",
+          "dataPeriod": {
+            "startDate": "2026-09-30",
+            "endDate": "2026-10-02",
+            "basis": "UTC calendar days; not an exact rolling-hour window"
+          },
+          "metrics": {
+            "views": 11,
+            "engagedViews": 3,
+            "averageViewDuration": 15,
+            "averageViewPercentage": 86.7,
+            "likes": 0,
+            "comments": 0,
+            "shares": 0,
+            "subscribersGained": 0
+          }
+        },
+        {
+          "targetHours": 24,
+          "actualAgeHours": 52.1,
+          "collectedAt": "2026-10-02T22:36:50.244846+00:00",
+          "dataPeriod": {
+            "startDate": "2026-09-30",
+            "endDate": "2026-10-02",
+            "basis": "UTC calendar days; not an exact rolling-hour window"
+          },
+          "metrics": {
+            "views": 11,
+            "engagedViews": 3,
+            "averageViewDuration": 15,
+            "averageViewPercentage": 86.7,
+            "likes": 0,
+            "comments": 0,
+            "shares": 0,
+            "subscribersGained": 0
+          }
+        }
+      ]
     },
     "UfNnyFpiUWI": {
       "slug": "gta-6-doesn-t-compromise-scale-for-detail-rockstar-says",
