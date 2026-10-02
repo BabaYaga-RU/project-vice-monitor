@@ -6,6 +6,9 @@ on:
     paths:
       - '.github/workflows/gta-blog.yml'
       - 'scripts/blog.mjs'
+      - 'scripts/test-engagement.mjs'
+      - 'blog/assets/blog.css'
+      - 'blog/assets/engagement.js'
       - 'scripts/build-seo.mjs'
       - 'scripts/instagram.mjs'
       - 'scripts/social_video.py'
@@ -80,6 +83,10 @@ jobs:
         env:
           SITE_URL: https://macca-lab.onrender.com
         run: node scripts/blog.mjs build
+      - name: Validate reader recirculation UI
+        id: test_engagement
+        if: github.event_name != 'schedule' || (steps.monitor.outputs.should_generate == 'true' && steps.ai_generation.outcome == 'success')
+        run: node scripts/test-engagement.mjs
       - name: Build whole-site SEO metadata and discovery files
         id: build_seo
         if: github.event_name != 'schedule' || (steps.monitor.outputs.should_generate == 'true' && steps.ai_generation.outcome == 'success')
@@ -216,7 +223,7 @@ jobs:
         run: node scripts/instagram.mjs prepare
       - name: Commit and push generated changes
         id: commit_generated
-        if: always() && ((steps.build_blog.outcome == 'success' && steps.build_seo.outcome == 'success' && steps.prepare_instagram.outcome == 'success' && (github.event_name != 'schedule' || steps.monitor.outputs.should_generate == 'true' || steps.social_video_work.outputs.has_work == 'true')) || steps.record_failure.outcome == 'success')
+        if: always() && ((steps.build_blog.outcome == 'success' && steps.test_engagement.outcome == 'success' && steps.build_seo.outcome == 'success' && steps.prepare_instagram.outcome == 'success' && (github.event_name != 'schedule' || steps.monitor.outputs.should_generate == 'true' || steps.social_video_work.outputs.has_work == 'true')) || steps.record_failure.outcome == 'success')
         run: |
           if [[ -n "$(git status --porcelain)" ]]; then
             git config user.name "github-actions[bot]"
