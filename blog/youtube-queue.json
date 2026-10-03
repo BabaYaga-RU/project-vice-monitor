@@ -53,5 +53,74 @@
       }
     ],
     "queuedAt": "2026-10-03T01:18:45.368Z"
+  },
+  {
+    "slug": "gta-6-x-miami-heat-vice-city-merchandise-announced",
+    "publicationKey": "gta-6-x-miami-heat-vice-city-merchandise-announced-update-202610030218",
+    "forceRepublish": true,
+    "articleUrl": "https://macca-lab.onrender.com/blog/gta-6-x-miami-heat-vice-city-merchandise-announced/",
+    "sourceUrl": "https://rockstarintel.com/new-gta-6-x-miami-heat-merchandise-announced/",
+    "title": "GTA 6 x Miami Heat Rebrand As Vice City For Release Day Event",
+    "description": "Rockstar Games and the Miami Heat have announced a 'Night in Vice City' collaboration, with the NBA franchise temporarily rebranding for a game on the eve of GTA VI's launch.",
+    "youtubeTitle": "UPDATE: Miami Heat Rebrand as Vice City for GTA 6 Release Day Game",
+    "socialHook": "Update: The Miami Heat will temporarily rebrand as Vice City for one NBA game on the eve of GTA VI's release.",
+    "sections": [
+      {
+        "heading": "Miami Heat to Play as Vice City",
+        "paragraphs": [
+          "Rockstar Games and the Miami Heat have announced a special \"Night in Vice City\" collaboration ahead of Grand Theft Auto VI. Per RockstarINTEL, the NBA franchise will temporarily rebrand as Vice City for one game on the eve of the game's release, swapping their name and colors for the Vice City theme."
+        ]
+      },
+      {
+        "heading": "Release Day Event Details",
+        "paragraphs": [
+          "The matchup takes place on November 18 against the Milwaukee Bucks at the Kaseya Center, tipping off at 7pm ET, with games airing live on ESPN. The Heat will wear all-new Vice City uniforms on a special never-before-seen themed court, following a \"Welcome to Vice City\" sign already lighting up above the arena. Tickets are available via Ticketmaster."
+        ]
+      },
+      {
+        "heading": "Partnership Details",
+        "paragraphs": [
+          "The rebrand extends the existing partnership, which includes a Vice City-themed merchandise collection available at the Miami Heat online store. Additional activations include live events and programming around game day. Details on the exact uniform design remain unconfirmed beyond the neon pink branding tease."
+        ]
+      }
+    ],
+    "tags": [
+      "GTA 6",
+      "Rockstar Games",
+      "Miami Heat",
+      "Vice City",
+      "NBA",
+      "Collaboration"
+    ],
+    "thumbnail": "https://rockstarintel.com/wp-content/uploads/2026/10/miami-heat-featured.webp",
+    "thumbnailAlt": "Miami Heat Vice City branding tease at Kaseya Center",
+    "inlineImages": [
+      {
+        "url": "https://rockstarintel.com/wp-content/uploads/2026/10/miami-heat-merch.webp",
+        "alt": "Miami Heat GTA 6 Vice City Collection merchandise",
+        "caption": "Image accompanying the source report",
+        "sourceUrl": "https://rockstarintel.com/new-gta-6-x-miami-heat-merchandise-announced/"
+      },
+      {
+        "url": "https://rockstarintel.com/wp-content/uploads/2026/10/miami-heat-featured.webp",
+        "alt": "Miami Heat Vice City branding tease at Kaseya Center",
+        "caption": "A \"Welcome to Vice City\" sign is already visible above the Kaseya Center.",
+        "sourceUrl": "https://rockstarintel.com/miami-heat-rebrand-as-vice-city-for-gta-6-release-day/"
+      }
+    ],
+    "sources": [
+      {
+        "title": "New GTA 6 x Miami Heat Merchandise Announced",
+        "url": "https://rockstarintel.com/new-gta-6-x-miami-heat-merchandise-announced/",
+        "publisher": "rockstarintel.com"
+      },
+      {
+        "title": "Miami Heat Rebrand As Vice City For GTA 6 Release Day",
+        "url": "https://rockstarintel.com/miami-heat-rebrand-as-vice-city-for-gta-6-release-day/",
+        "publisher": "rockstarintel.com"
+      }
+    ],
+    "socialScore": 106,
+    "queuedAt": "2026-10-03T02:18:27.512Z"
   }
 ]
