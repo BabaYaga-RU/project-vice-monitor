@@ -52,6 +52,21 @@ def _published_last_24h(records) -> int:
     return total
 
 
+def _hours_since_latest(records) -> float | None:
+    latest = None
+    values = records.values() if isinstance(records, dict) else (records or [])
+    for record in values:
+        try:
+            stamp = datetime.fromisoformat(str(record.get("publishedAt", "")).replace("Z", "+00:00"))
+        except (ValueError, AttributeError):
+            continue
+        if latest is None or stamp > latest:
+            latest = stamp
+    if latest is None:
+        return None
+    return (datetime.now(timezone.utc) - latest).total_seconds() / 3600
+
+
 def _ranked(items):
     return sorted(
         items or [],
@@ -88,17 +103,25 @@ def main() -> None:
     yt_published = _read(ROOT / "blog" / "youtube-published.json", [])
     ig_limit = max(1, min(8, int(os.environ.get("INSTAGRAM_DAILY_LIMIT", "4"))))
     yt_limit = max(1, min(8, int(os.environ.get("YOUTUBE_DAILY_LIMIT", "4"))))
+    ig_spacing = max(1, min(12, int(os.environ.get("INSTAGRAM_MIN_SPACING_HOURS", "4"))))
+    yt_spacing = max(1, min(12, int(os.environ.get("YOUTUBE_MIN_SPACING_HOURS", "4"))))
     ig_slots = max(0, ig_limit - _published_last_24h(ig_published))
     yt_slots = max(0, yt_limit - _published_last_24h(yt_published))
-    ig_queue = _ranked(ig_queue)[:ig_slots]
-    yt_queue = _ranked(yt_queue)[:yt_slots]
+    ig_age = _hours_since_latest(ig_published)
+    yt_age = _hours_since_latest(yt_published)
+    if ig_age is not None and ig_age < ig_spacing:
+        ig_slots = 0
+    if yt_age is not None and yt_age < yt_spacing:
+        yt_slots = 0
+    ig_queue = _ranked(ig_queue)[:1 if ig_slots else 0]
+    yt_queue = _ranked(yt_queue)[:1 if yt_slots else 0]
     if os.environ.get("INSTAGRAM_RETRY_ONLY_FIRST") == "true":
         ig_queue = ig_queue[:1]
         yt_queue = []
         print("Instagram-only retry enabled; rendering only the highest-priority pending Instagram item.")
     posts = _read(ROOT / "blog" / "posts.json", [])
     slugs = list(dict.fromkeys(item.get("slug") for item in [*ig_queue, *yt_queue] if item.get("slug")))
-    print(f"Social render budget: {len(ig_queue)}/{ig_slots} Instagram and {len(yt_queue)}/{yt_slots} YouTube item(s) selected.")
+    print(f"Social render budget: {len(ig_queue)} Instagram and {len(yt_queue)} YouTube item(s) selected; pacing {ig_spacing}h/{yt_spacing}h, daily caps {ig_limit}/{yt_limit}.")
     by_slug = {item.get("slug"): item for item in posts}
     VIDEO_DIR.mkdir(parents=True, exist_ok=True)
     manifest = {"schemaVersion": 1, "videos": {}}
