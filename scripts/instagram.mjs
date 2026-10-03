@@ -14,9 +14,26 @@ const REEL_MANIFEST_FILE = process.env.INSTAGRAM_REEL_MANIFEST_FILE || path.join
 const token = process.env.INSTAGRAM_ACCESS_TOKEN;
 const configuredPageId = process.env.INSTAGRAM_PAGE_ID || '';
 const configuredInstagramId = process.env.INSTAGRAM_BUSINESS_ACCOUNT_ID || '';
+const DAILY_LIMIT = Math.max(1, Math.min(8, Number(process.env.INSTAGRAM_DAILY_LIMIT || 4)));
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 const safeJson = async (file, fallback) => { try { return JSON.parse(await fs.readFile(file, 'utf8')); } catch { return fallback; } };
 const saveJson = async (file, value) => { await fs.mkdir(path.dirname(file), {recursive:true}); await fs.writeFile(file, JSON.stringify(value, null, 2) + '\n'); };
+
+function recentPublishedCount(published) {
+  const cutoff = Date.now() - 24 * 60 * 60 * 1000;
+  return Object.values(published || {}).filter(item => {
+    const stamp = Date.parse(item?.publishedAt || '');
+    return Number.isFinite(stamp) && stamp >= cutoff;
+  }).length;
+}
+
+function rankedQueue(queue) {
+  return [...queue].sort((a, b) => {
+    const score = Number(b?.socialScore || 0) - Number(a?.socialScore || 0);
+    if (score) return score;
+    return String(b?.queuedAt || '').localeCompare(String(a?.queuedAt || ''));
+  });
+}
 
 function imageConverter() {
   for (const cmd of ['magick', 'convert']) {
@@ -168,7 +185,7 @@ function caption(post) {
     '#MaccaTheGator',
   ];
   const summary = [hook, context && context !== hook ? context : ''].filter(Boolean).join('\n\n').slice(0, 850);
-  return `${summary}\n\nFull story → link in bio.\n\n${[...new Set(hashtags)].join(' ')}`.slice(0, 1400);
+  return `${summary}\n\nFull story → link in bio.\nMacca Blog: ${BASE}/social/?utm_source=instagram&utm_medium=reel&utm_campaign=macca_reel\n\n${[...new Set(hashtags)].join(' ')}`.slice(0, 1400);
 }
 
 async function waitForPublicImage(url) {
@@ -242,7 +259,14 @@ async function publish() {
   const account = await resolveAccount();
   if (account.username) console.log(`Instagram account resolved: @${account.username} through ${account.host}`);
   const retryOnlyFirst = process.env.INSTAGRAM_RETRY_ONLY_FIRST === 'true';
-  const itemsToPublish = retryOnlyFirst ? queue.slice(0, 1) : queue;
+  const recent = recentPublishedCount(published);
+  const slots = Math.max(0, DAILY_LIMIT - recent);
+  if (!slots) {
+    console.log(`Instagram daily cap reached (${recent}/${DAILY_LIMIT}); ${queue.length} queued item(s) retained.`);
+    return;
+  }
+  const ranked = rankedQueue(queue);
+  const itemsToPublish = retryOnlyFirst ? ranked.slice(0, 1) : ranked.slice(0, slots);
   for (const {slug} of itemsToPublish) {
     const post = posts.find(item => item.slug === slug);
     if (!post) throw new Error(`Instagram queue references missing blog article: ${slug}`);
@@ -277,7 +301,7 @@ async function publish() {
     if (!media.id) throw new Error('Meta did not return a published media ID.');
     let permalink = '';
     try { permalink = (await graphGet(account.host, media.id, 'permalink')).permalink || ''; } catch {}
-    published[storyUrl] = {mediaId:media.id, permalink, mediaType:'REELS', publishedAt:new Date().toISOString()};
+    published[storyUrl] = {mediaId:media.id, permalink, mediaType:'REELS', socialScore:Number((queue.find(item => item.slug === slug) || {}).socialScore || 0), publishedAt:new Date().toISOString()};
     await saveJson(PUBLISHED_FILE, published);
     const remaining = queue.filter(item => item.slug !== slug);
     await saveJson(QUEUE_FILE, remaining);
