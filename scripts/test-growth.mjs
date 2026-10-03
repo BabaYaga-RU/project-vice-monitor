@@ -4,11 +4,12 @@ import assert from 'node:assert/strict';
 
 const read = path => fs.readFile(path, 'utf8');
 
-const [adsTxt, blog, seo, ads, instagram, queue, shorts, ytMetrics, ytWorkflow, igWorkflow, weeklyWorkflow] = await Promise.all([
+const [adsTxt, blog, seo, ads, engagement, instagram, queue, shorts, ytMetrics, ytWorkflow, igWorkflow, weeklyWorkflow] = await Promise.all([
   read('ads.txt'),
   read('scripts/blog.mjs'),
   read('scripts/build-seo.mjs'),
   read('ads/ads.js'),
+  read('blog/assets/engagement.js'),
   read('scripts/instagram.mjs'),
   read('scripts/youtube_queue.py'),
   read('src/youtube/shorts.py'),
@@ -43,6 +44,10 @@ assert.match(ads, /contextualAd/);
 assert.match(ads, /AFFILIATE_SESSION_KEY/);
 assert.match(ads, /sessionStorage/);
 assert.match(ads, /recordAffiliateEvent/);
+assert.match(ads, /article-inline/);
+assert.match(ads, /adRuntimeMounted/);
+assert.match(ads, /macca:content-added/);
+assert.match(engagement, /macca:content-added/);
 
 assert.doesNotMatch(shorts, /Rockstar fans, here is the latest story/);
 assert.match(shorts, /Full story .*Macca Blog\. Link on profile\./);
