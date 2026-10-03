@@ -20,7 +20,7 @@ assert.match(article,/data-next-story-peek/,'Article should render the next-stor
 assert.match(article,/data-continuous-sentinel/,'Article should render the continuous-reading sentinel');
 assert.ok(article.indexOf('class="continuous-feed"') < article.indexOf('</article><aside>'),'Continuous feed must stay inside the article column so a tall sidebar cannot create a blank gap');
 assert.match(article,/class="sidebar-ad-rail"/,'Article should render a persistent right-side affiliate rail');
-assert.match(article,/sidebar-affiliate-5/,'Persistent rail should expose a rotating affiliate slot');
+assert.match(article,/data-ad-slot="sidebar-smart"/,'Persistent rail should expose the smart rotating affiliate slot');
 
 const client=await fs.readFile(path.join(root,'blog','assets','engagement.js'),'utf8');
 assert.match(client,/IntersectionObserver/,'Continuous reading should be viewport-driven');
