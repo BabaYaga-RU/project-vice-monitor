@@ -9,6 +9,7 @@ const ROOT = process.cwd();
 // Growth pipeline: generated publication state is rebuilt from blog/posts.json.
 const BASE = process.env.SITE_URL || 'https://macca-lab.onrender.com';
 const BACKFILL = process.argv.includes('--backfill');
+const DAILY_ARTICLE_CAP = Math.max(1, Math.min(12, Number(process.env.DAILY_ARTICLE_CAP || 8)));
 const FEEDS = [
   'https://news.google.com/rss/search?q=GTA+6+news+rumors+leaks+trailer+release+date+preorder+price+when%3A21d&hl=en-US&gl=US&ceid=US%3Aen',
   'https://news.google.com/rss/search?q=GTA+Online+Rockstar+update+event+when%3A21d&hl=en-US&gl=US&ceid=US%3Aen',
@@ -241,7 +242,12 @@ async function research({days=BACKFILL?21:7}={}) {
   // Fetch in small batches so hourly monitoring stays quick without flooding sources.
   for(let i=0;i<FEEDS.length;i+=5) items.push(...(await Promise.all(FEEDS.slice(i,i+5).map(readFeed))).flat());
   const cutoff=Date.now()-1000*60*60*24*days;
-  return items.filter(x=>/grand theft auto|\bgta(?:\s*6)?\b|rockstar|take[- ]two/i.test(`${x.title} ${x.description}`) && (!x.date || (Date.parse(x.date)>=cutoff && Date.parse(x.date)<=Date.now()+86400000)));
+  return items.filter(x=>{
+    const topical=/grand theft auto|\bgta(?:\s*6)?\b|rockstar|take[- ]two/i.test(`${x.title} ${x.description}`);
+    const fresh=!x.date || (Date.parse(x.date)>=cutoff && Date.parse(x.date)<=Date.now()+86400000);
+    const communityOnly=/^(reddit(?:\.com)?|x\.com|twitter)$/i.test(String(x.source||'').trim());
+    return topical && fresh && !communityOnly;
+  });
 }
 
 async function fetchArticle(item) {
@@ -662,6 +668,15 @@ Impressions: ${item.impressions}; CTR: ${item.ctr}; Position: ${item.position}`)
 async function generate() {
   generate.rejected ||= 0;
   const dryRun=process.argv.includes('--dry-run');
+  if(!BACKFILL&&!dryRun) {
+    const currentPosts=await readJson(DATA_FILE,[]);
+    const today=new Date().toISOString().slice(0,10);
+    const todayRegular=currentPosts.filter(post=>post?.date===today&&post.contentType!=='analysis').length;
+    if(todayRegular>=DAILY_ARTICLE_CAP) {
+      console.log(`Daily editorial cap reached (${todayRegular}/${DAILY_ARTICLE_CAP}); monitoring continues without another article.`);
+      return;
+    }
+  }
   const candidates=await research();
   if(!candidates.length) { console.log('No recent GTA coverage found in configured news feeds; skipping this run.'); return; }
   const posts=await readJson(DATA_FILE,[]), history=await readJson(HISTORY_FILE,[]);
@@ -752,7 +767,7 @@ Article excerpts: ${s.excerpt||'[No body available]'}`).join('\n\n')}
     console.log(`Updated existing story ${updated.slug} with material new reporting.`);
     return;
   }
-  const p={...generated,title,description:String(generated.description||mainSource.description||candidate.description||title).slice(0,300),seoTitle:String(generated.seoTitle||title).trim().slice(0,64),seoDescription:String(generated.seoDescription||generated.description||mainSource.description||candidate.description||title).trim().slice(0,158),category:normalizeCategory(generated.category,title,generated.description||mainSource.description||candidate.description||''),tags:normalizeTags(Array.isArray(generated.tags)?generated.tags:[],title,generated.description||mainSource.description||candidate.description||''),youtubeTitle:String(generated.youtubeTitle||title).trim().slice(0,78),socialHook:String(generated.socialHook||generated.description||title).trim().slice(0,220),instagramCaptionLead:String(generated.instagramCaptionLead||generated.socialHook||title).trim().slice(0,180),thumbnail:selectedThumbnail,thumbnailAlt:String(generated.thumbnailAlt||title).slice(0,180),inlineImages,date:new Date().toISOString().slice(0,10),slug:slugify(title),sourceUrl:mainSource.canonical||candidate.link,sources:generatedSources};
+  const p={...generated,title,description:String(generated.description||mainSource.description||candidate.description||title).slice(0,300),seoTitle:String(generated.seoTitle||title).trim().slice(0,64),seoDescription:String(generated.seoDescription||generated.description||mainSource.description||candidate.description||title).trim().slice(0,158),category:normalizeCategory(generated.category,title,generated.description||mainSource.description||candidate.description||''),tags:normalizeTags(Array.isArray(generated.tags)?generated.tags:[],title,generated.description||mainSource.description||candidate.description||''),youtubeTitle:String(generated.youtubeTitle||title).trim().slice(0,78),socialHook:String(generated.socialHook||generated.description||title).trim().slice(0,220),instagramCaptionLead:String(generated.instagramCaptionLead||generated.socialHook||title).trim().slice(0,180),thumbnail:selectedThumbnail,thumbnailAlt:String(generated.thumbnailAlt||title).slice(0,180),inlineImages,date:new Date().toISOString().slice(0,10),publishedAt:new Date().toISOString(),slug:slugify(title),sourceUrl:mainSource.canonical||candidate.link,sources:generatedSources};
   if(posts.some(x=>x.slug===p.slug||similarity(x.title,p.title)>0.36)) { console.log(`Skipping near-duplicate generated title: ${p.title}`); history.unshift({sourceUrl:candidate.link,title:candidate.title,date:new Date().toISOString(),status:'near-duplicate',sourceUrls:relatedFeeds.map(s=>s.link)}); await writeJson(HISTORY_FILE,history.slice(0,500)); generate.rejected++; if(generate.rejected<3) return generate(); console.log('Reached per-run limit while skipping duplicates.'); return; }
   posts.unshift(p); await writeJson(DATA_FILE,posts); history.unshift({slug:p.slug,title:p.title,sourceUrl:p.sourceUrl,sourceUrls:relatedFeeds.map(s=>s.link),date:p.date,status:'published',hash:crypto.createHash('sha256').update(`${p.title}|${p.sourceUrl}`).digest('hex')}); await writeJson(HISTORY_FILE,history.slice(0,500));
   await queueSocialPublication(p);
