@@ -133,13 +133,24 @@ function mountPklavcPopup() {
   window.addEventListener('scroll', showAtScrollDepth, {passive: true});
 }
 
-async function mountAds() {
-  mountPklavcPopup();
+let adConfigPromise = null;
+
+async function loadAdConfig() {
+  if (!adConfigPromise) {
+    adConfigPromise = fetch('/ads/config.json', {cache: 'no-store'}).then(async response => {
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return response.json();
+    });
+  }
+  return adConfigPromise;
+}
+
+async function mountAds(root = document) {
+  if (root === document) mountPklavcPopup();
   try {
-    const response = await fetch('/ads/config.json', {cache: 'no-store'});
-    if (!response.ok) return;
-    const config = await response.json();
-    const placements = [...document.querySelectorAll('[data-ad-slot]')]
+    const config = await loadAdConfig();
+    const placements = [...root.querySelectorAll('[data-ad-slot]')]
+      .filter(slot => slot.dataset.adRuntimeMounted !== '1')
       .map(slot => {
         const name = slot.dataset.adSlot;
         const source = name.startsWith('sidebar-pklavc')
@@ -148,7 +159,9 @@ async function mountAds() {
             ? config.slots?.['sidebar-affiliate']
             : name.startsWith('sticky-affiliate')
               ? config.slots?.['sticky-affiliate']
-            : config.slots?.[name];
+              : name === 'article-inline'
+                ? [...(config.slots?.['article-inline'] || []), ...(config.slots?.['sidebar-affiliate'] || [])]
+                : config.slots?.[name];
         return {slot, ads: (source || []).filter(ad => ad.enabled && ad.href && ad.image)};
       })
       .filter(placement => placement.ads.length);
@@ -186,6 +199,7 @@ async function mountAds() {
         link.append(copy, art);
         link.addEventListener('click', () => recordAffiliateEvent(ad, 'click'), {once:true});
         slot.replaceChildren(link);
+        slot.dataset.adRuntimeMounted = '1';
         observeAffiliateImpression(slot, link, ad);
     };
 
@@ -268,4 +282,8 @@ async function mountAds() {
   }
 }
 
-document.addEventListener('DOMContentLoaded', mountAds);
+document.addEventListener('DOMContentLoaded', () => mountAds(document));
+document.addEventListener('macca:content-added', event => {
+  const root = event.detail?.root;
+  if (root && root.querySelectorAll) mountAds(root);
+});
