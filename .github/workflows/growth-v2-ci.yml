@@ -2,7 +2,7 @@ name: Growth v2 safe CI
 
 on:
   push:
-    branches: ['chatgpt/growth-v2']
+    branches: ['chatgpt/growth-v2', 'chatgpt/growth-v2-final']
   workflow_dispatch:
 
 permissions:

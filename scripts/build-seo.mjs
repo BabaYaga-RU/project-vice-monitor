@@ -5,8 +5,8 @@ import path from 'node:path';
 const ROOT=process.cwd();
 const SITE=(process.env.SITE_URL||'https://macca-lab.onrender.com').replace(/\/$/,'');
 const SKIP=new Set(['.git','node_modules','blog','scripts','.github','coverage','dist','build']);
-const HOME_TITLE='Macca Lab | Independent Projects and Macca Blog';
-const HOME_DESCRIPTION='Macca Lab is an independent home for projects, experiments and editorial coverage of Grand Theft Auto, Rockstar Games and related stories on Macca Blog.';
+const HOME_TITLE='Macca Lab | GTA 6 & Rockstar News, Analysis and Projects';
+const HOME_DESCRIPTION='Independent GTA 6, GTA Online and Rockstar Games news, analysis and source-backed coverage from Macca Blog, plus Macca Lab projects.';
 const ADSENSE_SCRIPT=''; // ads.txt stays ready; AdSense script is disabled until approval.
 const GOOGLE_VERIFICATION_META='<meta name="google-site-verification" content="d6Rh9rH8TsBuT5o4NK7mKh25IQXbBOB0qLDCJgXgxBE">';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -33,8 +33,19 @@ function descOf(html,title,file){if(file==='index.html')return HOME_DESCRIPTION;
 }
 function pageSchema(url,title,description,file){
   const home=url===`${SITE}/`,routePath=new URL(url).pathname;
-  const type=home?'WebSite':(/^\/(study|play)\/$/.test(routePath)?'CollectionPage':/(?:simulador|calculator|interactive-tool)\/$/i.test(routePath)?'SoftwareApplication':'WebPage');
-  const data={'@context':'https://schema.org','@type':type,'@id':`${url}#${type.toLowerCase()}`,'url':url,'name':title,'description':description,'inLanguage':(/lang=["']pt/i.test(file.__html||'')?'pt-BR':'en')};
+  const language=/lang=["']pt/i.test(file.__html||'')?'pt-BR':'en';
+  const organization={'@type':'Organization','@id':`${SITE}/#organization`,'name':'Macca Lab','url':`${SITE}/`,'logo':{'@type':'ImageObject','url':`${SITE}/images/favicon-512x512.png`},'sameAs':['https://www.instagram.com/macca_the_gator_oficial/','https://www.youtube.com/@macca_the_gator_oficial'],'publishingPrinciples':`${SITE}/editorial-policy/`};
+  if(home)return {'@context':'https://schema.org','@graph':[
+    {'@type':'WebSite','@id':`${SITE}/#website`,'url':`${SITE}/`,'name':'Macca Lab','description':description,'inLanguage':'en','publisher':{'@id':`${SITE}/#organization`}},
+    organization
+  ]};
+  if(routePath==='/about/')return {'@context':'https://schema.org','@graph':[
+    {'@type':'AboutPage','@id':`${url}#webpage`,'url':url,'name':title,'description':description,'inLanguage':language,'about':{'@id':`${SITE}/#organization`}},
+    organization
+  ]};
+  if(routePath==='/contact/')return {'@context':'https://schema.org','@type':'ContactPage','@id':`${url}#webpage`,'url':url,'name':title,'description':description,'inLanguage':language,'about':{'@id':`${SITE}/#organization`}};
+  const type=/(?:simulador|calculator|interactive-tool)\/$/i.test(routePath)?'SoftwareApplication':'WebPage';
+  const data={'@context':'https://schema.org','@type':type,'@id':`${url}#${type.toLowerCase()}`,'url':url,'name':title,'description':description,'inLanguage':language};
   if(type==='SoftwareApplication'){data.applicationCategory='EducationalApplication';data.operatingSystem='Web';}
   return data;
 }
@@ -80,17 +91,25 @@ for(const file of files){
   const url=new URL(rel,`${SITE}/`).href;
   const routePath=new URL(url).pathname;
   const internalToolRoute=/\/simulador\/(?:app|src)\/$/i.test(routePath);
+  const auxiliaryNoindexRoute=/^\/(?:study|play)(?:\/|$)/i.test(routePath);
   const title=titleOf(html,file);const description=descOf(html,title,file);const lang=html.match(/<html\b[^>]*\blang=["']([^"']+)/i)?.[1]||'en';
-  const publicEditorialPage=routePath==='/'||/^\/(?:about|contact|privacy)\/$/.test(routePath);
+  const publicEditorialPage=routePath==='/'||/^\/(?:about|contact|privacy|editorial-policy|corrections)\/$/.test(routePath);
   if(publicEditorialPage&&!html.includes('/analytics/web-analytics.js')){
     html=html.replace(/<\/head>/i,'<script defer src="/analytics/web-analytics.js"></script>\n</head>');
     await fs.writeFile(path.join(ROOT,file),html);
   }
   if(!publicEditorialPage){
+    if(auxiliaryNoindexRoute){
+      let head=html.match(/<head\b[^>]*>([\s\S]*?)<\/head>/i)[1];
+      head=replaceTag(head,'<meta name="robots" content="noindex, follow">',/<meta\b(?=[^>]*\bname=["']robots["'])[^>]*>/i);
+      html=html.replace(/<head\b[^>]*>[\s\S]*?<\/head>/i,m=>m.replace(/>[\s\S]*<\/head>/,`>${head}</head>`));
+      await fs.writeFile(path.join(ROOT,file),html);
+      continue;
+    }
     if(!internalToolRoute){urls.push(url);directory.push({url,title,description,lang});}
     continue;
   }
-  const image=`${SITE}/images/site-card.svg`;
+  const image=`${SITE}/images/macca-blog-banner.jpg`;
   let head=html.match(/<head\b[^>]*>([\s\S]*?)<\/head>/i)[1];
   if(routePath==='/'){
     head=head.replace(/<meta\b(?=[^>]*\bname=["']google-site-verification["'])[^>]*>/gi,'');
@@ -123,7 +142,7 @@ await fs.writeFile(path.join(ROOT,'sitemap-pages.xml'),pages);
 await fs.writeFile(path.join(ROOT,'sitemap.xml'),`<?xml version="1.0" encoding="UTF-8"?>\n<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <sitemap><loc>${SITE}/sitemap-pages.xml</loc></sitemap>\n  <sitemap><loc>${SITE}/blog/sitemap.xml</loc></sitemap>\n  <sitemap><loc>${SITE}/blog/news-sitemap.xml</loc></sitemap>
   <sitemap><loc>${SITE}/growth-sitemap.xml</loc></sitemap>\n</sitemapindex>\n`);
 await fs.writeFile(path.join(ROOT,'robots.txt'),`User-agent: *\nAllow: /\n\nSitemap: ${SITE}/sitemap.xml\n`);
-const primary=directory.filter(p=>p.url===`${SITE}/`||/^https:\/\/macca-lab\.onrender\.com\/(blog|about|contact|privacy)\/$/.test(p.url)).sort((a,b)=>a.url.localeCompare(b.url));
+const primary=directory.filter(p=>p.url===`${SITE}/`||/^https:\/\/macca-lab\.onrender\.com\/(blog|about|contact|privacy|editorial-policy|corrections|social|gta-6|rockstar-games)\/$/.test(p.url)).sort((a,b)=>a.url.localeCompare(b.url));
 const entry=p=>`- [${p.title}](${p.url}): ${p.description}`;
 await fs.writeFile(path.join(ROOT,'llms.txt'),`# Macca Lab\n\n> An independent project for experiments and editorial content. Macca Blog publishes sourced coverage of Grand Theft Auto, Rockstar Games and related gaming stories.\n\nMacca Blog links stories to their sources and labels rumors and unresolved reports as unconfirmed.\n\n## Public pages\n\n${primary.map(entry).join('\n')}\n\n## Blog and feeds\n\n- [Macca Blog](${SITE}/blog/): News, sourced reporting and analysis.\n- [RSS feed](${SITE}/blog/feed.xml): Recent blog articles.\n\n## Discovery\n\n- [XML sitemap index](${SITE}/sitemap.xml)\n- [Page sitemap](${SITE}/sitemap-pages.xml)\n- [Blog sitemap](${SITE}/blog/sitemap.xml)
 - [Google News sitemap](${SITE}/blog/news-sitemap.xml)

@@ -16,6 +16,7 @@ QUEUE = Path(os.environ.get("YOUTUBE_QUEUE_FILE", ROOT / "blog" / "youtube-queue
 PUBLISHED = Path(os.environ.get("YOUTUBE_PUBLISHED_FILE", ROOT / "blog" / "youtube-published.json"))
 SOCIAL_VIDEO_DIR = Path(os.environ.get("SOCIAL_VIDEO_DIR", Path(os.environ.get("RUNNER_TEMP", ".")) / "macca-social-videos"))
 DAILY_LIMIT = max(1, min(8, int(os.environ.get("YOUTUBE_DAILY_LIMIT", "4"))))
+MIN_SPACING_HOURS = max(1, min(12, int(os.environ.get("YOUTUBE_MIN_SPACING_HOURS", "4"))))
 
 
 def read_json(path: Path, fallback):
@@ -82,11 +83,14 @@ def publish_pending() -> int:
 
     now = datetime.now(timezone.utc)
     recent_count = 0
+    last_published_at = None
     for record in published:
         try:
             published_at = datetime.fromisoformat(str(record.get("publishedAt", "")).replace("Z", "+00:00"))
         except ValueError:
             continue
+        if last_published_at is None or published_at > last_published_at:
+            last_published_at = published_at
         if (now - published_at).total_seconds() < 24 * 3600:
             recent_count += 1
 
@@ -111,8 +115,16 @@ def publish_pending() -> int:
         print(f"YouTube daily cap reached ({recent_count}/{DAILY_LIMIT}); {len(pending)} queued item(s) retained.")
         return 0
 
-    selected = pending[:slots]
-    remaining = pending[slots:]
+    if last_published_at is not None:
+        age_hours = (now - last_published_at).total_seconds() / 3600
+        if age_hours < MIN_SPACING_HOURS:
+            if pending:
+                write_json(QUEUE, pending)
+            print(f"YouTube pacing guard: last upload was {age_hours:.1f}h ago; waiting for {MIN_SPACING_HOURS}h spacing.")
+            return 0
+
+    selected = pending[:1]
+    remaining = pending[1:]
     success_count = 0
 
     for queue_index, item in enumerate(selected):
