@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: macca-lab-static-preview
+    runtime: static
+    branch: main
+    buildCommand: echo "Macca Lab static files are already generated and committed by GitHub Actions."
+    staticPublishPath: .
+    headers:
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /blog/assets/*
+        name: Cache-Control
+        value: public, max-age=86400
+      - path: /images/*
+        name: Cache-Control
+        value: public, max-age=86400
