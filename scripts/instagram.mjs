@@ -238,6 +238,27 @@ async function inspectQueue() {
   console.log(`${queue.length} article(s) pending on Instagram; new artwork ${needsArtwork ? 'is' : 'is not'} required.`);
 }
 
+async function publishingQuotaHeadroom(account) {
+  try {
+    const result = await graphGet(
+      account.host,
+      `${account.id}/content_publishing_limit`,
+      'quota_usage,config'
+    );
+    const row = Array.isArray(result?.data) ? result.data[0] : null;
+    const usage = Number(row?.quota_usage);
+    const total = Number(row?.config?.quota_total);
+    if (Number.isFinite(usage) && Number.isFinite(total) && total > 0) {
+      const headroom = Math.max(0, total - usage);
+      console.log(`Instagram API publishing quota: ${usage}/${total} used; ${headroom} remaining in the rolling window.`);
+      return headroom;
+    }
+  } catch (error) {
+    console.warn(`Instagram publishing quota could not be read; using the stricter local cap: ${error.message}`);
+  }
+  return Number.POSITIVE_INFINITY;
+}
+
 async function findExisting(host, accountId, storyUrl, published, title) {
   if (published[storyUrl]) return published[storyUrl];
   try {
@@ -260,7 +281,8 @@ async function publish() {
   if (account.username) console.log(`Instagram account resolved: @${account.username} through ${account.host}`);
   const retryOnlyFirst = process.env.INSTAGRAM_RETRY_ONLY_FIRST === 'true';
   const recent = recentPublishedCount(published);
-  const slots = Math.max(0, DAILY_LIMIT - recent);
+  const apiHeadroom = await publishingQuotaHeadroom(account);
+  const slots = Math.max(0, Math.min(DAILY_LIMIT - recent, apiHeadroom));
   if (!slots) {
     console.log(`Instagram daily cap reached (${recent}/${DAILY_LIMIT}); ${queue.length} queued item(s) retained.`);
     return;
@@ -268,6 +290,10 @@ async function publish() {
   const ranked = rankedQueue(queue);
   const itemsToPublish = retryOnlyFirst ? ranked.slice(0, 1) : ranked.slice(0, slots);
   for (const queued of itemsToPublish) {
+    if ((await publishingQuotaHeadroom(account)) <= 0) {
+      console.log('Instagram API publishing quota is exhausted; remaining items stay queued.');
+      break;
+    }
     const {slug} = queued;
     const publicationKey = queued.publicationKey || slug;
     const forceRepublish = queued.forceRepublish === true;
