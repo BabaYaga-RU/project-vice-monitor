@@ -15,6 +15,7 @@ ROOT = Path(__file__).resolve().parents[1]
 QUEUE = Path(os.environ.get("YOUTUBE_QUEUE_FILE", ROOT / "blog" / "youtube-queue.json"))
 PUBLISHED = Path(os.environ.get("YOUTUBE_PUBLISHED_FILE", ROOT / "blog" / "youtube-published.json"))
 SOCIAL_VIDEO_DIR = Path(os.environ.get("SOCIAL_VIDEO_DIR", Path(os.environ.get("RUNNER_TEMP", ".")) / "macca-social-videos"))
+DAILY_LIMIT = max(1, min(8, int(os.environ.get("YOUTUBE_DAILY_LIMIT", "4"))))
 
 
 def read_json(path: Path, fallback):
@@ -59,7 +60,7 @@ def youtube_description(item: dict) -> str:
     blocks = [hook[:500]]
     article_url = str(item.get("articleUrl", "")).strip()
     if article_url:
-        blocks.append(f"Full story on Macca Blog: {article_url}")
+        blocks.append(f"Full story and latest links: https://macca-lab.onrender.com/social/?utm_source=youtube&utm_medium=short&utm_campaign=macca_short\nArticle: {article_url}?utm_source=youtube&utm_medium=short&utm_campaign=macca_short")
     sources = item.get("sources", [])
     references = [f"- {source.get('title', 'Source')}: {source.get('url', '')}" for source in sources[:3] if source.get("url")]
     if references:
@@ -77,13 +78,46 @@ def youtube_description(item: dict) -> str:
 def publish_pending() -> int:
     queue = read_json(QUEUE, [])
     published = read_json(PUBLISHED, [])
-    published_slugs = {item.get("slug") for item in published}
-    remaining = []
-    success_count = 0
-    for queue_index, item in enumerate(queue):
-        slug = item.get("slug")
-        if not slug or slug in published_slugs:
+    published_keys = {item.get("publicationKey") or item.get("slug") for item in published}
+
+    now = datetime.now(timezone.utc)
+    recent_count = 0
+    for record in published:
+        try:
+            published_at = datetime.fromisoformat(str(record.get("publishedAt", "")).replace("Z", "+00:00"))
+        except ValueError:
             continue
+        if (now - published_at).total_seconds() < 24 * 3600:
+            recent_count += 1
+
+    slots = max(0, DAILY_LIMIT - recent_count)
+    pending = [
+        item for item in queue
+        if item.get("slug") and (item.get("publicationKey") or item.get("slug")) not in published_keys
+    ]
+    pending.sort(
+        key=lambda item: (
+            int(item.get("socialScore") or 0),
+            str(item.get("queuedAt") or ""),
+        ),
+        reverse=True,
+    )
+
+    if slots <= 0:
+        if pending:
+            write_json(QUEUE, pending)
+        else:
+            QUEUE.unlink(missing_ok=True)
+        print(f"YouTube daily cap reached ({recent_count}/{DAILY_LIMIT}); {len(pending)} queued item(s) retained.")
+        return 0
+
+    selected = pending[:slots]
+    remaining = pending[slots:]
+    success_count = 0
+
+    for queue_index, item in enumerate(selected):
+        slug = item.get("slug")
+        publication_key = item.get("publicationKey") or slug
         title = youtube_title(item)
         description = youtube_description(item)
         try:
@@ -106,40 +140,53 @@ def publish_pending() -> int:
                     set_thumbnail(result["id"], thumbnail)
                     print(f"Custom thumbnail set for {slug}.")
                 except Exception as exc:
-                    # Do not lose a successfully uploaded Short because thumbnail
-                    # eligibility or propagation failed.
                     print(f"Thumbnail update skipped for {slug}: {exc}")
             record = {
                 "slug": slug,
+                "publicationKey": publication_key,
                 "articleUrl": item.get("articleUrl", ""),
                 "youtubeVideoId": result["id"],
                 "youtubeUrl": result["url"],
+                "socialScore": item.get("socialScore", 0),
                 "publishedAt": datetime.now(timezone.utc).isoformat(),
             }
             published.append(record)
-            published_slugs.add(slug)
+            published_keys.add(publication_key)
             success_count += 1
             print(f"Public YouTube Short uploaded for {slug}: {result['url']}")
         except YouTubeAuthenticationError as exc:
-            remaining.append(item)
-            retained_slugs = {entry.get("slug") for entry in remaining}
-            remaining.extend(
-                entry for entry in queue[queue_index + 1:]
-                if entry.get("slug") not in published_slugs and entry.get("slug") not in retained_slugs
-            )
+            remaining.extend(selected[queue_index:])
             print(str(exc))
             print("YouTube queue retained for retry; authentication failure stopped this run.")
             break
         except Exception:
             remaining.append(item)
             print(f"YouTube upload failed for {slug}; item retained for retry.")
+
+    # Preserve one copy of each remaining item, highest score first.
+    deduped = {}
+    for item in remaining:
+        slug = item.get("slug")
+        key = item.get("publicationKey") or slug
+        if slug and key not in published_keys:
+            if key not in deduped or int(item.get("socialScore") or 0) > int(deduped[key].get("socialScore") or 0):
+                deduped[key] = item
+    remaining = sorted(
+        deduped.values(),
+        key=lambda item: (int(item.get("socialScore") or 0), str(item.get("queuedAt") or "")),
+        reverse=True,
+    )
+
     if remaining:
         write_json(QUEUE, remaining)
     else:
         QUEUE.unlink(missing_ok=True)
     if success_count:
         write_json(PUBLISHED, published)
-    print(f"YouTube queue result: {success_count} uploaded; {len(remaining)} retained for retry.")
+    print(
+        f"YouTube queue result: {success_count} uploaded; "
+        f"{len(remaining)} retained; daily usage now {recent_count + success_count}/{DAILY_LIMIT}."
+    )
     return success_count
 
 

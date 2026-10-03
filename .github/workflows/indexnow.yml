@@ -1,0 +1,41 @@
+name: Notify IndexNow
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'blog/**'
+      - 'gta-6/**'
+      - 'gta-online/**'
+      - 'rockstar-games/**'
+      - 'social/**'
+      - '3f47a1c26b904d87a5e31f6c8b1290de.txt'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Notify IndexNow about changed public URLs
+        continue-on-error: true
+        env:
+          SITE_URL: https://macca-lab.onrender.com
+          INDEXNOW_KEY: 3f47a1c26b904d87a5e31f6c8b1290de
+        run: |
+          before="${{ github.event.before }}"
+          if [[ -n "$before" && "$before" != "0000000000000000000000000000000000000000" ]]; then
+            git diff --name-only "$before" "$GITHUB_SHA" | node scripts/indexnow.mjs
+          else
+            node scripts/indexnow.mjs < /dev/null
+          fi

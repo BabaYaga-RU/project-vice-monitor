@@ -1,0 +1,43 @@
+name: Growth v2 safe CI
+
+on:
+  push:
+    branches: ['chatgpt/growth-v2']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Syntax checks
+        run: |
+          node --check scripts/blog.mjs
+          node --check scripts/growth_v2.mjs
+          node --check scripts/indexnow.mjs
+          node --check scripts/instagram.mjs
+          node --check scripts/instagram_metrics.mjs
+          node --check ads/ads.js
+          node --check analytics/web-analytics.js
+          node --check skylet/worker/src/index.js
+          python -m py_compile scripts/article_covers.py scripts/search_console.py scripts/youtube_metrics.py scripts/youtube_queue.py scripts/youtube_weekly.py scripts/social_video.py src/youtube/shorts.py src/youtube/upload.py
+      - name: Build static blog and growth pages
+        env:
+          SITE_URL: https://macca-lab.onrender.com
+        run: |
+          node scripts/blog.mjs build
+          node scripts/build-seo.mjs
+      - name: Growth regression checks
+        run: |
+          node scripts/test-growth.mjs
+          node scripts/test-engagement.mjs

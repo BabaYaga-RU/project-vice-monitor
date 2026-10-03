@@ -1,9 +1,10 @@
-"""Generate original branded 1200x630 social cards for Macca Blog articles."""
+"""Generate original social and Discover-oriented artwork for Macca Blog."""
 
 from __future__ import annotations
 
 import json
 import re
+from datetime import datetime
 from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont, ImageOps
@@ -35,13 +36,13 @@ def wrap(draw: ImageDraw.ImageDraw, text: str, fnt, max_width: int, max_lines: i
     words = re.sub(r"\s+", " ", text).strip().split()
     lines, current = [], ""
     for word in words:
-        next_line = f"{current} {word}".strip()
-        width = draw.textbbox((0, 0), next_line, font=fnt)[2]
+        candidate = f"{current} {word}".strip()
+        width = draw.textbbox((0, 0), candidate, font=fnt)[2]
         if current and width > max_width:
             lines.append(current)
             current = word
         else:
-            current = next_line
+            current = candidate
     if current:
         lines.append(current)
     if len(lines) > max_lines:
@@ -50,16 +51,21 @@ def wrap(draw: ImageDraw.ImageDraw, text: str, fnt, max_width: int, max_lines: i
     return lines
 
 
-def background():
+def base_background(size: tuple[int, int]) -> Image.Image:
     for candidate in BACKGROUND_CANDIDATES:
         if candidate.is_file():
             with Image.open(candidate) as image:
-                return image.convert("RGB")
-    return Image.new("RGB", (1200, 630), "#100d1b")
+                return ImageOps.fit(
+                    image.convert("RGB"),
+                    size,
+                    method=Image.Resampling.LANCZOS,
+                    centering=(0.56, 0.48),
+                )
+    return Image.new("RGB", size, "#100d1b")
 
 
-def render(post: dict, output: Path):
-    base = ImageOps.fit(background(), (1200, 630), method=Image.Resampling.LANCZOS).convert("RGBA")
+def render_social(post: dict, output: Path):
+    base = base_background((1200, 630)).convert("RGBA")
     base = Image.alpha_composite(base, Image.new("RGBA", base.size, (6, 5, 16, 118)))
     draw = ImageDraw.Draw(base, "RGBA")
     draw.rounded_rectangle((54, 248, 1146, 566), radius=34, fill=(13, 9, 28, 224), outline=(255, 104, 173, 195), width=3)
@@ -71,19 +77,48 @@ def render(post: dict, output: Path):
     title = str(post.get("title") or "GTA & Rockstar News")
     size = 56
     while size >= 34:
-        fnt = font(size, True)
-        lines = wrap(draw, title, fnt, 980, 4)
+        title_font = font(size, True)
+        lines = wrap(draw, title, title_font, 980, 4)
         if len(lines) * int(size * 1.2) <= 245:
             break
         size -= 2
     y = 290
     for line in lines:
-        draw.text((86, y), line, font=fnt, fill=(255, 247, 242, 255), stroke_width=1, stroke_fill=(8, 5, 17, 220))
+        draw.text((86, y), line, font=title_font, fill=(255, 247, 242, 255), stroke_width=1, stroke_fill=(8, 5, 17, 220))
         y += int(size * 1.2)
 
     draw.text((84, 530), "macca-lab.onrender.com/blog", font=font(22, False), fill=(227, 211, 231, 255))
     output.parent.mkdir(parents=True, exist_ok=True)
     base.convert("RGB").save(output, "JPEG", quality=91, optimize=True)
+
+
+def render_discover(post: dict, output: Path):
+    """Render a mostly visual 16:9 image suitable for Discover/hero usage."""
+    base = base_background((1280, 720)).convert("RGBA")
+    # Keep the artwork dominant. Only use a restrained lower-third label.
+    overlay = Image.new("RGBA", base.size, (5, 4, 12, 34))
+    base = Image.alpha_composite(base, overlay)
+    draw = ImageDraw.Draw(base, "RGBA")
+    draw.rounded_rectangle((46, 590, 1234, 676), radius=24, fill=(12, 8, 24, 190))
+    draw.rounded_rectangle((68, 615, 226, 646), radius=15, fill=(77, 224, 237, 235))
+    draw.text((86, 619), "MACCA BLOG", font=font(20, True), fill=(8, 7, 18, 255))
+    category = str(post.get("category") or "GTA & ROCKSTAR").upper()[:34]
+    draw.text((255, 617), category, font=font(20, True), fill=(255, 247, 242, 245))
+    output.parent.mkdir(parents=True, exist_ok=True)
+    base.convert("RGB").save(output, "JPEG", quality=91, optimize=True)
+
+
+def needs_refresh(output: Path, post: dict) -> bool:
+    if not output.is_file():
+        return True
+    updated = str(post.get("updatedAt") or "").strip()
+    if not updated:
+        return False
+    try:
+        updated_at = datetime.fromisoformat(updated.replace("Z", "+00:00")).timestamp()
+    except ValueError:
+        return False
+    return output.stat().st_mtime < updated_at
 
 
 def main():
@@ -93,16 +128,24 @@ def main():
         slug = str(post.get("slug") or "").strip()
         if not slug:
             continue
-        output = OUT_DIR / f"{slug}.jpg"
-        # Regenerate when missing. New article titles get a new slug, so existing
-        # cards remain stable and old builds stay cheap.
-        if not output.is_file():
-            render(post, output)
-            print(f"Generated {output.relative_to(ROOT)}")
-        desired = f"/blog/assets/covers/{slug}.jpg"
-        if post.get("socialImage") != desired:
-            post["socialImage"] = desired
+        social_output = OUT_DIR / f"{slug}.jpg"
+        discover_output = OUT_DIR / f"{slug}-discover.jpg"
+        if needs_refresh(social_output, post):
+            render_social(post, social_output)
+            print(f"Generated {social_output.relative_to(ROOT)}")
+        if needs_refresh(discover_output, post):
+            render_discover(post, discover_output)
+            print(f"Generated {discover_output.relative_to(ROOT)}")
+
+        social_path = f"/blog/assets/covers/{slug}.jpg"
+        discover_path = f"/blog/assets/covers/{slug}-discover.jpg"
+        if post.get("socialImage") != social_path:
+            post["socialImage"] = social_path
             changed = True
+        if post.get("discoverImage") != discover_path:
+            post["discoverImage"] = discover_path
+            changed = True
+
     if changed:
         POSTS.write_text(json.dumps(posts, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 

@@ -6,11 +6,17 @@ on:
     paths:
       - '.github/workflows/gta-blog.yml'
       - 'scripts/blog.mjs'
+      - 'scripts/growth_v2.mjs'
       - 'scripts/article_covers.py'
+      - 'scripts/search_console.py'
+      - 'scripts/indexnow.mjs'
       - 'scripts/test-engagement.mjs'
       - 'scripts/test-growth.mjs'
       - 'blog/assets/blog.css'
+      - 'blog/assets/growth.css'
       - 'blog/assets/engagement.js'
+      - 'ads/ads.js'
+      - 'analytics/**'
       - 'scripts/build-seo.mjs'
       - 'scripts/instagram.mjs'
       - 'scripts/social_video.py'
@@ -112,9 +118,13 @@ jobs:
         run: |
           node scripts/test-growth.mjs
           node --check scripts/blog.mjs
+          node --check scripts/growth_v2.mjs
+          node --check scripts/indexnow.mjs
           node --check scripts/instagram.mjs
           node --check scripts/instagram_metrics.mjs
-          python -m py_compile scripts/article_covers.py scripts/youtube_metrics.py scripts/youtube_queue.py scripts/youtube_weekly.py src/youtube/shorts.py src/youtube/upload.py
+          node --check ads/ads.js
+          node --check analytics/web-analytics.js
+          python -m py_compile scripts/article_covers.py scripts/search_console.py scripts/youtube_metrics.py scripts/youtube_queue.py scripts/youtube_weekly.py scripts/social_video.py src/youtube/shorts.py src/youtube/upload.py
       - name: Check whether social video queues contain work
         id: social_video_work
         if: always()
@@ -173,6 +183,8 @@ jobs:
           INSTAGRAM_REEL_MANIFEST_FILE: ${{ runner.temp }}/macca-reel-manifest.json
           R2_USAGE_FILE: blog/r2-upload-usage.json
           INSTAGRAM_RETRY_ONLY_FIRST: ${{ contains(github.event.head_commit.message, '[instagram-retry]') && 'true' || 'false' }}
+          INSTAGRAM_DAILY_LIMIT: '4'
+          YOUTUBE_DAILY_LIMIT: '4'
           CLOUDFLARE_R2_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_R2_ACCOUNT_ID }}
           CLOUDFLARE_R2_ACCESS_KEY_ID: ${{ secrets.CLOUDFLARE_R2_ACCESS_KEY_ID }}
           CLOUDFLARE_R2_SECRET_ACCESS_KEY: ${{ secrets.CLOUDFLARE_R2_SECRET_ACCESS_KEY }}
@@ -183,9 +195,7 @@ jobs:
         if: steps.render_social_videos.outcome == 'success'
         env:
           SOCIAL_VIDEO_DIR: ${{ runner.temp }}/macca-social-videos
-          INSTAGRAM_QUEUE_FILE: blog/instagram-queue.json
-          YOUTUBE_QUEUE_FILE: blog/youtube-queue.json
-          INSTAGRAM_RETRY_ONLY_FIRST: ${{ contains(github.event.head_commit.message, '[instagram-retry]') && 'true' || 'false' }}
+          INSTAGRAM_REEL_MANIFEST_FILE: ${{ runner.temp }}/macca-reel-manifest.json
         run: |
           python - <<'PY'
           import json
@@ -194,18 +204,13 @@ jobs:
           from pathlib import Path
 
           video_dir = Path(os.environ['SOCIAL_VIDEO_DIR'])
-          slugs = []
-          only_first_instagram = os.environ.get('INSTAGRAM_RETRY_ONLY_FIRST') == 'true'
-          queue_files = ('INSTAGRAM_QUEUE_FILE',) if only_first_instagram else ('INSTAGRAM_QUEUE_FILE', 'YOUTUBE_QUEUE_FILE')
-          for name in queue_files:
-              try:
-                  items = json.loads(Path(os.environ[name]).read_text(encoding='utf-8'))
-              except FileNotFoundError:
-                  items = []
-              if name == 'INSTAGRAM_QUEUE_FILE' and only_first_instagram:
-                  items = items[:1]
-              slugs.extend(item['slug'] for item in items if item.get('slug'))
-          for slug in dict.fromkeys(slugs):
+          manifest_file = Path(os.environ['INSTAGRAM_REEL_MANIFEST_FILE'])
+          try:
+              manifest = json.loads(manifest_file.read_text(encoding='utf-8'))
+          except FileNotFoundError:
+              manifest = {"videos": {}}
+          slugs = list((manifest.get("videos") or {}).keys())
+          for slug in slugs:
               video = video_dir / f'{slug}.mp4'
               probe = json.loads(subprocess.check_output([
                   'ffprobe', '-v', 'error', '-show_entries',
@@ -281,6 +286,7 @@ jobs:
           INSTAGRAM_QUEUE_FILE: blog/instagram-queue.json
           INSTAGRAM_REEL_MANIFEST_FILE: ${{ runner.temp }}/macca-reel-manifest.json
           INSTAGRAM_RETRY_ONLY_FIRST: ${{ contains(github.event.head_commit.message, '[instagram-retry]') && 'true' || 'false' }}
+          INSTAGRAM_DAILY_LIMIT: '4'
         run: node scripts/instagram.mjs publish
       - name: Delete temporary Instagram Reel videos from R2
         if: always() && steps.render_social_videos.outcome != 'skipped'
@@ -341,6 +347,7 @@ jobs:
           SITE_URL: https://macca-lab.onrender.com
           SHORTS_RENDERER: ${{ vars.SHORTS_RENDERER || 'narrated' }}
           SOCIAL_VIDEO_DIR: ${{ runner.temp }}/macca-social-videos
+          YOUTUBE_DAILY_LIMIT: '4'
         run: python -m scripts.youtube_queue
       - name: Save YouTube upload records and retained retry queue
         if: always() && !contains(github.event.head_commit.message, '[instagram-retry]') && steps.youtube_config.outcome != 'skipped' && steps.commit_generated.outcome != 'failure'

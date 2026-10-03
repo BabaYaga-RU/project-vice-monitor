@@ -60,7 +60,7 @@ function corsHeaders(env, origin) {
   if (!origin || !allowed.includes(origin)) return {};
   return {
     "Access-Control-Allow-Origin": origin,
-    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type",
     "Access-Control-Max-Age": "86400",
     "Vary": "Origin"
@@ -199,12 +199,105 @@ function rateLimited(request) {
   return bucket.count > 12;
 }
 
+function shortField(value, max = 120) {
+  return String(value || "").replace(/[\r\n\t]+/g, " ").trim().slice(0, max);
+}
+
+async function writeAffiliateAnalytics(request, env, headers) {
+  let payload;
+  try { payload = await request.json(); } catch { return json({ error: "invalid_json" }, 400, headers); }
+  const events = Array.isArray(payload?.events) ? payload.events.slice(0, 50) : [];
+  let accepted = 0;
+  for (const event of events) {
+    const creative = shortField(event?.creative, 96);
+    const kind = event?.kind === "click" ? "click" : event?.kind === "impression" ? "impression" : "";
+    const count = Math.max(1, Math.min(100, Number(event?.count) || 1));
+    if (!creative || !kind) continue;
+    const placement = shortField(event?.placement, 80);
+    const context = shortField(event?.context, 160);
+    const page = shortField(event?.path, 180);
+    try {
+      env.AFFILIATE_ANALYTICS?.writeDataPoint({
+        indexes: [creative],
+        blobs: [kind, placement, context, page],
+        doubles: [count],
+      });
+      accepted += 1;
+    } catch (error) {
+      console.error("Affiliate analytics write failed", error instanceof Error ? error.message : "unknown");
+    }
+  }
+  return json({ ok: true, accepted }, 202, headers);
+}
+
+async function affiliateScores(request, env, headers) {
+  const cache = caches.default;
+  const cacheKey = new Request(new URL("/analytics/affiliate-scores-cache", request.url).href, { method: "GET" });
+  const cached = await cache.match(cacheKey);
+  if (cached) {
+    const response = new Response(cached.body, cached);
+    for (const [key, value] of Object.entries(headers)) response.headers.set(key, value);
+    return response;
+  }
+
+  let scores = {};
+  try {
+    const result = await env.ANALYTICS_SQL.query({
+      query: `
+        SELECT
+          index1 AS creative,
+          SUM(if(blob1 = 'impression', _sample_interval * double1, 0)) AS impressions,
+          SUM(if(blob1 = 'click', _sample_interval * double1, 0)) AS clicks
+        FROM events.analyticsEngine.macca_affiliate
+        WHERE timestamp >= NOW() - INTERVAL '14' DAY
+        GROUP BY creative
+        HAVING impressions >= 100
+        ORDER BY impressions DESC
+        LIMIT 100
+      `,
+    });
+    for (const row of result?.data || []) {
+      const impressions = Math.max(0, Number(row.impressions) || 0);
+      const clicks = Math.max(0, Number(row.clicks) || 0);
+      if (!row.creative || impressions < 100) continue;
+      const ctr = (clicks + 1) / (impressions + 20);
+      const lift = Math.max(-0.4, Math.min(1.5, (ctr - 0.015) * 20));
+      scores[String(row.creative)] = {
+        impressions: Math.round(impressions),
+        clicks: Math.round(clicks),
+        ctr: Number(ctr.toFixed(5)),
+        lift: Number(lift.toFixed(3)),
+      };
+    }
+  } catch (error) {
+    console.warn("Affiliate analytics score query unavailable", error instanceof Error ? error.message : "unknown");
+  }
+
+  const response = json({ scores, windowDays: 14 }, 200, {
+    ...headers,
+    "Cache-Control": "public, max-age=900",
+  });
+  await cache.put(cacheKey, response.clone());
+  return response;
+}
+
 async function answer(request, env) {
   const origin = request.headers.get("Origin");
   const headers = corsHeaders(env, origin);
+  const url = new URL(request.url);
   if (request.method === "OPTIONS") return new Response(null, { status: 204, headers });
-  if (request.method === "GET" && new URL(request.url).pathname === "/health") return json({ ok: true, model: MODEL }, 200, headers);
-  if (request.method !== "POST" || new URL(request.url).pathname !== "/chat") return json({ error: "not_found" }, 404, headers);
+  if (request.method === "GET" && url.pathname === "/health") return json({ ok: true, model: MODEL }, 200, headers);
+  if ((url.pathname === "/analytics/affiliate" || url.pathname === "/analytics/affiliate-scores") && !headers["Access-Control-Allow-Origin"]) {
+    return json({ error: "origin_not_allowed" }, 403);
+  }
+  if (request.method === "POST" && url.pathname === "/analytics/affiliate") {
+    if (rateLimited(request)) return json({ error: "rate_limited" }, 429, headers);
+    return writeAffiliateAnalytics(request, env, headers);
+  }
+  if (request.method === "GET" && url.pathname === "/analytics/affiliate-scores") {
+    return affiliateScores(request, env, headers);
+  }
+  if (request.method !== "POST" || url.pathname !== "/chat") return json({ error: "not_found" }, 404, headers);
   if (!headers["Access-Control-Allow-Origin"]) return json({ error: "origin_not_allowed" }, 403);
   if (rateLimited(request)) return json({ error: "rate_limited" }, 429, headers);
   let payload;

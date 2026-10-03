@@ -1,35 +1,9 @@
-function detectAdBlock() {
-  const probe = document.createElement('div');
-  probe.className = 'adsbox ad-banner ad-unit adsbygoogle';
-  probe.setAttribute('aria-hidden', 'true');
-  probe.style.cssText = 'position:absolute!important;left:-10000px!important;top:-10000px!important;width:12px!important;height:12px!important;';
-  document.body.append(probe);
-  const blockedByStyle = probe.offsetHeight === 0 || getComputedStyle(probe).display === 'none';
-  probe.remove();
-
-  const scriptProbe = document.createElement('script');
-  scriptProbe.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js';
-  scriptProbe.async = true;
-  let settled = false;
-  const timer = window.setTimeout(() => {
-    if (!settled) showAdBlockNotice();
-  }, 2200);
-  scriptProbe.onload = () => { settled = true; window.clearTimeout(timer); };
-  scriptProbe.onerror = () => { settled = true; window.clearTimeout(timer); showAdBlockNotice(); };
-  document.head.append(scriptProbe);
-  if (blockedByStyle) showAdBlockNotice();
-}
-
-function showAdBlockNotice() {
-  if (document.querySelector('.adblock-notice')) return;
-  const notice = document.createElement('aside');
-  notice.className = 'adblock-notice';
-  notice.setAttribute('role', 'status');
-  notice.innerHTML = '<div><strong>Ajude a manter o blog no ar</strong><p>Percebemos que um bloqueador de an&atilde;ncios pode estar ativo. Se puder, desative-o para este site e atualize a p&aacute;gina. As propagandas ajudam a cobrir os custos e a manter o blog dispon&iacute;vel, para publicarmos novidades o mais r&aacute;pido poss&iacute;vel.</p></div><button type="button" aria-label="Fechar aviso">&times;</button>';
-  notice.querySelector('button').addEventListener('click', () => notice.remove());
-  document.body.append(notice);
-}
 const AFFILIATE_SESSION_KEY = 'macca:affiliate-session:v1';
+const affiliateEventBuffer = new Map();
+let affiliateAnalyticsBase = '';
+let affiliateScores = {};
+let affiliateFlushTimer = null;
+let affiliateAnalyticsPromise = null;
 
 function affiliateSessionState() {
   try {
@@ -48,7 +22,66 @@ function affiliateKey(ad) {
   return String(ad.theme || ad.headline || ad.label || ad.href || 'ad').slice(0, 120);
 }
 
-function recordAffiliateEvent(ad, kind) {
+function scheduleAffiliateFlush() {
+  if (affiliateFlushTimer) return;
+  affiliateFlushTimer = window.setTimeout(() => {
+    affiliateFlushTimer = null;
+    flushAffiliateEvents();
+  }, 15000);
+}
+
+function queueAffiliateAnalytics(ad, kind, placement = '') {
+  const event = {
+    creative: affiliateKey(ad),
+    kind,
+    placement: String(placement || '').slice(0, 80),
+    context: String(document.body?.dataset?.adContext || '').slice(0, 160),
+    path: location.pathname.slice(0, 180),
+  };
+  const key = JSON.stringify(event);
+  affiliateEventBuffer.set(key, (affiliateEventBuffer.get(key) || 0) + 1);
+  if (affiliateEventBuffer.size >= 8) flushAffiliateEvents();
+  else scheduleAffiliateFlush();
+}
+
+function flushAffiliateEvents({beacon = false} = {}) {
+  if (!affiliateAnalyticsBase || !affiliateEventBuffer.size) return;
+  const events = [...affiliateEventBuffer.entries()].slice(0, 50).map(([key, count]) => ({
+    ...JSON.parse(key),
+    count,
+  }));
+  for (const [key] of [...affiliateEventBuffer.entries()].slice(0, 50)) affiliateEventBuffer.delete(key);
+  const url = `${affiliateAnalyticsBase}/analytics/affiliate`;
+  const body = JSON.stringify({events});
+  if (beacon && navigator.sendBeacon) {
+    navigator.sendBeacon(url, new Blob([body], {type:'application/json'}));
+    return;
+  }
+  fetch(url, {method:'POST', headers:{'content-type':'application/json'}, body, keepalive:true}).catch(() => {});
+}
+
+async function loadAffiliateAnalytics() {
+  if (affiliateAnalyticsPromise) return affiliateAnalyticsPromise;
+  affiliateAnalyticsPromise = (async () => {
+    try {
+      const configResponse = await fetch('/skylet/config.json', {cache:'no-store'});
+      if (!configResponse.ok) return;
+      const config = await configResponse.json();
+      affiliateAnalyticsBase = typeof config.apiBase === 'string' ? config.apiBase.replace(/\/$/, '') : '';
+      if (!affiliateAnalyticsBase) return;
+      const scoreResponse = await fetch(`${affiliateAnalyticsBase}/analytics/affiliate-scores`, {cache:'no-store'});
+      if (!scoreResponse.ok) return;
+      const payload = await scoreResponse.json();
+      affiliateScores = payload?.scores && typeof payload.scores === 'object' ? payload.scores : {};
+    } catch {
+      affiliateAnalyticsBase = '';
+      affiliateScores = {};
+    }
+  })();
+  return affiliateAnalyticsPromise;
+}
+
+function recordAffiliateEvent(ad, kind, placement = '') {
   const state = affiliateSessionState();
   const key = affiliateKey(ad);
   const current = state[key] || {impressions:0, clicks:0};
@@ -56,14 +89,20 @@ function recordAffiliateEvent(ad, kind) {
   if (kind === 'click') current.clicks += 1;
   state[key] = current;
   saveAffiliateSessionState(state);
+  queueAffiliateAnalytics(ad, kind, placement);
 }
 
 function affiliateSessionLift(ad) {
   const current = affiliateSessionState()[affiliateKey(ad)];
   if (!current || current.impressions < 3) return 0;
-  // Small, bounded per-session reinforcement. Context remains the main signal.
   const smoothedCtr = (current.clicks + 0.5) / (current.impressions + 5);
   return Math.max(-0.35, Math.min(1.25, (smoothedCtr - 0.08) * 5));
+}
+
+function affiliateGlobalLift(ad) {
+  const score = affiliateScores[affiliateKey(ad)];
+  if (!score || Number(score.impressions || 0) < 100) return 0;
+  return Math.max(-0.4, Math.min(1.5, Number(score.lift) || 0));
 }
 
 function observeAffiliateImpression(slot, link, ad) {
@@ -76,7 +115,7 @@ function observeAffiliateImpression(slot, link, ad) {
     slot._maccaAdImpressionTimer = window.setTimeout(() => {
       if (!document.contains(link) || link.dataset.impressionRecorded === '1') return;
       link.dataset.impressionRecorded = '1';
-      recordAffiliateEvent(ad, 'impression');
+      recordAffiliateEvent(ad, 'impression', slot.dataset.adSlot || '');
     }, 1000);
   }, {threshold:[0.5]});
   observer.observe(link);
@@ -148,20 +187,22 @@ async function loadAdConfig() {
 async function mountAds(root = document) {
   if (root === document) mountPklavcPopup();
   try {
-    const config = await loadAdConfig();
+    const [config] = await Promise.all([loadAdConfig(), loadAffiliateAnalytics()]);
     const placements = [...root.querySelectorAll('[data-ad-slot]')]
       .filter(slot => slot.dataset.adRuntimeMounted !== '1')
       .map(slot => {
         const name = slot.dataset.adSlot;
-        const source = name.startsWith('sidebar-pklavc')
-          ? config.slots?.['sidebar-pklavc']
-          : name.startsWith('sidebar-affiliate')
-            ? config.slots?.['sidebar-affiliate']
-            : name.startsWith('sticky-affiliate')
-              ? config.slots?.['sticky-affiliate']
-              : name === 'article-inline'
-                ? [...(config.slots?.['article-inline'] || []), ...(config.slots?.['sidebar-affiliate'] || [])]
-                : config.slots?.[name];
+        const source = name === 'sidebar-smart'
+          ? [...(config.slots?.['sidebar-pklavc'] || []), ...(config.slots?.['sidebar-affiliate'] || [])]
+          : name.startsWith('sidebar-pklavc')
+            ? config.slots?.['sidebar-pklavc']
+            : name.startsWith('sidebar-affiliate')
+              ? config.slots?.['sidebar-affiliate']
+              : name.startsWith('sticky-affiliate')
+                ? config.slots?.['sticky-affiliate']
+                : name.startsWith('article-inline')
+                  ? [...(config.slots?.['article-inline'] || []), ...(config.slots?.['sidebar-affiliate'] || [])]
+                  : config.slots?.[name];
         return {slot, ads: (source || []).filter(ad => ad.enabled && ad.href && ad.image)};
       })
       .filter(placement => placement.ads.length);
@@ -197,7 +238,10 @@ async function mountAds(root = document) {
         image.loading = 'lazy';
         art.append(image);
         link.append(copy, art);
-        link.addEventListener('click', () => recordAffiliateEvent(ad, 'click'), {once:true});
+        link.addEventListener('click', () => {
+          recordAffiliateEvent(ad, 'click', slot.dataset.adSlot || '');
+          flushAffiliateEvents();
+        }, {once:true});
         slot.replaceChildren(link);
         slot.dataset.adRuntimeMounted = '1';
         observeAffiliateImpression(slot, link, ad);
@@ -223,6 +267,7 @@ async function mountAds(root = document) {
         if (/redmagic|geekbuying|aliexpress|gshopper/.test(theme + ' ' + headline)) score += 1;
       }
       score += affiliateSessionLift(ad);
+      score += affiliateGlobalLift(ad);
       return score;
     };
 
@@ -232,11 +277,24 @@ async function mountAds(root = document) {
       const pool = rankedAds(available.length ? available : ads).slice(0, Math.min(4, ads.length));
       return pool[Math.floor(Math.random() * Math.max(1, pool.length))] || ads[0];
     };
-    const scheduleRotation = advance => {
-      window.setTimeout(() => {
-        advance();
-        window.setInterval(advance, 6500 + Math.random() * 2500);
-      }, 500 + Math.random() * 6500);
+    const scheduleRotation = (slot, advance) => {
+      let visible = false;
+      if ('IntersectionObserver' in window) {
+        const observer = new IntersectionObserver(entries => {
+          visible = entries.some(entry => entry.isIntersecting && entry.intersectionRatio >= 0.35);
+        }, {threshold:[0.35]});
+        observer.observe(slot);
+      } else {
+        visible = true;
+      }
+      const tick = () => {
+        const delay = 20000 + Math.random() * 10000;
+        window.setTimeout(() => {
+          if (visible && document.visibilityState === 'visible' && document.contains(slot)) advance();
+          if (document.contains(slot)) tick();
+        }, delay);
+      };
+      tick();
     };
 
     for (const {slot, ads} of regularPlacements) {
@@ -250,7 +308,7 @@ async function mountAds(root = document) {
           index = ads.indexOf(nextAd);
           render(slot, nextAd);
         };
-        scheduleRotation(advance);
+        scheduleRotation(slot, advance);
       }
     }
 
@@ -274,7 +332,7 @@ async function mountAds(root = document) {
         placement.currentAd = contextualAd(available, usedByOtherBanners);
         render(placement.slot, placement.currentAd);
       };
-      scheduleRotation(advance);
+      scheduleRotation(placement.slot, advance);
     }
     if (document.querySelector('.sticky-ad-dock')) document.body.classList.add('has-sticky-ads');
   } catch (error) {
@@ -286,4 +344,8 @@ document.addEventListener('DOMContentLoaded', () => mountAds(document));
 document.addEventListener('macca:content-added', event => {
   const root = event.detail?.root;
   if (root && root.querySelectorAll) mountAds(root);
+});
+window.addEventListener('pagehide', () => flushAffiliateEvents({beacon:true}));
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') flushAffiliateEvents({beacon:true});
 });
