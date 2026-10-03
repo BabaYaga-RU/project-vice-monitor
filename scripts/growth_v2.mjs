@@ -142,4 +142,11 @@ export async function buildGrowthPages({root=process.cwd(),base='https://macca-l
   }).join('');
   const socialHtml=`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Latest GTA & Rockstar Stories | Macca</title><meta name="description" content="The latest GTA and Rockstar stories from Macca Blog, plus Macca the Gator on YouTube and Instagram."><meta name="robots" content="index, follow, max-image-preview:large"><link rel="canonical" href="${base}/social/"><meta property="og:title" content="Macca — latest GTA & Rockstar stories"><meta property="og:description" content="Jump from Macca's social channels into the latest source-backed GTA and Rockstar coverage."><meta property="og:image" content="${esc(absolute(base,featured?.discoverImage||featured?.socialImage||'/images/macca-blog-banner.jpg'))}">${stylesheet}</head><body class="has-sticky-ads" data-ad-context="GTA Rockstar social"><header class="top"><a class="brand" href="/blog/">MACCA <b>BLOG</b></a><nav><a href="/blog/">Blog</a><a href="/gta-6/">GTA 6</a></nav></header><main class="growth-page social-landing"><section class="growth-hero"><p class="eyebrow">FROM SOCIAL TO THE FULL STORY</p><h1>Latest from Macca</h1><p>Open the full sourced story, then keep reading related GTA and Rockstar coverage.</p></section><div class="social-story-list">${socialCards}</div></main>${footer}<script>const q=new URLSearchParams(location.search);const source=q.get('utm_source')||'social';for(const a of document.querySelectorAll('[data-social-story]')){const u=new URL(a.href,location.origin);u.searchParams.set('utm_source',source);u.searchParams.set('utm_medium','social');u.searchParams.set('utm_campaign','macca_social_hub');a.href=u.pathname+u.search;}</script><script defer src="/skylet/widget.js?v=20260929.1"></script></body></html>`;
   await fs.writeFile(path.join(socialDir,'index.html'),socialHtml);
+
+  const growthUrls=[
+    ...HUBS.map(hub=>`${base}/${hub.slug}/`),
+    `${base}/social/`,
+  ];
+  const sitemap=`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${growthUrls.map(url=>`  <url><loc>${esc(url)}</loc></url>`).join('\n')}\n</urlset>\n`;
+  await fs.writeFile(path.join(root,'growth-sitemap.xml'),sitemap);
 }
