@@ -1,0 +1,56 @@
+name: Macca daily deep analysis
+
+on:
+  schedule:
+    - cron: '43 21 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: macca-daily-analysis
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Generate one sourced daily analysis when enough material exists
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          INSTAGRAM_QUEUE_FILE: blog/instagram-queue.json
+          YOUTUBE_QUEUE_FILE: blog/youtube-queue.json
+        run: node scripts/blog.mjs deep-dive
+      - name: Generate original article social cards
+        run: |
+          python -m pip install 'Pillow>=10,<13'
+          python -m scripts.article_covers
+      - name: Rebuild discovery and article pages
+        run: |
+          node scripts/blog.mjs build
+          node scripts/build-seo.mjs
+          node scripts/test-growth.mjs
+      - name: Commit analysis and generated assets
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add blog scripts
+          if git diff --cached --quiet; then
+            echo "No daily analysis generated."
+          else
+            git commit -m "Publish daily Macca analysis"
+            git fetch origin main
+            git rebase origin/main
+            git push origin HEAD:main
+          fi
