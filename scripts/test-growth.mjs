@@ -59,6 +59,8 @@ assert.match(blog, /isAccessibleForFree:true/);
 assert.match(blog, /slice\(0,64\)/);
 assert.match(blog, /youtube-nocookie\.com/);
 assert.match(blog, /news-sitemap\.xml/);
+assert.match(blog, /sitemap-image\/1\.1/);
+assert.match(blog, /<image:image>/);
 assert.match(seo, /blog\/news-sitemap\.xml/);
 assert.match(blog, /observations\.length<20/);
 assert.match(blog, /historicalPerformanceBonus/);
