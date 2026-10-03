@@ -82,8 +82,8 @@ for(const file of files){
   const internalToolRoute=/\/simulador\/(?:app|src)\/$/i.test(routePath);
   const title=titleOf(html,file);const description=descOf(html,title,file);const lang=html.match(/<html\b[^>]*\blang=["']([^"']+)/i)?.[1]||'en';
   const publicEditorialPage=routePath==='/'||/^\/(?:about|contact|privacy)\/$/.test(routePath);
-  if(publicEditorialPage&&!html.includes('adsbygoogle.js?client=ca-pub-7821352420515145')){
-    html=html.replace(/<\/head>/i,`${ADSENSE_SCRIPT}\n</head>`);
+  if(publicEditorialPage&&!html.includes('/analytics/web-analytics.js')){
+    html=html.replace(/<\/head>/i,'<script defer src="/analytics/web-analytics.js"></script>\n</head>');
     await fs.writeFile(path.join(ROOT,file),html);
   }
   if(!publicEditorialPage){
