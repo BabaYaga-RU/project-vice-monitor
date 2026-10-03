@@ -436,6 +436,11 @@ async function queueSocialPublication(p,{update=false}={}) {
   const revision=String(p.updatedAt||new Date().toISOString()).replace(/[^0-9]/g,'').slice(0,12);
   const publicationKey=update?`${p.slug}-update-${revision}`:p.slug;
   const score=socialScore(p)+(update?8:0);
+  const minimum=Math.max(0,Math.min(100,Number(process.env.SOCIAL_MIN_SCORE||50)));
+  if(score<minimum) {
+    console.log(`Skipping social video queue for ${p.slug}: score ${score}/100 is below the ${minimum} threshold.`);
+    return;
+  }
   if(process.env.INSTAGRAM_QUEUE_FILE) {
     const queue=await readJson(process.env.INSTAGRAM_QUEUE_FILE,[]);
     if(!queue.some(item=>(item.publicationKey||item.slug)===publicationKey)) {
