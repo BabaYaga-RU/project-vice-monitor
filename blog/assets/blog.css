@@ -84,3 +84,5 @@ footer{align-items:flex-start;flex-wrap:wrap;gap:1rem 2rem;padding-top:1.5rem;pa
 .sidebar-ad-rail .ad-slot{min-height:0;margin:0}
 .sidebar-ad-rail .ad-creative{min-height:132px}
 @media(max-width:800px){.sidebar-ad-rail{display:none}}
+
+.article-byline{margin:.7rem 0 0;color:var(--muted);font-size:.82rem}.article-byline a{color:var(--cyan);text-decoration:none}.article-byline a:hover{text-decoration:underline}
