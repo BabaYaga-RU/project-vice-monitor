@@ -5,6 +5,20 @@ services:
     branch: main
     buildCommand: echo "Macca Lab static files are already generated and committed by GitHub Actions."
     staticPublishPath: .
+    buildFilter:
+      ignoredPaths:
+        - .github/**
+        - docs/**
+        - scripts/**
+        - src/**
+        - tests/**
+        - requirements-*.txt
+        - blog/youtube-metrics.json
+        - blog/instagram-metrics.json
+        - blog/search-console.json
+        - blog/history.json
+        - blog/monitor-state.json
+        - blog/r2-upload-usage.json
     headers:
       - path: /*
         name: X-Content-Type-Options
