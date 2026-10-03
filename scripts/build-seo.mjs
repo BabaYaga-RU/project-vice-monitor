@@ -120,12 +120,14 @@ try{const posts=JSON.parse(await fs.readFile(path.join(ROOT,'blog','posts.json')
 const xmlEscape=s=>esc(s);
 const pages=`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.sort().map(u=>`  <url><loc>${xmlEscape(u)}</loc></url>`).join('\n')}\n</urlset>\n`;
 await fs.writeFile(path.join(ROOT,'sitemap-pages.xml'),pages);
-await fs.writeFile(path.join(ROOT,'sitemap.xml'),`<?xml version="1.0" encoding="UTF-8"?>\n<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <sitemap><loc>${SITE}/sitemap-pages.xml</loc></sitemap>\n  <sitemap><loc>${SITE}/blog/sitemap.xml</loc></sitemap>\n  <sitemap><loc>${SITE}/blog/news-sitemap.xml</loc></sitemap>\n</sitemapindex>\n`);
+await fs.writeFile(path.join(ROOT,'sitemap.xml'),`<?xml version="1.0" encoding="UTF-8"?>\n<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <sitemap><loc>${SITE}/sitemap-pages.xml</loc></sitemap>\n  <sitemap><loc>${SITE}/blog/sitemap.xml</loc></sitemap>\n  <sitemap><loc>${SITE}/blog/news-sitemap.xml</loc></sitemap>
+  <sitemap><loc>${SITE}/growth-sitemap.xml</loc></sitemap>\n</sitemapindex>\n`);
 await fs.writeFile(path.join(ROOT,'robots.txt'),`User-agent: *\nAllow: /\n\nSitemap: ${SITE}/sitemap.xml\n`);
 const primary=directory.filter(p=>p.url===`${SITE}/`||/^https:\/\/macca-lab\.onrender\.com\/(blog|about|contact|privacy)\/$/.test(p.url)).sort((a,b)=>a.url.localeCompare(b.url));
 const entry=p=>`- [${p.title}](${p.url}): ${p.description}`;
 await fs.writeFile(path.join(ROOT,'llms.txt'),`# Macca Lab\n\n> An independent project for experiments and editorial content. Macca Blog publishes sourced coverage of Grand Theft Auto, Rockstar Games and related gaming stories.\n\nMacca Blog links stories to their sources and labels rumors and unresolved reports as unconfirmed.\n\n## Public pages\n\n${primary.map(entry).join('\n')}\n\n## Blog and feeds\n\n- [Macca Blog](${SITE}/blog/): News, sourced reporting and analysis.\n- [RSS feed](${SITE}/blog/feed.xml): Recent blog articles.\n\n## Discovery\n\n- [XML sitemap index](${SITE}/sitemap.xml)\n- [Page sitemap](${SITE}/sitemap-pages.xml)\n- [Blog sitemap](${SITE}/blog/sitemap.xml)
-- [Google News sitemap](${SITE}/blog/news-sitemap.xml)\n`);
+- [Google News sitemap](${SITE}/blog/news-sitemap.xml)
+- [Evergreen and social sitemap](${SITE}/growth-sitemap.xml)\n`);
 await fs.writeFile(path.join(ROOT,'llms-full.txt'),`# Macca Lab — Public Page Directory\n\n${directory.sort((a,b)=>a.url.localeCompare(b.url)).map(entry).join('\n')}\n`);
 await fs.writeFile(path.join(ROOT,'ai.txt'),`# Public content discovery\n\nWebsite: ${SITE}/\nCrawl policy: ${SITE}/robots.txt\nSitemap: ${SITE}/sitemap.xml\nPage directory: ${SITE}/llms.txt\nFull directory: ${SITE}/llms-full.txt\n\nThese optional directories describe public pages. They do not control crawler access or guarantee indexing, ranking, training, or citations.\n`);
 await fs.mkdir(path.join(ROOT,'images'),{recursive:true});
