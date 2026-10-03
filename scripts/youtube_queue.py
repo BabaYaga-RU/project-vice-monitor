@@ -78,7 +78,7 @@ def youtube_description(item: dict) -> str:
 def publish_pending() -> int:
     queue = read_json(QUEUE, [])
     published = read_json(PUBLISHED, [])
-    published_slugs = {item.get("slug") for item in published}
+    published_keys = {item.get("publicationKey") or item.get("slug") for item in published}
 
     now = datetime.now(timezone.utc)
     recent_count = 0
@@ -93,7 +93,7 @@ def publish_pending() -> int:
     slots = max(0, DAILY_LIMIT - recent_count)
     pending = [
         item for item in queue
-        if item.get("slug") and item.get("slug") not in published_slugs
+        if item.get("slug") and (item.get("publicationKey") or item.get("slug")) not in published_keys
     ]
     pending.sort(
         key=lambda item: (
@@ -117,6 +117,7 @@ def publish_pending() -> int:
 
     for queue_index, item in enumerate(selected):
         slug = item.get("slug")
+        publication_key = item.get("publicationKey") or slug
         title = youtube_title(item)
         description = youtube_description(item)
         try:
@@ -142,6 +143,7 @@ def publish_pending() -> int:
                     print(f"Thumbnail update skipped for {slug}: {exc}")
             record = {
                 "slug": slug,
+                "publicationKey": publication_key,
                 "articleUrl": item.get("articleUrl", ""),
                 "youtubeVideoId": result["id"],
                 "youtubeUrl": result["url"],
@@ -149,7 +151,7 @@ def publish_pending() -> int:
                 "publishedAt": datetime.now(timezone.utc).isoformat(),
             }
             published.append(record)
-            published_slugs.add(slug)
+            published_keys.add(publication_key)
             success_count += 1
             print(f"Public YouTube Short uploaded for {slug}: {result['url']}")
         except YouTubeAuthenticationError as exc:
@@ -165,9 +167,10 @@ def publish_pending() -> int:
     deduped = {}
     for item in remaining:
         slug = item.get("slug")
-        if slug and slug not in published_slugs:
-            if slug not in deduped or int(item.get("socialScore") or 0) > int(deduped[slug].get("socialScore") or 0):
-                deduped[slug] = item
+        key = item.get("publicationKey") or slug
+        if slug and key not in published_keys:
+            if key not in deduped or int(item.get("socialScore") or 0) > int(deduped[key].get("socialScore") or 0):
+                deduped[key] = item
     remaining = sorted(
         deduped.values(),
         key=lambda item: (int(item.get("socialScore") or 0), str(item.get("queuedAt") or "")),
