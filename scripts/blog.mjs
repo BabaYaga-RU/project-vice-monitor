@@ -3,7 +3,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
 import crypto from 'node:crypto';
-import { buildGrowthPages, relatedHubs, socialScore, searchConsoleBonus } from './growth_v2.mjs';
+import { HUBS, buildGrowthPages, relatedHubs, socialScore, searchConsoleBonus } from './growth_v2.mjs';
 
 const ROOT = process.cwd();
 // Growth pipeline: generated publication state is rebuilt from blog/posts.json.
