@@ -109,7 +109,7 @@ for(const file of files){
     if(!internalToolRoute){urls.push(url);directory.push({url,title,description,lang});}
     continue;
   }
-  const image=`${SITE}/images/site-card.svg`;
+  const image=`${SITE}/images/macca-blog-banner.jpg`;
   let head=html.match(/<head\b[^>]*>([\s\S]*?)<\/head>/i)[1];
   if(routePath==='/'){
     head=head.replace(/<meta\b(?=[^>]*\bname=["']google-site-verification["'])[^>]*>/gi,'');
