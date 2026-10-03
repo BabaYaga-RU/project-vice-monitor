@@ -376,8 +376,25 @@ function sourceLinks(posts,history) {
   return new Set([...posts.map(p=>p.sourceUrl),...history.flatMap(h=>[h.sourceUrl,...(h.sourceUrls||[])])].filter(Boolean));
 }
 
+const UPDATE_SIGNAL = /\b(confirm(?:ed|s)?|official|announce(?:d|ment)?|delay(?:ed)?|release date|launch date|pre-?order|trailer|den(?:y|ies|ied)|court|lawsuit|arrest(?:ed)?|charged|settle(?:d|ment)?|new details?|reveals?|response|responds?|changes?|update)\b/i;
+
+function findUpdateTarget(item,posts) {
+  const text=`${item?.title||''} ${item?.description||''}`;
+  if(!UPDATE_SIGNAL.test(text)) return null;
+  let best=null;
+  for(const post of posts.slice(0,80)) {
+    if(post.contentType==='analysis') continue;
+    const score=similarity(post.title,item.title);
+    if(score<0.36) continue;
+    if(!best||score>best.score) best={post,score};
+  }
+  return best?.post||null;
+}
+
 function isNovel(item,posts,history,used=sourceLinks(posts,history)) {
-  return !used.has(item.link) && !posts.some(p=>similarity(p.title,item.title)>0.36);
+  if(used.has(item.link)) return false;
+  const duplicate=posts.some(p=>similarity(p.title,item.title)>0.36);
+  return !duplicate || Boolean(findUpdateTarget(item,posts));
 }
 
 async function monitor() {
@@ -394,8 +411,9 @@ async function monitor() {
     return !Number.isFinite(last)||now-last>=retryAfter;
   }).sort((a,b)=>topicScore(b)-topicScore(a));
   const candidate=fresh[0]||null;
+  const updateTarget=candidate?findUpdateTarget(candidate,posts):null;
   await fs.mkdir(path.dirname(CANDIDATE_FILE),{recursive:true});
-  await writeJson(CANDIDATE_FILE,{candidate,detectedAt:new Date().toISOString()});
+  await writeJson(CANDIDATE_FILE,{candidate,updateTargetSlug:updateTarget?.slug||'',detectedAt:new Date().toISOString()});
   if(process.env.GITHUB_OUTPUT) await fs.appendFile(process.env.GITHUB_OUTPUT,`should_generate=${candidate?'true':'false'}\n`);
   console.log(candidate?`Found novel GTA/Rockstar item: ${candidate.title} (${candidate.source})`:`No new GTA/Rockstar item in the last 48 hours; no AI call needed.`);
 }
@@ -549,13 +567,16 @@ async function generate() {
   const candidate=forced?(candidates.find(c=>c.link===forced.link)||forced):ranked[0];
   if(!candidate) { console.log('No sufficiently novel topic; skipping this run.'); return; }
   if(!isNovel(candidate,posts,history,used)) { console.log(`Monitored item is no longer novel; skipping: ${candidate.title}`); return; }
+  const updateTarget=(saved?.updateTargetSlug&&posts.find(post=>post.slug===saved.updateTargetSlug))||findUpdateTarget(candidate,posts);
   if(dryRun) console.log(`Dry run selected candidate: ${candidate.title} (${candidate.link})`);
   const relatedFeeds=[candidate,...candidates.filter(c=>c.link!==candidate.link&&similarity(c.title,candidate.title)>0.2)].slice(0,5);
   const sourced=await Promise.all(relatedFeeds.map(fetchArticle));
   const mainSource=sourced.find(s=>s.link===candidate.link)||await fetchArticle(candidate);
   if(dryRun) console.log(`Research fetched ${sourced.length} source page(s); primary excerpt: ${(mainSource.excerpt||mainSource.description||'none').length} characters.`);
   const imageSources=sourced.filter(s=>s.imageUrl).map(s=>({url:s.imageUrl,sourceUrl:s.canonical||s.link,title:s.title}));
+  const lifecycleContext=updateTarget?`\nEXISTING STORY TO UPDATE (keep this canonical URL and return a complete revised version, not a separate duplicate):\nTitle: ${updateTarget.title}\nURL: ${BASE}/blog/${updateTarget.slug}/\nPublished: ${updateTarget.date}\nCurrent summary: ${updateTarget.description}\nCurrent sources: ${(updateTarget.sources||[]).map(source=>`${source.title} — ${source.url}`).join('; ')}\nOnly revise it if the lead item is a material development of the same story. If it is not the same story, return skip:true.\n`:'';
   const prompt=`Act as an editor validating the lead item before writing. It must be recent, materially about Grand Theft Auto or Rockstar Games, and contain a specific report or announcement. One credible publication report or one Rockstar/Take-Two primary source is enough; a second source is not required. Return JSON with skip:true and a brief reason for irrelevant items, duplicates, stale items, memes, vague posts, or unsupported speculation. Rumors and leaks may be covered when a credible publication reports them, with clear attribution and uncertainty. Treat third-party X posts as tips, not confirmation: prefer linked reporting or a Rockstar/Take-Two primary source in related coverage. Skip an isolated social post that offers no linked report or specific, verifiable information. Do not invent missing details. Describe crime and legal matters only as attributed allegations, never as established guilt; distinguish separate investigations and avoid naming a suspect unless the identity is essential and confirmed by authoritative sources. For accepted items, write a concise English post and attribute each claim to the named publisher, forum, or account. When details are sparse, write a short 150-250 word news brief that says what the source reported and what remains unknown. Cover Rockstar Games and Take-Two news as well as GTA. Return JSON only. For accepted items include title, description, seoTitle (accurate search title, max 64 characters, important GTA/Rockstar terms first, no clickbait), seoDescription (accurate search description, 120-158 characters), category, tags (array), featured (boolean), youtubeTitle (max 78 characters, front-load the concrete GTA/Rockstar fact, no channel branding), socialHook (one direct factual sentence suitable for the first second of a Short/Reel), instagramCaptionLead (one concise factual hook, max 180 characters), sections (array of {heading,paragraphs:[...]}), thumbnail (string), thumbnailAlt (string), inlineImages (array of {url,alt,caption,sourceUrl}), and sources (array of {title,url,publisher}). Use 2-3 sections. Include the source URL as supplied. For thumbnail and inline images, choose only exact URLs from AVAILABLE SOURCE IMAGES. Never invent, alter, or guess an image URL. If none is suitable, set thumbnail to empty and inlineImages to []. Images are hotlinked from the reporting page and will not be copied into the repository. The article hero/banner is always the Macca image.
+${lifecycleContext}
 LEAD ITEM: ${candidate.title}
 Publisher: ${candidate.source}
 Date: ${candidate.date}
@@ -590,7 +611,44 @@ Article excerpts: ${s.excerpt||'[No body available]'}`).join('\n\n')}
   const allowedImageUrls=new Set(imageSources.map(s=>s.url));
   const inlineImages=(Array.isArray(generated.inlineImages)?generated.inlineImages:[]).filter(x=>allowedImageUrls.has(x.url)&&/^https:\/\//i.test(x.url||'')).slice(0,3).map(x=>({url:x.url,alt:String(x.alt||candidate.title).slice(0,180),caption:String(x.caption||'').slice(0,300),sourceUrl:allowedSourceUrls.has(x.sourceUrl)?x.sourceUrl:(imageSources.find(i=>i.url===x.url)?.sourceUrl||mainSource.canonical||candidate.link)}));
   const selectedThumbnail=allowedImageUrls.has(generated.thumbnail)?generated.thumbnail:(allowedImageUrls.has(mainSource.imageUrl)?mainSource.imageUrl:'');
-  const p={...generated,title,description:String(generated.description||mainSource.description||candidate.description||title).slice(0,300),seoTitle:String(generated.seoTitle||title).trim().slice(0,64),seoDescription:String(generated.seoDescription||generated.description||mainSource.description||candidate.description||title).trim().slice(0,158),category:normalizeCategory(generated.category,title,generated.description||mainSource.description||candidate.description||''),tags:normalizeTags(Array.isArray(generated.tags)?generated.tags:[],title,generated.description||mainSource.description||candidate.description||''),youtubeTitle:String(generated.youtubeTitle||title).trim().slice(0,78),socialHook:String(generated.socialHook||generated.description||title).trim().slice(0,220),instagramCaptionLead:String(generated.instagramCaptionLead||generated.socialHook||title).trim().slice(0,180),thumbnail:selectedThumbnail,thumbnailAlt:String(generated.thumbnailAlt||title).slice(0,180),inlineImages,date:new Date().toISOString().slice(0,10),slug:slugify(title),sourceUrl:mainSource.canonical||candidate.link,sources:[...new Map(cited.filter(s=>s.url).map(s=>[s.url,s])).values()]};
+  const generatedSources=[...new Map(cited.filter(s=>s.url).map(s=>[s.url,s])).values()];
+  if(updateTarget) {
+    const updatedAt=new Date().toISOString();
+    const mergedSources=[...new Map([...(updateTarget.sources||[]),...generatedSources].filter(source=>source?.url).map(source=>[source.url,source])).values()];
+    const mergedImages=[...new Map([...(updateTarget.inlineImages||[]),...inlineImages].filter(image=>image?.url).map(image=>[image.url,image])).values()].slice(0,4);
+    const updated={
+      ...updateTarget,
+      ...generated,
+      title,
+      description:String(generated.description||mainSource.description||candidate.description||title).slice(0,300),
+      seoTitle:String(generated.seoTitle||title).trim().slice(0,64),
+      seoDescription:String(generated.seoDescription||generated.description||mainSource.description||candidate.description||title).trim().slice(0,158),
+      category:normalizeCategory(generated.category,title,generated.description||mainSource.description||candidate.description||''),
+      tags:normalizeTags(Array.isArray(generated.tags)?generated.tags:[],title,generated.description||mainSource.description||candidate.description||''),
+      youtubeTitle:String(generated.youtubeTitle||title).trim().slice(0,78),
+      socialHook:String(generated.socialHook||generated.description||title).trim().slice(0,220),
+      instagramCaptionLead:String(generated.instagramCaptionLead||generated.socialHook||title).trim().slice(0,180),
+      thumbnail:selectedThumbnail||updateTarget.thumbnail||'',
+      thumbnailAlt:String(generated.thumbnailAlt||updateTarget.thumbnailAlt||title).slice(0,180),
+      inlineImages:mergedImages,
+      date:updateTarget.date,
+      updatedAt,
+      slug:updateTarget.slug,
+      sourceUrl:updateTarget.sourceUrl||mainSource.canonical||candidate.link,
+      sources:mergedSources,
+      updateHistory:[...(updateTarget.updateHistory||[]),{updatedAt,sourceUrl:mainSource.canonical||candidate.link,previousTitle:updateTarget.title}].slice(-12)
+    };
+    const index=posts.findIndex(post=>post.slug===updateTarget.slug);
+    posts[index]=updated;
+    await writeJson(DATA_FILE,posts);
+    history.unshift({slug:updated.slug,title:updated.title,sourceUrl:mainSource.canonical||candidate.link,sourceUrls:relatedFeeds.map(source=>source.link),date:updatedAt,status:'updated',hash:crypto.createHash('sha256').update(`${updated.slug}|${updatedAt}|${candidate.link}`).digest('hex')});
+    await writeJson(HISTORY_FILE,history.slice(0,500));
+    await queueSocialPublication(updated,{update:true});
+    await build();
+    console.log(`Updated existing story ${updated.slug} with material new reporting.`);
+    return;
+  }
+  const p={...generated,title,description:String(generated.description||mainSource.description||candidate.description||title).slice(0,300),seoTitle:String(generated.seoTitle||title).trim().slice(0,64),seoDescription:String(generated.seoDescription||generated.description||mainSource.description||candidate.description||title).trim().slice(0,158),category:normalizeCategory(generated.category,title,generated.description||mainSource.description||candidate.description||''),tags:normalizeTags(Array.isArray(generated.tags)?generated.tags:[],title,generated.description||mainSource.description||candidate.description||''),youtubeTitle:String(generated.youtubeTitle||title).trim().slice(0,78),socialHook:String(generated.socialHook||generated.description||title).trim().slice(0,220),instagramCaptionLead:String(generated.instagramCaptionLead||generated.socialHook||title).trim().slice(0,180),thumbnail:selectedThumbnail,thumbnailAlt:String(generated.thumbnailAlt||title).slice(0,180),inlineImages,date:new Date().toISOString().slice(0,10),slug:slugify(title),sourceUrl:mainSource.canonical||candidate.link,sources:generatedSources};
   if(posts.some(x=>x.slug===p.slug||similarity(x.title,p.title)>0.36)) { console.log(`Skipping near-duplicate generated title: ${p.title}`); history.unshift({sourceUrl:candidate.link,title:candidate.title,date:new Date().toISOString(),status:'near-duplicate',sourceUrls:relatedFeeds.map(s=>s.link)}); await writeJson(HISTORY_FILE,history.slice(0,500)); generate.rejected++; if(generate.rejected<3) return generate(); console.log('Reached per-run limit while skipping duplicates.'); return; }
   posts.unshift(p); await writeJson(DATA_FILE,posts); history.unshift({slug:p.slug,title:p.title,sourceUrl:p.sourceUrl,sourceUrls:relatedFeeds.map(s=>s.link),date:p.date,status:'published',hash:crypto.createHash('sha256').update(`${p.title}|${p.sourceUrl}`).digest('hex')}); await writeJson(HISTORY_FILE,history.slice(0,500));
   await queueSocialPublication(p);
