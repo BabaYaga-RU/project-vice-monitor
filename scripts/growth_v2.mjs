@@ -109,7 +109,7 @@ export function searchConsoleBonus(item,feedback){
 
 export async function buildGrowthPages({root=process.cwd(),base='https://macca-lab.onrender.com',posts=[]}={}){
   const sorted=[...posts].filter(post=>post?.slug).sort((a,b)=>String(b.updatedAt||b.date||'').localeCompare(String(a.updatedAt||a.date||'')));
-  const stylesheet='<link rel="stylesheet" href="/blog/assets/blog.css"><link rel="stylesheet" href="/blog/assets/growth.css"><link rel="stylesheet" href="/ads/ads.css"><script defer src="/ads/ads.js"></script><link rel="stylesheet" href="/skylet/widget.css?v=20260929.1">';
+  const stylesheet='<link rel="stylesheet" href="/blog/assets/blog.css"><link rel="stylesheet" href="/blog/assets/growth.css"><link rel="stylesheet" href="/ads/ads.css"><script defer src="/ads/ads.js"></script><link rel="stylesheet" href="/skylet/widget.css?v=20260929.1"><script defer src="/analytics/web-analytics.js"></script>';
   const footer='<footer><div class="footer-about"><a href="/blog/">Macca Blog</a><span>Independent coverage, linked to its sources.</span></div><nav class="footer-links" aria-label="Footer navigation"><a href="/blog/">Blog</a><a href="/social/">Social</a><a href="/about/">About</a><a href="/privacy/">Privacy Policy</a></nav><p class="footer-disclaimer">Macca Lab is an independent project and is not affiliated with or endorsed by Rockstar Games or Take-Two Interactive.</p></footer>';
 
   for(const hub of HUBS){
