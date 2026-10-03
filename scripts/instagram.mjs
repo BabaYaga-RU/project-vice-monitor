@@ -267,7 +267,10 @@ async function publish() {
   }
   const ranked = rankedQueue(queue);
   const itemsToPublish = retryOnlyFirst ? ranked.slice(0, 1) : ranked.slice(0, slots);
-  for (const {slug} of itemsToPublish) {
+  for (const queued of itemsToPublish) {
+    const {slug} = queued;
+    const publicationKey = queued.publicationKey || slug;
+    const forceRepublish = queued.forceRepublish === true;
     const post = posts.find(item => item.slug === slug);
     if (!post) throw new Error(`Instagram queue references missing blog article: ${slug}`);
     const storyUrl = `${BASE}/blog/${encodeURIComponent(slug)}/`;
@@ -279,12 +282,12 @@ async function publish() {
       continue;
     }
     await waitForPublicVideo(reelUrl);
-    const existing = await findExisting(account.host, account.id, storyUrl, published, post.title);
+    const existing = forceRepublish ? null : await findExisting(account.host, account.id, storyUrl, published, post.title);
     if (existing) {
-      published[storyUrl] = {mediaId:existing.mediaId || existing.id, permalink:existing.permalink || '', publishedAt:existing.publishedAt || existing.timestamp || new Date().toISOString()};
+      published[storyUrl] = {articleUrl:storyUrl, publicationKey, mediaId:existing.mediaId || existing.id, permalink:existing.permalink || '', publishedAt:existing.publishedAt || existing.timestamp || new Date().toISOString()};
       console.log(`Already present on Instagram; recording ${storyUrl}`);
       await saveJson(PUBLISHED_FILE, published);
-      const remaining = queue.filter(item => item.slug !== slug);
+      const remaining = queue.filter(item => (item.publicationKey || item.slug) !== publicationKey);
       await saveJson(QUEUE_FILE, remaining);
       queue.splice(0, queue.length, ...remaining);
       continue;
@@ -301,9 +304,10 @@ async function publish() {
     if (!media.id) throw new Error('Meta did not return a published media ID.');
     let permalink = '';
     try { permalink = (await graphGet(account.host, media.id, 'permalink')).permalink || ''; } catch {}
-    published[storyUrl] = {mediaId:media.id, permalink, mediaType:'REELS', socialScore:Number((queue.find(item => item.slug === slug) || {}).socialScore || 0), publishedAt:new Date().toISOString()};
+    const publishedKey = forceRepublish ? `${storyUrl}::${publicationKey}` : storyUrl;
+    published[publishedKey] = {articleUrl:storyUrl, publicationKey, mediaId:media.id, permalink, mediaType:'REELS', socialScore:Number(queued.socialScore || 0), publishedAt:new Date().toISOString()};
     await saveJson(PUBLISHED_FILE, published);
-    const remaining = queue.filter(item => item.slug !== slug);
+    const remaining = queue.filter(item => (item.publicationKey || item.slug) !== publicationKey);
     await saveJson(QUEUE_FILE, remaining);
     queue.splice(0, queue.length, ...remaining);
     console.log(`Published ${slug} to Instagram as Reel (${media.id})${permalink ? `: ${permalink}` : ''}`);
