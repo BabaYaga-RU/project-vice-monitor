@@ -8,8 +8,8 @@ import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 from src.youtube.auth import YouTubeAuthenticationError
-from src.youtube.shorts import create_short
-from src.youtube.upload import upload_video
+from src.youtube.shorts import create_short, create_thumbnail
+from src.youtube.upload import upload_video, set_thumbnail
 
 ROOT = Path(__file__).resolve().parents[1]
 QUEUE = Path(os.environ.get("YOUTUBE_QUEUE_FILE", ROOT / "blog" / "youtube-queue.json"))
@@ -29,29 +29,48 @@ def write_json(path: Path, data) -> None:
     path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
-def youtube_description(item: dict) -> str:
-    blocks = [str(item.get("description", "")).strip()[:900]]
-    for section in item.get("sections", []):
-        if len(blocks) >= 4:
-            break
-        heading = str(section.get("heading", "")).strip()
-        paragraphs = [str(value).strip() for value in section.get("paragraphs", []) if str(value).strip()]
-        if heading and paragraphs:
-            blocks.append(f"{heading}\n" + "\n\n".join(paragraphs)[:750])
-    blocks.append(f"Read the full story: {item.get('articleUrl', '')}")
-    sources = item.get("sources", [])
-    references = [f"- {source.get('title', 'Source')}: {source.get('url', '')}" for source in sources[:5] if source.get("url")]
-    if references:
-        blocks.append("Sources\n" + "\n".join(references)[:1300])
-    blocks.append("Subscribe to Macca the Gator: https://www.youtube.com/@macca_the_gator_oficial")
+def youtube_title(item: dict) -> str:
+    """Keep the important phrase first and remove channel-name filler."""
+    preferred = str(item.get("youtubeTitle") or item.get("socialHook") or item.get("title") or "GTA & Rockstar News").strip()
+    preferred = " ".join(preferred.split())
+    if len(preferred) <= 78:
+        return preferred
+    shortened = preferred[:78].rsplit(" ", 1)[0].rstrip(" ,:;–—-")
+    return shortened or preferred[:78]
 
-    hashtags = ["#GTA", "#GrandTheftAuto", "#RockstarGames", "#MaccaTheGator", "#Shorts"]
-    for tag in item.get("tags", []):
-        compact = "".join(ch for ch in str(tag).title() if ch.isalnum())
-        if compact:
-            hashtags.append("#" + compact)
-    hashtag_text = " ".join(dict.fromkeys(hashtags))
+
+def youtube_tags(item: dict) -> list[str]:
+    """Use tags mainly for spelling/name variants; discovery relies on content metadata."""
+    text = f"{item.get('title', '')} {' '.join(map(str, item.get('tags', [])))}".lower()
+    tags = ["GTA", "Grand Theft Auto", "Rockstar Games", "Macca the Gator"]
+    if "gta 6" in text or "gta vi" in text or "grand theft auto 6" in text or "grand theft auto vi" in text:
+        tags.extend(["GTA 6", "GTA VI", "Grand Theft Auto 6", "Grand Theft Auto VI"])
+    if "gta online" in text:
+        tags.append("GTA Online")
+    for tag in item.get("tags", [])[:5]:
+        value = str(tag).strip()
+        if value and len(value) <= 40:
+            tags.append(value)
+    return list(dict.fromkeys(tags))[:15]
+
+
+def youtube_description(item: dict) -> str:
+    hook = str(item.get("socialHook") or item.get("description") or item.get("title") or "").strip()
+    blocks = [hook[:500]]
+    article_url = str(item.get("articleUrl", "")).strip()
+    if article_url:
+        blocks.append(f"Full story on Macca Blog: {article_url}")
+    sources = item.get("sources", [])
+    references = [f"- {source.get('title', 'Source')}: {source.get('url', '')}" for source in sources[:3] if source.get("url")]
+    if references:
+        blocks.append("Sources\n" + "\n".join(references)[:1000])
+    blocks.append("More GTA & Rockstar coverage: https://www.youtube.com/@macca_the_gator_oficial")
+
+    text = f"{item.get('title', '')} {' '.join(map(str, item.get('tags', [])))}".lower()
+    hashtags = ["#RockstarGames", "#Shorts"]
+    hashtags.insert(0, "#GTA6" if ("gta 6" in text or "gta vi" in text) else "#GTA")
     body = "\n\n".join(block for block in blocks if block)
+    hashtag_text = " ".join(dict.fromkeys(hashtags))
     return body[:5000 - len(hashtag_text) - 2] + "\n\n" + hashtag_text
 
 
@@ -65,22 +84,31 @@ def publish_pending() -> int:
         slug = item.get("slug")
         if not slug or slug in published_slugs:
             continue
-        title = f"{item.get('title', 'GTA & Rockstar News')} | Macca the Gator"[:100]
+        title = youtube_title(item)
         description = youtube_description(item)
         try:
             cached_video = SOCIAL_VIDEO_DIR / f"{slug}.mp4"
             upload_options = {
                 "title": title,
                 "description": description,
-                "tags": list(dict.fromkeys(["GTA", "Grand Theft Auto", "Rockstar Games", "Macca the Gator", "Shorts", *item.get("tags", [])]))[:500],
+                "tags": youtube_tags(item),
                 "privacy_status": "public",
             }
-            if cached_video.is_file():
-                result = upload_video(cached_video, **upload_options)
-            else:
-                with tempfile.TemporaryDirectory(prefix="macca-youtube-") as temp:
-                    path = create_short(item, Path(temp) / "macca-short.mp4", temp)
-                    result = upload_video(path, **upload_options)
+            with tempfile.TemporaryDirectory(prefix="macca-youtube-meta-") as meta_temp:
+                thumbnail = create_thumbnail(item, Path(meta_temp) / "thumbnail.jpg", meta_temp)
+                if cached_video.is_file():
+                    result = upload_video(cached_video, **upload_options)
+                else:
+                    with tempfile.TemporaryDirectory(prefix="macca-youtube-") as temp:
+                        path = create_short(item, Path(temp) / "macca-short.mp4", temp)
+                        result = upload_video(path, **upload_options)
+                try:
+                    set_thumbnail(result["id"], thumbnail)
+                    print(f"Custom thumbnail set for {slug}.")
+                except Exception as exc:
+                    # Do not lose a successfully uploaded Short because thumbnail
+                    # eligibility or propagation failed.
+                    print(f"Thumbnail update skipped for {slug}: {exc}")
             record = {
                 "slug": slug,
                 "articleUrl": item.get("articleUrl", ""),
