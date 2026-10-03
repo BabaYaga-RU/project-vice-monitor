@@ -1,6 +1,6 @@
 # Macca Lab — Public Page Directory
 
-- [Macca Lab | Independent Projects and Macca Blog](https://macca-lab.onrender.com/): Macca Lab is an independent home for projects, experiments and editorial coverage of Grand Theft Auto, Rockstar Games and related stories on Macca Blog.
+- [Macca Lab | GTA 6 & Rockstar News, Analysis and Projects](https://macca-lab.onrender.com/): Independent GTA 6, GTA Online and Rockstar Games news, analysis and source-backed coverage from Macca Blog, plus Macca Lab projects.
 - [About Macca Lab](https://macca-lab.onrender.com/about/): Learn about Macca Lab, an independent project for experiments and editorial content, including sourced GTA and Rockstar coverage on Macca Blog.
 - [S-800](https://macca-lab.onrender.com/assets/models/t800/): Visualizador interativo S-800 com olhos, cabeça e boca animados.
 - [Alleged GTA 6 Collector’s Edition Pics Leak Online](https://macca-lab.onrender.com/blog/alleged-gta-6-collector-s-edition-pics-leak-online/): Notebookcheck reports on alleged GTA 6 Collector’s Edition images surfacing online, even as physical disc pre-orders appear absent. The leak is unverified and Rockstar has not officially detailed the edition.
@@ -70,6 +70,8 @@
 - [Warhorse Co-Founder Hopes GTA 6 Will 'Blaze a Trail' to Higher Game Prices](https://macca-lab.onrender.com/blog/warhorse-co-founder-hopes-gta-6-will-blaze-a-trail-to-higher-game-prices/): Kingdom Come: Deliverance studio co-founder Martin Klima tells PC Gamer he hopes Grand Theft Auto 6 will lead the industry toward higher game prices as development costs rise.
 - [YouTuber CityEd Unveils Detailed GTA-Style Map of London](https://macca-lab.onrender.com/blog/youtuber-cityed-unveils-detailed-gta-style-map-of-london/): A fan cartographer has reimagined London within the Grand Theft Auto universe, applying Rockstar Games' signature satirical naming conventions and exaggerated landmarks to the city.
 - [Contact Macca Lab](https://macca-lab.onrender.com/contact/): Contact Macca Lab by email or through the official Macca the Gator Instagram account.
+- [Corrections & Updates | Macca Lab](https://macca-lab.onrender.com/corrections/): How Macca Blog handles corrections, clarifications and material updates to published coverage.
+- [Editorial Policy | Macca Lab](https://macca-lab.onrender.com/editorial-policy/): How Macca Blog sources, labels, updates and monetizes GTA and Rockstar coverage.
 - [GTA 6 | Macca Blog](https://macca-lab.onrender.com/gta-6/): Source-backed GTA 6 coverage, updates, analysis and explainers from Macca Blog.
 - [GTA 6 Characters | Macca Blog](https://macca-lab.onrender.com/gta-6/characters/): Coverage about GTA 6 characters, actors and story details, with sources attached to each report.
 - [GTA 6 Editions & Collectibles | Macca Blog](https://macca-lab.onrender.com/gta-6/editions/): GTA 6 editions, pre-orders, collector items, merchandise and pricing coverage.
@@ -78,17 +80,6 @@
 - [GTA 6 Release Date | Macca Blog](https://macca-lab.onrender.com/gta-6/release-date/): Latest sourced coverage about the GTA 6 release date, delays, launch timing and availability.
 - [GTA 6 Trailers | Macca Blog](https://macca-lab.onrender.com/gta-6/trailers/): GTA 6 trailer coverage, official footage, screenshots and marketing updates.
 - [GTA Online | Macca Blog](https://macca-lab.onrender.com/gta-online/): GTA Online updates, events and ongoing Rockstar support coverage.
-- [Play — Lab](https://macca-lab.onrender.com/play/): Play
-- [CS 1.6 no navegador](https://macca-lab.onrender.com/play/cs16/): Carregue os arquivos da sua instalação local. O jogo inicia diretamente em de_dust2 .
 - [Privacy Policy | Macca Lab](https://macca-lab.onrender.com/privacy/): Privacy information for Macca Lab and Macca Blog, including website data, cookies, partner advertising, future Google AdSense, and the YouTube publishing integration.
 - [Rockstar Games | Macca Blog](https://macca-lab.onrender.com/rockstar-games/): Rockstar Games news, studio updates, legal stories, releases and official announcements.
 - [Latest GTA & Rockstar Stories | Macca](https://macca-lab.onrender.com/social/): The latest GTA and Rockstar stories from Macca Blog, plus Macca the Gator on YouTube and Instagram.
-- [Matérias](https://macca-lab.onrender.com/study/): Matérias at Macca Lab.
-- [Laboratório de Eletrônica Digital | Práticas](https://macca-lab.onrender.com/study/Laboratorio-de-Eletronica-Digital/): Roteiro para entender e repetir as nove práticas do Manual de Sistemas Digitais. Em cada prática: monte seguindo a figura do PDF, execute a sequência, observe o…
-- [Bancada lógica | Laboratório](https://macca-lab.onrender.com/study/Laboratorio-de-Eletronica-Digital/simulador/): Arraste chaves, portas e LEDs para a folha. Ligue os terminais com o mouse e teste a saída.
-- [Laboratório de Projetos Eletrônicos | Práticas](https://macca-lab.onrender.com/study/Laboratorio-de-Projetos-Eletronicos/): Roteiro para aprender e repetir as práticas do Manual de Sistemas Analógicos. Use as figuras do PDF para a ligação exata dos componentes; aqui estão a sequência…
-- [Programação Mobile | Guia de estudo](https://macca-lab.onrender.com/study/Programacao-mobile/): Guia completo de configuração e fundamentos de React Native com Expo e TypeScript.
-- [Protocolos de Redes | Revisão](https://macca-lab.onrender.com/study/Protocolos-De-Redes-De-Computadores/): Revisão guiada pelas questões do simulado. A alternativa destacada no PDF é a resposta de referência; as justificativas ajudam a separar conceitos que costumam…
-- [Sistemas Distribuídos | Revisão](https://macca-lab.onrender.com/study/Sistema-%20Distribuidos-e-Processamento-Paralelo/): Guia de revisão sobre arquitetura, bancos de dados distribuídos, esquemas, replicação, particionamento e virtualização.
-- [Sistemas Digitais | Revisão](https://macca-lab.onrender.com/study/Sistemas-Digitais-Para-Computacao/): Revisão de conversão de bases, álgebra booleana, portas lógicas e simplificação de expressões.
-- [Sistemas Operacionais | Revisão](https://macca-lab.onrender.com/study/Sistemas-Operacionais/): Revisão de Linux, kernel, processos, threads, multiprogramação, system calls e escalonamento.
