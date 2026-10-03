@@ -40,7 +40,7 @@ jobs:
       - name: Install YouTube Analytics dependencies
         if: steps.auth.outputs.configured == 'true'
         run: python -m pip install -r requirements-youtube.txt
-      - name: Collect due 6h, 24h, and 72h snapshots
+      - name: Collect daily performance and retention snapshots
         if: steps.auth.outputs.configured == 'true'
         env:
           PYTHONDONTWRITEBYTECODE: '1'

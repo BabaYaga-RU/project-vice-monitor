@@ -7,7 +7,7 @@ const SITE=(process.env.SITE_URL||'https://macca-lab.onrender.com').replace(/\/$
 const SKIP=new Set(['.git','node_modules','blog','scripts','.github','coverage','dist','build']);
 const HOME_TITLE='Macca Lab | Independent Projects and Macca Blog';
 const HOME_DESCRIPTION='Macca Lab is an independent home for projects, experiments and editorial coverage of Grand Theft Auto, Rockstar Games and related stories on Macca Blog.';
-const ADSENSE_SCRIPT='<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1038995366418919" crossorigin="anonymous"></script>';
+const ADSENSE_SCRIPT='<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7821352420515145" crossorigin="anonymous"></script>';
 const GOOGLE_VERIFICATION_META='<meta name="google-site-verification" content="d6Rh9rH8TsBuT5o4NK7mKh25IQXbBOB0qLDCJgXgxBE">';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const decode=s=>String(s||'').replace(/&amp;/g,'&').replace(/&quot;/g,'"').replace(/&#39;|&apos;/g,"'").replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/Ã¡/g,'á').replace(/Ã©/g,'é').replace(/Ã­/g,'í').replace(/Ã³/g,'ó').replace(/Ãº/g,'ú').replace(/Ã£/g,'ã').replace(/Ãµ/g,'õ').replace(/Ã§/g,'ç').replace(/Ã‰/g,'É').replace(/Ã“/g,'Ó').replace(/Ã€/g,'À').replace(/Ã‚/g,'Â').replace(/Â(?=\s|[·…])/g,'');
@@ -82,7 +82,7 @@ for(const file of files){
   const internalToolRoute=/\/simulador\/(?:app|src)\/$/i.test(routePath);
   const title=titleOf(html,file);const description=descOf(html,title,file);const lang=html.match(/<html\b[^>]*\blang=["']([^"']+)/i)?.[1]||'en';
   const publicEditorialPage=routePath==='/'||/^\/(?:about|contact|privacy)\/$/.test(routePath);
-  if(publicEditorialPage&&!html.includes('adsbygoogle.js?client=ca-pub-1038995366418919')){
+  if(publicEditorialPage&&!html.includes('adsbygoogle.js?client=ca-pub-7821352420515145')){
     html=html.replace(/<\/head>/i,`${ADSENSE_SCRIPT}\n</head>`);
     await fs.writeFile(path.join(ROOT,file),html);
   }
@@ -120,11 +120,12 @@ try{const posts=JSON.parse(await fs.readFile(path.join(ROOT,'blog','posts.json')
 const xmlEscape=s=>esc(s);
 const pages=`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.sort().map(u=>`  <url><loc>${xmlEscape(u)}</loc></url>`).join('\n')}\n</urlset>\n`;
 await fs.writeFile(path.join(ROOT,'sitemap-pages.xml'),pages);
-await fs.writeFile(path.join(ROOT,'sitemap.xml'),`<?xml version="1.0" encoding="UTF-8"?>\n<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <sitemap><loc>${SITE}/sitemap-pages.xml</loc></sitemap>\n  <sitemap><loc>${SITE}/blog/sitemap.xml</loc></sitemap>\n</sitemapindex>\n`);
+await fs.writeFile(path.join(ROOT,'sitemap.xml'),`<?xml version="1.0" encoding="UTF-8"?>\n<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <sitemap><loc>${SITE}/sitemap-pages.xml</loc></sitemap>\n  <sitemap><loc>${SITE}/blog/sitemap.xml</loc></sitemap>\n  <sitemap><loc>${SITE}/blog/news-sitemap.xml</loc></sitemap>\n</sitemapindex>\n`);
 await fs.writeFile(path.join(ROOT,'robots.txt'),`User-agent: *\nAllow: /\n\nSitemap: ${SITE}/sitemap.xml\n`);
 const primary=directory.filter(p=>p.url===`${SITE}/`||/^https:\/\/macca-lab\.onrender\.com\/(blog|about|contact|privacy)\/$/.test(p.url)).sort((a,b)=>a.url.localeCompare(b.url));
 const entry=p=>`- [${p.title}](${p.url}): ${p.description}`;
-await fs.writeFile(path.join(ROOT,'llms.txt'),`# Macca Lab\n\n> An independent project for experiments and editorial content. Macca Blog publishes sourced coverage of Grand Theft Auto, Rockstar Games and related gaming stories.\n\nMacca Blog links stories to their sources and labels rumors and unresolved reports as unconfirmed.\n\n## Public pages\n\n${primary.map(entry).join('\n')}\n\n## Blog and feeds\n\n- [Macca Blog](${SITE}/blog/): News, sourced reporting and analysis.\n- [RSS feed](${SITE}/blog/feed.xml): Recent blog articles.\n\n## Discovery\n\n- [XML sitemap index](${SITE}/sitemap.xml)\n- [Page sitemap](${SITE}/sitemap-pages.xml)\n- [Blog sitemap](${SITE}/blog/sitemap.xml)\n`);
+await fs.writeFile(path.join(ROOT,'llms.txt'),`# Macca Lab\n\n> An independent project for experiments and editorial content. Macca Blog publishes sourced coverage of Grand Theft Auto, Rockstar Games and related gaming stories.\n\nMacca Blog links stories to their sources and labels rumors and unresolved reports as unconfirmed.\n\n## Public pages\n\n${primary.map(entry).join('\n')}\n\n## Blog and feeds\n\n- [Macca Blog](${SITE}/blog/): News, sourced reporting and analysis.\n- [RSS feed](${SITE}/blog/feed.xml): Recent blog articles.\n\n## Discovery\n\n- [XML sitemap index](${SITE}/sitemap.xml)\n- [Page sitemap](${SITE}/sitemap-pages.xml)\n- [Blog sitemap](${SITE}/blog/sitemap.xml)
+- [Google News sitemap](${SITE}/blog/news-sitemap.xml)\n`);
 await fs.writeFile(path.join(ROOT,'llms-full.txt'),`# Macca Lab — Public Page Directory\n\n${directory.sort((a,b)=>a.url.localeCompare(b.url)).map(entry).join('\n')}\n`);
 await fs.writeFile(path.join(ROOT,'ai.txt'),`# Public content discovery\n\nWebsite: ${SITE}/\nCrawl policy: ${SITE}/robots.txt\nSitemap: ${SITE}/sitemap.xml\nPage directory: ${SITE}/llms.txt\nFull directory: ${SITE}/llms-full.txt\n\nThese optional directories describe public pages. They do not control crawler access or guarantee indexing, ranking, training, or citations.\n`);
 await fs.mkdir(path.join(ROOT,'images'),{recursive:true});

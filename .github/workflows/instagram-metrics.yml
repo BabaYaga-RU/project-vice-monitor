@@ -1,0 +1,57 @@
+name: Collect Instagram Reel metrics
+
+on:
+  schedule:
+    - cron: '29 */6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: macca-instagram-metrics
+  cancel-in-progress: false
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check Instagram analytics authorization
+        id: auth
+        env:
+          TOKEN: ${{ secrets.INSTAGRAM_ACCESS_TOKEN }}
+        run: |
+          if [[ -n "$TOKEN" ]]; then
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "Instagram insights collection is disabled because the token is missing."
+          fi
+      - name: Collect Reel insights
+        if: steps.auth.outputs.configured == 'true'
+        env:
+          INSTAGRAM_ACCESS_TOKEN: ${{ secrets.INSTAGRAM_ACCESS_TOKEN }}
+          INSTAGRAM_PUBLISHED_FILE: blog/instagram-published.json
+          INSTAGRAM_METRICS_FILE: blog/instagram-metrics.json
+        run: node scripts/instagram_metrics.mjs
+      - name: Commit collected metrics
+        if: steps.auth.outputs.configured == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add blog/instagram-metrics.json
+          if git diff --cached --quiet; then
+            echo "No new Instagram metrics to save."
+          else
+            git commit -m "Collect Instagram Reel analytics"
+            git fetch origin main
+            git rebase origin/main
+            git push origin HEAD:main
+          fi

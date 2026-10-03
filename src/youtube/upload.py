@@ -80,3 +80,19 @@ def upload_video(
     if not video_id:
         raise RuntimeError("YouTube upload completed without returning a video ID.")
     return {"id": video_id, "url": f"https://www.youtube.com/watch?v={video_id}"}
+
+
+def set_thumbnail(video_id: str, thumbnail_path: str | Path, youtube: Any | None = None) -> None:
+    """Set an original custom thumbnail for an uploaded video."""
+    path = Path(thumbnail_path)
+    if not path.is_file():
+        raise FileNotFoundError(f"Thumbnail file does not exist: {path}")
+    youtube = youtube or build_youtube_service()
+    request = youtube.thumbnails().set(
+        videoId=video_id,
+        media_body=MediaFileUpload(str(path), mimetype="image/jpeg", resumable=False),
+    )
+    try:
+        request.execute()
+    except HttpError as exc:
+        raise RuntimeError(f"YouTube thumbnail update failed with HTTP {exc.resp.status}.") from None

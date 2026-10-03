@@ -12,7 +12,7 @@ from unittest.mock import patch
 
 from PIL import Image, ImageDraw
 
-from src.youtube.shorts import CTA_TEXT, MAX_SLIDES, _article_script, _layout_text, _wrap, create_short
+from src.youtube.shorts import CTA_TEXT, MAX_SLIDES, _article_script, _layout_text, _wrap, create_short, create_thumbnail
 
 
 class FakeNarrator:
@@ -71,6 +71,8 @@ class SharedShortRendererTests(unittest.TestCase):
         self.assertNotIn("World or other.", all_text)
         self.assertNotIn("GameSpot reports that GTA 6 won't", all_text)
         self.assertTrue(any("Rockstar confirmed" in headline for headline, _ in beats))
+        self.assertEqual(self.article["title"], beats[0][1])
+        self.assertNotIn("here is the latest story", " ".join(narration for _, narration in beats).lower())
 
     def test_script_prefers_complete_concise_facts_before_slowing_or_rushing_voice(self):
         long_fact = "Rockstar Games shared a lengthy announcement about a complicated development update affecting several different parts of the Grand Theft Auto community across the global fanbase this week."
@@ -98,6 +100,14 @@ class SharedShortRendererTests(unittest.TestCase):
                 box = draw.textbbox((0, 0), line, font=font)
                 self.assertLessEqual(box[2] - box[0], 340)
         self.assertGreater(len(_wrap(draw, long, font_long, 340)), 1)
+
+    def test_custom_thumbnail_is_original_1280x720_jpeg(self):
+        with tempfile.TemporaryDirectory(prefix="macca-thumb-test-") as temp:
+            output = Path(temp) / "thumbnail.jpg"
+            thumb = create_thumbnail(self.article, output, Path(temp) / "work")
+            with Image.open(thumb) as image:
+                self.assertEqual((1280, 720), image.size)
+                self.assertEqual("JPEG", image.format)
 
     @unittest.skipUnless(shutil.which("ffmpeg") and shutil.which("ffprobe"), "FFmpeg/ffprobe required")
     def test_renders_vertical_h264_aac_30fps_in_target_duration(self):

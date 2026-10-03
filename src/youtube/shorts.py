@@ -27,7 +27,7 @@ MUSIC_DIR = ROOT / "assets" / "audio" / "shorts"
 MAX_SLIDES = 4
 MIN_DURATION = 15.0
 MAX_DURATION = 20.0
-CTA_TEXT = "Full story \u2192 link in bio."
+CTA_TEXT = "Full story → Macca Blog. Link on profile."
 
 
 def _font(size: int, bold: bool = False) -> ImageFont.FreeTypeFont:
@@ -178,7 +178,9 @@ def _article_script(article: dict) -> list[tuple[str, str]]:
         if len(selected) >= 2:
             break
 
-    beats: list[tuple[str, str]] = [(title, "Rockstar fans, here is the latest story.")]
+    # Open on the story itself. Shorts lose viewers quickly when the first
+    # seconds are spent on generic channel branding instead of the promised fact.
+    beats: list[tuple[str, str]] = [(title, title)]
     beats.extend((sentence, sentence) for sentence in selected)
     beats.append((CTA_TEXT, CTA_TEXT))
     if len(beats) > MAX_SLIDES:
@@ -412,6 +414,40 @@ def create_legacy_short(article: dict, output: str | Path, workdir: str | Path) 
     output_path = Path(output)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     subprocess.run([ffmpeg, "-hide_banner", "-loglevel", "error", "-y", "-f", "concat", "-safe", "0", "-i", str(listing), "-vf", f"fps={FPS},scale={WIDTH}:{HEIGHT},format=yuv420p", "-c:v", "libx264", "-preset", "veryfast", "-tune", "stillimage", "-movflags", "+faststart", "-t", str(len(slides) * 7), str(output_path)], check=True)
+    return output_path
+
+
+def create_thumbnail(article: dict, output: str | Path, workdir: str | Path) -> Path:
+    """Render an original 1280x720 YouTube thumbnail from article data."""
+    work = Path(workdir)
+    work.mkdir(parents=True, exist_ok=True)
+    background = _load_background(article, work)
+    image = ImageOps.fit(
+        background,
+        (1280, 720),
+        method=Image.Resampling.LANCZOS,
+        centering=(0.5, 0.5),
+    ).convert("RGBA")
+    image = Image.alpha_composite(image, Image.new("RGBA", image.size, (8, 5, 17, 120)))
+    draw = ImageDraw.Draw(image, "RGBA")
+    draw.rounded_rectangle(
+        (46, 390, 1234, 674),
+        radius=34,
+        fill=(14, 9, 27, 224),
+        outline=(255, 104, 173, 210),
+        width=3,
+    )
+    draw.text((62, 48), "MACCA THE GATOR", font=_font(30, True), fill=(77, 224, 237, 255))
+    title = re.sub(r"\s+", " ", str(article.get("socialHook") or article.get("youtubeTitle") or article.get("title") or "GTA & Rockstar News")).strip()
+    font, lines, line_height = _layout_text(draw, title, 1080, 210, max_font_size=64, min_font_size=34)
+    y = 424
+    for line in lines[:3]:
+        draw.text((78, y), line, font=font, fill=(255, 247, 242, 255), stroke_width=1, stroke_fill=(10, 7, 20, 220))
+        y += line_height
+    draw.rounded_rectangle((62, 326, 240, 352), radius=13, fill=(77, 224, 237, 255))
+    output_path = Path(output)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    image.convert("RGB").save(output_path, format="JPEG", quality=92, optimize=True)
     return output_path
 
 

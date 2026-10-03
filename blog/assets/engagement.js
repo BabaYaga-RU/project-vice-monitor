@@ -128,7 +128,9 @@
         })
         .then(function (html) {
           var doc = new DOMParser().parseFromString(html, 'text/html');
-          items.appendChild(cleanFetchedArticle(doc, post));
+          var appended = cleanFetchedArticle(doc, post);
+          items.appendChild(appended);
+          document.dispatchEvent(new CustomEvent('macca:content-added', {detail:{root:appended}}));
           sentinel.classList.remove('is-loading');
         });
     }).catch(function () {

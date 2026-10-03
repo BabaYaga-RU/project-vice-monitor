@@ -1,0 +1,61 @@
+name: Macca weekly YouTube recap
+
+on:
+  schedule:
+    - cron: '17 18 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: macca-youtube-weekly
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: |
+            requirements-youtube.txt
+            requirements-kokoro.txt
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/huggingface/hub
+          key: kokoro-${{ runner.os }}-hexgrad-82m-am-michael-v1
+          restore-keys: |
+            kokoro-${{ runner.os }}-hexgrad-82m-
+      - name: Install renderer dependencies
+        run: |
+          python -m pip install -r requirements-youtube.txt -r requirements-kokoro.txt
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg espeak-ng fonts-dejavu-core
+      - name: Publish weekly recap
+        env:
+          PYTHONDONTWRITEBYTECODE: '1'
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+          KOKORO_VOICE: am_michael
+        run: python -m scripts.youtube_weekly
+      - name: Save publication record
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if [[ -f blog/youtube-weekly.json ]]; then git add blog/youtube-weekly.json; fi
+          if git diff --cached --quiet; then
+            echo "No weekly recap record to save."
+          else
+            git commit -m "Record weekly YouTube recap"
+            git fetch origin main
+            git rebase origin/main
+            git push origin HEAD:main
+          fi

@@ -29,6 +29,60 @@ function showAdBlockNotice() {
   notice.querySelector('button').addEventListener('click', () => notice.remove());
   document.body.append(notice);
 }
+const AFFILIATE_SESSION_KEY = 'macca:affiliate-session:v1';
+
+function affiliateSessionState() {
+  try {
+    const parsed = JSON.parse(sessionStorage.getItem(AFFILIATE_SESSION_KEY) || '{}');
+    return parsed && typeof parsed === 'object' ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+function saveAffiliateSessionState(state) {
+  try { sessionStorage.setItem(AFFILIATE_SESSION_KEY, JSON.stringify(state)); } catch { /* optional */ }
+}
+
+function affiliateKey(ad) {
+  return String(ad.theme || ad.headline || ad.label || ad.href || 'ad').slice(0, 120);
+}
+
+function recordAffiliateEvent(ad, kind) {
+  const state = affiliateSessionState();
+  const key = affiliateKey(ad);
+  const current = state[key] || {impressions:0, clicks:0};
+  if (kind === 'impression') current.impressions += 1;
+  if (kind === 'click') current.clicks += 1;
+  state[key] = current;
+  saveAffiliateSessionState(state);
+}
+
+function affiliateSessionLift(ad) {
+  const current = affiliateSessionState()[affiliateKey(ad)];
+  if (!current || current.impressions < 3) return 0;
+  // Small, bounded per-session reinforcement. Context remains the main signal.
+  const smoothedCtr = (current.clicks + 0.5) / (current.impressions + 5);
+  return Math.max(-0.35, Math.min(1.25, (smoothedCtr - 0.08) * 5));
+}
+
+function observeAffiliateImpression(slot, link, ad) {
+  if (!('IntersectionObserver' in window)) return;
+  if (slot._maccaAdObserver) slot._maccaAdObserver.disconnect();
+  if (slot._maccaAdImpressionTimer) window.clearTimeout(slot._maccaAdImpressionTimer);
+  const observer = new IntersectionObserver(entries => {
+    const visible = entries.some(entry => entry.isIntersecting && entry.intersectionRatio >= 0.5);
+    if (!visible || link.dataset.impressionRecorded === '1') return;
+    slot._maccaAdImpressionTimer = window.setTimeout(() => {
+      if (!document.contains(link) || link.dataset.impressionRecorded === '1') return;
+      link.dataset.impressionRecorded = '1';
+      recordAffiliateEvent(ad, 'impression');
+    }, 1000);
+  }, {threshold:[0.5]});
+  observer.observe(link);
+  slot._maccaAdObserver = observer;
+}
+
 function mountPklavcPopup() {
   const acceptedKey = 'macca:pklavc-blog-accepted';
   const dismissedKey = 'macca:pklavc-blog-dismissed-at';
@@ -79,13 +133,24 @@ function mountPklavcPopup() {
   window.addEventListener('scroll', showAtScrollDepth, {passive: true});
 }
 
-async function mountAds() {
-  mountPklavcPopup();
+let adConfigPromise = null;
+
+async function loadAdConfig() {
+  if (!adConfigPromise) {
+    adConfigPromise = fetch('/ads/config.json', {cache: 'no-store'}).then(async response => {
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return response.json();
+    });
+  }
+  return adConfigPromise;
+}
+
+async function mountAds(root = document) {
+  if (root === document) mountPklavcPopup();
   try {
-    const response = await fetch('/ads/config.json', {cache: 'no-store'});
-    if (!response.ok) return;
-    const config = await response.json();
-    const placements = [...document.querySelectorAll('[data-ad-slot]')]
+    const config = await loadAdConfig();
+    const placements = [...root.querySelectorAll('[data-ad-slot]')]
+      .filter(slot => slot.dataset.adRuntimeMounted !== '1')
       .map(slot => {
         const name = slot.dataset.adSlot;
         const source = name.startsWith('sidebar-pklavc')
@@ -94,7 +159,9 @@ async function mountAds() {
             ? config.slots?.['sidebar-affiliate']
             : name.startsWith('sticky-affiliate')
               ? config.slots?.['sticky-affiliate']
-            : config.slots?.[name];
+              : name === 'article-inline'
+                ? [...(config.slots?.['article-inline'] || []), ...(config.slots?.['sidebar-affiliate'] || [])]
+                : config.slots?.[name];
         return {slot, ads: (source || []).filter(ad => ad.enabled && ad.href && ad.image)};
       })
       .filter(placement => placement.ads.length);
@@ -130,12 +197,41 @@ async function mountAds() {
         image.loading = 'lazy';
         art.append(image);
         link.append(copy, art);
+        link.addEventListener('click', () => recordAffiliateEvent(ad, 'click'), {once:true});
         slot.replaceChildren(link);
+        slot.dataset.adRuntimeMounted = '1';
+        observeAffiliateImpression(slot, link, ad);
     };
 
     const stickyPlacements = placements.filter(({slot}) => slot.dataset.adSlot.startsWith('sticky-affiliate'));
     const regularPlacements = placements.filter(({slot}) => !slot.dataset.adSlot.startsWith('sticky-affiliate'));
-    const randomAd = ads => ads[Math.floor(Math.random() * ads.length)];
+    const contextText = String(document.body.dataset.adContext || '').toLowerCase();
+
+    const affinity = ad => {
+      const theme = String(ad.theme || '').toLowerCase();
+      const headline = String(ad.headline || ad.label || '').toLowerCase();
+      let score = Math.random() * 0.35;
+      const gaming = /gta|rockstar|gaming|gameplay|console|ps5|xbox|pc|vehicle|map|graphics|performance/.test(contextText);
+      const security = /hack|breach|security|privacy|leak|cyber|shinyhunters/.test(contextText);
+      const shopping = /collector|edition|merch|preorder|pre-order|price|product|case|accessor/.test(contextText);
+      const mobile = /mobile|phone|android|ios|handheld/.test(contextText);
+      if (gaming && /redmagic|nubia|geekbuying|govee|sunsky/.test(theme + ' ' + headline)) score += 4;
+      if (security && /hidemyname|turbovpn|vpn/.test(theme + ' ' + headline)) score += 5;
+      if (shopping && /aliexpress|alibaba|gshopper|sunsky|icases|geekbuying/.test(theme + ' ' + headline)) score += 4;
+      if (mobile && /redmagic|nubia|icases|sunsky/.test(theme + ' ' + headline)) score += 3;
+      if (!gaming && !security && !shopping && !mobile) {
+        if (/redmagic|geekbuying|aliexpress|gshopper/.test(theme + ' ' + headline)) score += 1;
+      }
+      score += affiliateSessionLift(ad);
+      return score;
+    };
+
+    const rankedAds = ads => [...ads].sort((a, b) => affinity(b) - affinity(a));
+    const contextualAd = (ads, excluded = new Set()) => {
+      const available = ads.filter(ad => !excluded.has(ad.href));
+      const pool = rankedAds(available.length ? available : ads).slice(0, Math.min(4, ads.length));
+      return pool[Math.floor(Math.random() * Math.max(1, pool.length))] || ads[0];
+    };
     const scheduleRotation = advance => {
       window.setTimeout(() => {
         advance();
@@ -144,14 +240,15 @@ async function mountAds() {
     };
 
     for (const {slot, ads} of regularPlacements) {
-      let index = Math.floor(Math.random() * ads.length);
-      render(slot, ads[index]);
+      let current = contextualAd(ads);
+      let index = ads.indexOf(current);
+      render(slot, current);
       if (ads.length > 1) {
         const advance = () => {
-          let next = Math.floor(Math.random() * (ads.length - 1));
-          if (next >= index) next += 1;
-          index = next;
-          render(slot, ads[index]);
+          const candidates = ads.filter((_, candidateIndex) => candidateIndex !== index);
+          const nextAd = contextualAd(candidates);
+          index = ads.indexOf(nextAd);
+          render(slot, nextAd);
         };
         scheduleRotation(advance);
       }
@@ -160,7 +257,7 @@ async function mountAds() {
     const occupied = new Set();
     for (const placement of stickyPlacements) {
       const uniqueAds = placement.ads.filter(ad => !occupied.has(ad.href));
-      placement.currentAd = randomAd(uniqueAds.length ? uniqueAds : placement.ads);
+      placement.currentAd = contextualAd(uniqueAds.length ? uniqueAds : placement.ads);
       occupied.add(placement.currentAd.href);
       render(placement.slot, placement.currentAd);
     }
@@ -174,7 +271,7 @@ async function mountAds() {
         const alternatives = available.filter(ad => ad.href !== placement.currentAd.href);
         if (alternatives.length) available = alternatives;
         if (!available.length) return;
-        placement.currentAd = randomAd(available);
+        placement.currentAd = contextualAd(available, usedByOtherBanners);
         render(placement.slot, placement.currentAd);
       };
       scheduleRotation(advance);
@@ -185,4 +282,8 @@ async function mountAds() {
   }
 }
 
-document.addEventListener('DOMContentLoaded', mountAds);
+document.addEventListener('DOMContentLoaded', () => mountAds(document));
+document.addEventListener('macca:content-added', event => {
+  const root = event.detail?.root;
+  if (root && root.querySelectorAll) mountAds(root);
+});
