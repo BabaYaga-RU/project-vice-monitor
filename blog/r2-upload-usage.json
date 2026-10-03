@@ -1,16 +1,14 @@
 {
   "schemaVersion": 1,
   "month": "2026-10",
-  "monthlyUploadAttempts": 8,
+  "monthlyUploadAttempts": 10,
   "recentUploadAttempts24h": [
-    "2026-10-01T16:29:26.190272Z",
-    "2026-10-01T16:29:26.190272Z",
-    "2026-10-01T21:54:27.160050Z",
-    "2026-10-01T21:54:27.160050Z",
     "2026-10-02T01:46:28.933584Z",
     "2026-10-02T01:46:28.933584Z",
     "2026-10-02T15:52:02.677733Z",
-    "2026-10-02T15:52:02.677733Z"
+    "2026-10-02T15:52:02.677733Z",
+    "2026-10-03T00:33:35.867858Z",
+    "2026-10-03T00:33:35.867858Z"
   ],
   "articles": {
     "gta-6-won-t-spoof-disney-world-says-rockstar-here-s-what-we-know": {
@@ -78,6 +76,14 @@
       "uploadedAt": "2026-10-02T15:52:16.638474Z",
       "publicVerifiedAt": "2026-10-02T15:52:16.858220Z",
       "deletedAt": "2026-10-02T15:52:55.043445Z"
+    },
+    "gta-6-had-a-really-busy-week": {
+      "objectKey": "instagram-reels/0a0297c65a81477db0f65a66302d6a1d-gta-6-had-a-really-busy-week.mp4",
+      "month": "2026-10",
+      "attemptsReserved": 2,
+      "attemptsConsumed": 0,
+      "reservedAt": "2026-10-03T00:33:35.867858Z",
+      "sizeBytes": 600292
     }
   }
 }
