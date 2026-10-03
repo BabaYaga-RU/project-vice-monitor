@@ -414,40 +414,45 @@ async function recordMonitorFailure() {
   console.log(`Stored a six-hour AI retry cooldown for ${candidate.title}.`);
 }
 
-async function queueSocialPublication(p) {
+async function queueSocialPublication(p,{update=false}={}) {
+  const revision=String(p.updatedAt||new Date().toISOString()).replace(/[^0-9]/g,'').slice(0,12);
+  const publicationKey=update?`${p.slug}-update-${revision}`:p.slug;
+  const score=socialScore(p)+(update?8:0);
   if(process.env.INSTAGRAM_QUEUE_FILE) {
     const queue=await readJson(process.env.INSTAGRAM_QUEUE_FILE,[]);
-    if(!queue.some(item=>item.slug===p.slug)) {
-      queue.push({slug:p.slug,socialScore:socialScore(p),queuedAt:new Date().toISOString()});
+    if(!queue.some(item=>(item.publicationKey||item.slug)===publicationKey)) {
+      queue.push({slug:p.slug,publicationKey,forceRepublish:update,socialScore:score,queuedAt:new Date().toISOString()});
       await writeJson(process.env.INSTAGRAM_QUEUE_FILE,queue);
     }
   }
   if(process.env.YOUTUBE_QUEUE_FILE) {
     try {
       const queue=await readJson(process.env.YOUTUBE_QUEUE_FILE,[]);
-      if(!queue.some(item=>item.slug===p.slug)) {
+      if(!queue.some(item=>(item.publicationKey||item.slug)===publicationKey)) {
         queue.push({
           slug:p.slug,
+          publicationKey,
+          forceRepublish:update,
           articleUrl:`${BASE}/blog/${encodeURIComponent(p.slug)}/`,
           sourceUrl:p.sourceUrl,
           title:p.title,
           description:p.description,
-          youtubeTitle:p.youtubeTitle||p.title,
-          socialHook:p.socialHook||p.description||p.title,
+          youtubeTitle:update?`UPDATE: ${p.youtubeTitle||p.title}`:(p.youtubeTitle||p.title),
+          socialHook:update?`Update: ${p.socialHook||p.description||p.title}`:(p.socialHook||p.description||p.title),
           sections:p.sections||[],
           tags:p.tags||[],
           thumbnail:p.thumbnail||'',
           thumbnailAlt:p.thumbnailAlt||'',
           inlineImages:p.inlineImages||[],
           sources:p.sources||[],
-          socialScore:socialScore(p),
+          socialScore:score,
           queuedAt:new Date().toISOString()
         });
         await writeJson(process.env.YOUTUBE_QUEUE_FILE,queue);
-        console.log(`Queued ${p.slug} for YouTube Shorts publication.`);
+        console.log(`Queued ${publicationKey} for YouTube Shorts publication.`);
       }
     } catch(error) {
-      console.error(`Could not add ${p.slug} to the YouTube queue; blog publication will continue: ${error.message}`);
+      console.error(`Could not add ${publicationKey} to the YouTube queue; blog publication will continue: ${error.message}`);
     }
   }
 }
