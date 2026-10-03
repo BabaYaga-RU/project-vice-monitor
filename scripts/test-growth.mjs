@@ -8,7 +8,7 @@ const [
   adsTxt, blog, seo, ads, engagement, instagram, instagramMetrics, queue, socialVideo,
   shorts, ytMetrics, ytWorkflow, igWorkflow, weeklyWorkflow, dailyWorkflow,
   growth, searchConsole, searchWorkflow, searchOptimizeWorkflow, indexNow, indexWorkflow,
-  worker, wrangler, webAnalyticsLoader, webAnalyticsWorkflow, covers, renderStatic
+  worker, wrangler, webAnalyticsLoader, webAnalyticsWorkflow, covers
 ] = await Promise.all([
   read('ads.txt'),
   read('scripts/blog.mjs'),
@@ -36,7 +36,6 @@ const [
   read('analytics/web-analytics.js'),
   read('.github/workflows/web-analytics.yml'),
   read('scripts/article_covers.py'),
-  read('render-static.yaml'),
 ]);
 
 assert.match(adsTxt, /google\.com, pub-7821352420515145, DIRECT, f08c47fec0942fa0/);
@@ -120,10 +119,6 @@ assert.match(searchOptimizeWorkflow, /search-optimize/);
 assert.match(indexNow, /api\.indexnow\.org\/indexnow/);
 assert.match(indexWorkflow, /Notify IndexNow/);
 
-assert.match(renderStatic, /runtime: static/);
-assert.match(renderStatic, /staticPublishPath: \./);
-assert.match(renderStatic, /buildFilter:/);
-assert.match(renderStatic, /blog\/youtube-metrics\.json/);
 
 assert.doesNotMatch(shorts, /Rockstar fans, here is the latest story/);
 assert.match(shorts, /Full story .*Macca Blog\. Link on profile\./);
