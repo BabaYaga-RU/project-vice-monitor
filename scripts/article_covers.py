@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import re
+from datetime import datetime
 from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont, ImageOps
@@ -107,6 +108,19 @@ def render_discover(post: dict, output: Path):
     base.convert("RGB").save(output, "JPEG", quality=91, optimize=True)
 
 
+def needs_refresh(output: Path, post: dict) -> bool:
+    if not output.is_file():
+        return True
+    updated = str(post.get("updatedAt") or "").strip()
+    if not updated:
+        return False
+    try:
+        updated_at = datetime.fromisoformat(updated.replace("Z", "+00:00")).timestamp()
+    except ValueError:
+        return False
+    return output.stat().st_mtime < updated_at
+
+
 def main():
     posts = json.loads(POSTS.read_text(encoding="utf-8"))
     changed = False
@@ -116,10 +130,10 @@ def main():
             continue
         social_output = OUT_DIR / f"{slug}.jpg"
         discover_output = OUT_DIR / f"{slug}-discover.jpg"
-        if not social_output.is_file():
+        if needs_refresh(social_output, post):
             render_social(post, social_output)
             print(f"Generated {social_output.relative_to(ROOT)}")
-        if not discover_output.is_file():
+        if needs_refresh(discover_output, post):
             render_discover(post, discover_output)
             print(f"Generated {discover_output.relative_to(ROOT)}")
 
