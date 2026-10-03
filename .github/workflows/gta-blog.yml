@@ -6,11 +6,17 @@ on:
     paths:
       - '.github/workflows/gta-blog.yml'
       - 'scripts/blog.mjs'
+      - 'scripts/growth_v2.mjs'
       - 'scripts/article_covers.py'
+      - 'scripts/search_console.py'
+      - 'scripts/indexnow.mjs'
       - 'scripts/test-engagement.mjs'
       - 'scripts/test-growth.mjs'
       - 'blog/assets/blog.css'
+      - 'blog/assets/growth.css'
       - 'blog/assets/engagement.js'
+      - 'ads/ads.js'
+      - 'analytics/**'
       - 'scripts/build-seo.mjs'
       - 'scripts/instagram.mjs'
       - 'scripts/social_video.py'
@@ -112,9 +118,13 @@ jobs:
         run: |
           node scripts/test-growth.mjs
           node --check scripts/blog.mjs
+          node --check scripts/growth_v2.mjs
+          node --check scripts/indexnow.mjs
           node --check scripts/instagram.mjs
           node --check scripts/instagram_metrics.mjs
-          python -m py_compile scripts/article_covers.py scripts/youtube_metrics.py scripts/youtube_queue.py scripts/youtube_weekly.py src/youtube/shorts.py src/youtube/upload.py
+          node --check ads/ads.js
+          node --check analytics/web-analytics.js
+          python -m py_compile scripts/article_covers.py scripts/search_console.py scripts/youtube_metrics.py scripts/youtube_queue.py scripts/youtube_weekly.py scripts/social_video.py src/youtube/shorts.py src/youtube/upload.py
       - name: Check whether social video queues contain work
         id: social_video_work
         if: always()
