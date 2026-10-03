@@ -1,34 +1,3 @@
-function detectAdBlock() {
-  const probe = document.createElement('div');
-  probe.className = 'adsbox ad-banner ad-unit adsbygoogle';
-  probe.setAttribute('aria-hidden', 'true');
-  probe.style.cssText = 'position:absolute!important;left:-10000px!important;top:-10000px!important;width:12px!important;height:12px!important;';
-  document.body.append(probe);
-  const blockedByStyle = probe.offsetHeight === 0 || getComputedStyle(probe).display === 'none';
-  probe.remove();
-
-  const scriptProbe = document.createElement('script');
-  scriptProbe.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js';
-  scriptProbe.async = true;
-  let settled = false;
-  const timer = window.setTimeout(() => {
-    if (!settled) showAdBlockNotice();
-  }, 2200);
-  scriptProbe.onload = () => { settled = true; window.clearTimeout(timer); };
-  scriptProbe.onerror = () => { settled = true; window.clearTimeout(timer); showAdBlockNotice(); };
-  document.head.append(scriptProbe);
-  if (blockedByStyle) showAdBlockNotice();
-}
-
-function showAdBlockNotice() {
-  if (document.querySelector('.adblock-notice')) return;
-  const notice = document.createElement('aside');
-  notice.className = 'adblock-notice';
-  notice.setAttribute('role', 'status');
-  notice.innerHTML = '<div><strong>Ajude a manter o blog no ar</strong><p>Percebemos que um bloqueador de an&atilde;ncios pode estar ativo. Se puder, desative-o para este site e atualize a p&aacute;gina. As propagandas ajudam a cobrir os custos e a manter o blog dispon&iacute;vel, para publicarmos novidades o mais r&aacute;pido poss&iacute;vel.</p></div><button type="button" aria-label="Fechar aviso">&times;</button>';
-  notice.querySelector('button').addEventListener('click', () => notice.remove());
-  document.body.append(notice);
-}
 const AFFILIATE_SESSION_KEY = 'macca:affiliate-session:v1';
 const affiliateEventBuffer = new Map();
 let affiliateAnalyticsBase = '';
