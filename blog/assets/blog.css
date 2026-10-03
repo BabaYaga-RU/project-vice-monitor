@@ -88,3 +88,5 @@ footer{align-items:flex-start;flex-wrap:wrap;gap:1rem 2rem;padding-top:1.5rem;pa
 .article-byline{margin:.7rem 0 0;color:var(--muted);font-size:.82rem}.article-byline a{color:var(--cyan);text-decoration:none}.article-byline a:hover{text-decoration:underline}
 
 .article-share{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.75rem}.article-share button{appearance:none;border:1px solid rgba(255,255,255,.16);border-radius:999px;background:rgba(255,255,255,.06);color:var(--text);padding:.48rem .72rem;font:700 .74rem/1 Inter,system-ui,sans-serif;cursor:pointer}.article-share button:hover{border-color:var(--cyan);color:var(--cyan)}
+
+.archive-pagination{display:flex;justify-content:space-between;gap:.75rem;flex-wrap:wrap;margin:1.5rem 0 0}.archive-pagination a{display:inline-flex;align-items:center;padding:.65rem .85rem;border:1px solid var(--line);border-radius:999px;color:var(--cyan);background:rgba(255,255,255,.035);font:800 .78rem/1 Inter,system-ui,sans-serif;text-decoration:none}.archive-pagination a:hover{border-color:var(--cyan);background:rgba(77,224,237,.06)}
