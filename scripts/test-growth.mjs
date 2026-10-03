@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 
 const read = path => fs.readFile(path, 'utf8');
 
-const [adsTxt, blog, seo, ads, engagement, instagram, queue, shorts, ytMetrics, ytWorkflow, igWorkflow, weeklyWorkflow] = await Promise.all([
+const [adsTxt, blog, seo, ads, engagement, instagram, queue, shorts, ytMetrics, ytWorkflow, igWorkflow, weeklyWorkflow, dailyWorkflow] = await Promise.all([
   read('ads.txt'),
   read('scripts/blog.mjs'),
   read('scripts/build-seo.mjs'),
@@ -17,6 +17,7 @@ const [adsTxt, blog, seo, ads, engagement, instagram, queue, shorts, ytMetrics, 
   read('.github/workflows/youtube-metrics.yml'),
   read('.github/workflows/instagram-metrics.yml'),
   read('.github/workflows/youtube-weekly.yml'),
+  read('.github/workflows/daily-analysis.yml'),
 ]);
 
 assert.match(adsTxt, /google\.com, pub-7821352420515145, DIRECT, f08c47fec0942fa0/);
@@ -68,5 +69,10 @@ assert.match(ytMetrics, /audienceWatchRatio/);
 assert.match(ytWorkflow, /daily performance and retention/i);
 assert.match(igWorkflow, /Collect Instagram Reel metrics/);
 assert.match(weeklyWorkflow, /Macca weekly YouTube recap/);
+assert.match(dailyWorkflow, /Macca daily deep analysis/);
+assert.match(blog, /generateDeepDive/);
+assert.match(blog, /contentType:'analysis'/);
+assert.match(blog, /socialImage\|\|x\.thumbnail/);
+assert.match(blog, /imagePath=String\(p\.socialImage/);
 
 console.log('Growth pipeline checks passed.');
