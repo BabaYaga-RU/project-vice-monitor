@@ -3,6 +3,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
 import crypto from 'node:crypto';
+import { buildGrowthPages, relatedHubs, socialScore, searchConsoleBonus } from './growth_v2.mjs';
 
 const ROOT = process.cwd();
 // Growth pipeline: generated publication state is rebuilt from blog/posts.json.
@@ -35,9 +36,11 @@ const HISTORY_FILE = path.join(ROOT, 'blog', 'history.json');
 const MONITOR_STATE_FILE = path.join(ROOT, 'blog', 'monitor-state.json');
 const YOUTUBE_METRICS_FILE = path.join(ROOT, 'blog', 'youtube-metrics.json');
 const INSTAGRAM_METRICS_FILE = path.join(ROOT, 'blog', 'instagram-metrics.json');
+const SEARCH_CONSOLE_FILE = path.join(ROOT, 'blog', 'search-console.json');
 const CANDIDATE_FILE = path.join(process.env.RUNNER_TEMP || os.tmpdir(), 'macca-blog-candidate.json');
 let successfulFeedReads = 0;
 let performanceFeedback = {enabled:false, sampleCount:0, tags:{}};
+let searchFeedback = {topicSignals:[]};
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const slugify = s => s.toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,80) || 'gta-story';
 const strip = s => s.replace(/<[^>]*>/g,' ').replace(/&amp;/g,'&').replace(/&#39;/g,"'").replace(/&quot;/g,'"').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/\s+/g,' ').trim();
@@ -84,7 +87,7 @@ const instagramMarkup = () => `<a class="footer-social" href="https://www.instag
 const youtubeMarkup = () => `<a class="footer-social" href="https://www.youtube.com/@macca_the_gator_oficial" target="_blank" rel="me noopener noreferrer" aria-label="YouTube: Macca the Gator Oficial"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.6 3.6 12 3.6 12 3.6s-7.6 0-9.4.5A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.8.5 9.4.5 9.4.5s7.6 0 9.4-.5a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8ZM9.6 15.6V8.4l6.3 3.6-6.3 3.6Z"/></svg><span>YouTube</span></a>`;
 const socialLinksMarkup = () => `${instagramMarkup()}${youtubeMarkup()}`;
 const footerMarkup = () => `<footer><div class="footer-about"><a href="/blog/">Macca Blog</a><span>Independent coverage, linked to its sources.</span></div><nav class="footer-links" aria-label="Footer navigation"><a href="/blog/">Home</a><a href="/blog/">Macca Blog</a><a href="/about/">About</a><a href="/contact/">Contact</a><a href="/privacy/">Privacy Policy</a><a href="/blog/feed.xml">RSS</a></nav><div class="footer-socials">${socialLinksMarkup()}</div><p class="footer-disclaimer">Macca Lab is an independent project and is not affiliated with or endorsed by Rockstar Games or Take-Two Interactive.</p></footer>`;
-const ADSENSE_SCRIPT = '<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7821352420515145" crossorigin="anonymous"></script>';
+const ADSENSE_SCRIPT = ''; // Keep ads.txt ready; load AdSense only after Google approves the site.
 
 async function readJson(file, fallback) { try { return JSON.parse(await fs.readFile(file,'utf8')); } catch { return fallback; } }
 async function writeJson(file, data) { await fs.mkdir(path.dirname(file),{recursive:true}); await fs.writeFile(file, JSON.stringify(data,null,2)+'\n'); }
@@ -153,6 +156,7 @@ async function refreshPerformanceFeedback(posts) {
   const bySlug=new Map(posts.map(post=>[post.slug,post]));
   const youtube=await readJson(YOUTUBE_METRICS_FILE,{videos:{}});
   const instagram=await readJson(INSTAGRAM_METRICS_FILE,{media:{}});
+  searchFeedback=await readJson(SEARCH_CONSOLE_FILE,{topicSignals:[]});
   const observations=[];
 
   for(const entry of Object.values(youtube.videos||{})) {
@@ -254,14 +258,14 @@ async function ask(prompt) {
     const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:p}]}],generationConfig:{responseMimeType:'application/json',temperature:0.4}})});
     if(!r.ok) throw new Error(`HTTP ${r.status}`); return (await r.json()).candidates?.[0]?.content?.parts?.[0]?.text;
   }]);
+  if(process.env.OPENROUTER_API_KEY) attempts.push(['OpenRouter Free',async(p)=>{
+    const r=await fetch('https://openrouter.ai/api/v1/chat/completions',{method:'POST',headers:{authorization:`Bearer ${process.env.OPENROUTER_API_KEY}`,'content-type':'application/json','HTTP-Referer':BASE,'X-Title':'Macca Blog'},body:JSON.stringify({model:'openrouter/free',messages:[{role:'user',content:p}],response_format:{type:'json_object'}})});
+    if(!r.ok) throw new Error(`HTTP ${r.status}`); return (await r.json()).choices?.[0]?.message?.content;
+  }]);
   if(process.env.CLOUDFLARE_API_TOKEN && process.env.CLOUDFLARE_ACCOUNT_ID) attempts.push(['Cloudflare Workers AI',async(p)=>{
     const url=`https://api.cloudflare.com/client/v4/accounts/${process.env.CLOUDFLARE_ACCOUNT_ID}/ai/run/@cf/meta/llama-3.1-8b-instruct`;
     const r=await fetch(url,{method:'POST',headers:{authorization:`Bearer ${process.env.CLOUDFLARE_API_TOKEN}`,'content-type':'application/json'},body:JSON.stringify({messages:[{role:'user',content:p}]})});
     if(!r.ok) throw new Error(`HTTP ${r.status}`); return (await r.json()).result?.response;
-  }]);
-  if(process.env.OPENROUTER_API_KEY) attempts.push(['OpenRouter',async(p)=>{
-    const r=await fetch('https://openrouter.ai/api/v1/chat/completions',{method:'POST',headers:{authorization:`Bearer ${process.env.OPENROUTER_API_KEY}`,'content-type':'application/json','HTTP-Referer':BASE,'X-Title':'Macca Blog'},body:JSON.stringify({model:'openrouter/auto',messages:[{role:'user',content:p}],response_format:{type:'json_object'}})});
-    if(!r.ok) throw new Error(`HTTP ${r.status}`); return (await r.json()).choices?.[0]?.message?.content;
   }]);
   if(!attempts.length) throw new Error('No AI provider credentials configured.');
   for(const [name,call] of attempts) {
@@ -279,41 +283,56 @@ function parseModel(text) {
   return JSON.parse(raw.slice(a,b+1));
 }
 
-function articleHtml(p, all) {
+function articleHtml(p, all, videoRecord=null) {
   const url=`${BASE}/blog/${p.slug}/`;
   const seoTitle=String(p.seoTitle||p.title||'Macca Blog').trim();
   const seoDescription=String(p.seoDescription||p.description||'').trim();
-  const imagePath=String(p.socialImage||'').startsWith('/') ? String(p.socialImage) : '/images/macca-blog-banner.webp';
+  const imagePath=String(p.discoverImage||p.socialImage||'').startsWith('/') ? String(p.discoverImage||p.socialImage) : '/images/macca-blog-banner.webp';
   const socialImage=String(p.socialImage||'').startsWith('/')
     ? new URL(p.socialImage,`${BASE}/`).href
     : /^https:\/\//i.test(String(p.socialImage||'')) ? String(p.socialImage)
     : /^https:\/\//i.test(String(p.thumbnail||'')) ? String(p.thumbnail)
     : `${BASE}/images/macca-blog-banner.jpg`;
+  const discoverImage=String(p.discoverImage||'').startsWith('/') ? new URL(p.discoverImage,`${BASE}/`).href : socialImage;
   const articleType=/history/i.test(String(p.category||'')) ? 'BlogPosting' : 'NewsArticle';
   const adFallback=slot=>adMarkup(slot);
   const related=all.filter(x=>x.slug!==p.slug && (x.category===p.category || (Array.isArray(x.tags) && Array.isArray(p.tags) && x.tags.some(t=>p.tags.includes(t))))).slice(0,4);
   const latest=all.filter(x=>x.slug!==p.slug).slice(0,5);
   const position=all.findIndex(x=>x.slug===p.slug);
   const next=position>=0 && position<all.length-1 ? all[position+1] : null;
-  const body=(p.sections||[]).map(s=>`<section><h2>${esc(s.heading)}</h2>${(s.paragraphs||[]).map(x=>`<p>${esc(x)}</p>`).join('')}</section>`).join('');
+  const wordCount=(p.sections||[]).flatMap(section=>section.paragraphs||[]).join(' ').split(/\s+/).filter(Boolean).length;
+  const inlineAdCount=wordCount<300?1:wordCount<800?2:3;
+  const sectionMarkup=(p.sections||[]).map(s=>`<section><h2>${esc(s.heading)}</h2>${(s.paragraphs||[]).map(x=>`<p>${esc(x)}</p>`).join('')}</section>`);
+  const body=sectionMarkup.map((markup,index)=>{
+    if(index<sectionMarkup.length-1 && index<inlineAdCount-1) return `${markup}<div class="ad-slot" data-ad-slot="article-inline-${index+2}" aria-label="Advertisement">${adFallback('article-inline')}</div>`;
+    return markup;
+  }).join('');
   const inlineImages=(p.inlineImages||[]).filter(x=>/^https:\/\//i.test(x.url||'')).map(x=>`<figure class="source-image"><a href="${esc(x.sourceUrl||p.sourceUrl||'#')}" target="_blank" rel="noopener noreferrer"><img src="${esc(x.url)}" alt="${esc(x.alt||'Image accompanying the source report')}" loading="lazy" referrerpolicy="no-referrer"></a>${x.caption?`<figcaption>${esc(x.caption)}</figcaption>`:''}</figure>`).join('');
   const cards=(items)=>items.length?items.map(x=>`<a class="post-card" href="/blog/${encodeURIComponent(x.slug)}/"><small>${esc(x.category)} · ${esc(x.date)}</small><strong>${esc(x.title)}</strong><span>${esc(x.description)}</span></a>`).join(''):'<p>More stories coming soon.</p>';
   const relatedCards=related.slice(0,3).map(x=>`<a class="related-feature" href="/blog/${encodeURIComponent(x.slug)}/"><img src="${esc(x.socialImage||x.thumbnail||'/images/macca-blog-banner.webp')}" alt="" loading="lazy" onerror="this.onerror=null;this.src='/images/macca-blog-banner.webp'"><span><small>${esc(x.category)} · ${esc(x.date)}</small><strong>${esc(x.title)}</strong></span></a>`).join('');
   const nextStory=next?`<aside class="next-story-peek" data-next-story-peek aria-label="Next story"><button type="button" class="next-story-close" aria-label="Dismiss next story suggestion">×</button><span>Next story</span><a href="/blog/${encodeURIComponent(next.slug)}/">${esc(next.title)}</a></aside>`:'';
   const continuousFeed=next?`<section class="continuous-feed" id="continuous-feed" aria-label="Continue reading"><div class="continuous-feed-heading"><span>KEEP READING</span><strong>More from Macca Blog</strong></div><div data-continuous-items></div><div class="continuous-sentinel" data-continuous-sentinel><span>Scroll for the next story</span></div></section>`:'';
+  const hubs=relatedHubs(p);
+  const topicLinks=hubs.length?`<aside class="article-topic-links"><strong>Explore this topic</strong><nav>${hubs.map(hub=>`<a href="/${hub.slug}/">${esc(hub.title)}</a>`).join('')}</nav></aside>`:'';
+  const videoId=String(videoRecord?.youtubeVideoId||'').trim();
+  const videoCard=videoId?`<section class="article-video-card" data-youtube-video="${esc(videoId)}"><button type="button"><strong>Watch the short version</strong><span>Load this story on YouTube</span></button></section>`:'';
+  const videoSchema=videoId?{"@type":"VideoObject","name":p.youtubeTitle||p.title,"description":p.description,"thumbnailUrl":[socialImage],"uploadDate":videoRecord.publishedAt||p.updatedAt||p.date,"embedUrl":`https://www.youtube.com/embed/${videoId}`,"contentUrl":videoRecord.youtubeUrl||`https://www.youtube.com/watch?v=${videoId}`}:null;
   const schema={"@context":"https://schema.org","@graph":[
-    {"@type":articleType,headline:p.title,description:p.description,datePublished:p.date,dateModified:p.updatedAt||p.date,mainEntityOfPage:{"@type":"WebPage","@id":url},image:[socialImage],author:{"@type":"Organization","name":"Macca Blog","url":`${BASE}/blog/`},publisher:{"@type":"Organization","name":"Macca Blog","url":`${BASE}/blog/`,"logo":{"@type":"ImageObject","url":`${BASE}/images/favicon-512x512.png`,"width":512,"height":512}}},
+    {"@type":articleType,headline:p.title,description:p.description,datePublished:p.date,dateModified:p.updatedAt||p.date,mainEntityOfPage:{"@type":"WebPage","@id":url},image:[discoverImage,socialImage],author:{"@type":"Organization","name":"Macca Blog","url":`${BASE}/blog/`},publisher:{"@type":"Organization","name":"Macca Blog","url":`${BASE}/blog/`,"logo":{"@type":"ImageObject","url":`${BASE}/images/favicon-512x512.png`,"width":512,"height":512}}},
     {"@type":"BreadcrumbList","itemListElement":[
       {"@type":"ListItem","position":1,"name":"Macca Blog","item":`${BASE}/blog/`},
       {"@type":"ListItem","position":2,"name":p.title,"item":url}
-    ]}
+    ]},
+    ...(videoSchema?[videoSchema]:[])
   ]};
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(seoTitle)} | Macca Blog</title><meta name="description" content="${esc(seoDescription)}"><meta name="robots" content="index, follow, max-image-preview:large"><link rel="canonical" href="${url}"><meta property="og:type" content="article"><meta property="og:title" content="${esc(p.title)}"><meta property="og:description" content="${esc(p.description)}"><meta property="og:image" content="${esc(socialImage)}"><meta property="og:url" content="${url}"><meta property="og:site_name" content="Macca Blog"><meta property="og:locale" content="en_US"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="${esc(p.title)}"><meta name="twitter:description" content="${esc(p.description)}"><meta name="twitter:image" content="${esc(socialImage)}"><link rel="icon" href="/favicon.ico" sizes="any"><link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest"><link rel="alternate" type="application/rss+xml" title="Macca Blog RSS" href="${BASE}/blog/feed.xml"><link rel="stylesheet" href="/blog/assets/blog.css"><script defer src="/blog/assets/engagement.js"></script><script type="application/ld+json">${JSON.stringify(schema).replace(/</g,'\\u003c')}</script><link rel="stylesheet" href="/ads/ads.css"><script defer src="/ads/ads.js"></script><link rel="stylesheet" href="/skylet/widget.css?v=20260929.1">${ADSENSE_SCRIPT}</head><body class="has-sticky-ads" data-macca-current-slug="${esc(p.slug)}" data-ad-context="${esc([p.category,...(p.tags||[])].join(' '))}"><header class="top"><a class="brand" href="/blog/">MACCA <b>BLOG</b></a><nav aria-label="Main navigation"><a href="/blog/">Blog</a><a href="/study/">Study</a><a href="/play/">Play</a></nav></header><main class="layout"><article><a class="back" href="/blog/">← All stories</a><figure class="article-hero"><img src="${esc(imagePath)}" alt="${esc(p.imageAlt||'Macca the Gator at sunset in Vice City')}" onerror="this.onerror=null;this.src='/images/macca-blog-banner.jpg'"><figcaption class="hero-copy"><p class="eyebrow">${esc(p.category)} · <time datetime="${esc(p.date)}">${esc(p.date)}</time></p><h1>${esc(p.title)}</h1><p class="hero-dek">${esc(p.description)}</p></figcaption></figure><div class="article-body">${body}${inlineImages}<h2>Sources and notes</h2><p>Claims, reports, leaks and rumors are attributed to their original sources. Unconfirmed information is labeled clearly and should not be read as established fact.</p><ul>${(p.sources||[]).map(s=>`<li><a rel="noopener noreferrer" href="${esc(s.url)}">${esc(s.title)}</a> <span>(${esc(s.publisher||new URL(s.url).hostname)})</span></li>`).join('')}</ul></div><div class="ad-slot" data-ad-slot="article-inline" aria-label="Advertisement">${adFallback('article-inline')}</div><section class="article-related" aria-labelledby="related-stories-title"><div class="section-heading"><span>DISCOVER MORE</span><h2 id="related-stories-title">Related stories</h2></div><div class="related-feature-grid">${relatedCards||'<p class="related-empty">More related coverage is coming soon.</p>'}</div></section>${continuousFeed}</article><aside>${sidebarTopMarkup()}<section class="side-section"><h2>Latest posts</h2><div class="post-list">${cards(latest)}</div></section>${sidebarBottomMarkup()}<section class="side-section"><h2>Related stories</h2><div class="post-list">${cards(related)}</div></section>${sidebarStickyMarkup()}</aside></main>${nextStory}${stickyDockMarkup()}${footerMarkup()}<script defer src="/skylet/widget.js?v=20260929.1"></script></body></html>`;
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(seoTitle)} | Macca Blog</title><meta name="description" content="${esc(seoDescription)}"><meta name="robots" content="index, follow, max-image-preview:large"><link rel="canonical" href="${url}"><meta property="og:type" content="article"><meta property="og:title" content="${esc(p.title)}"><meta property="og:description" content="${esc(p.description)}"><meta property="og:image" content="${esc(socialImage)}"><meta property="og:url" content="${url}"><meta property="og:site_name" content="Macca Blog"><meta property="og:locale" content="en_US"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="${esc(p.title)}"><meta name="twitter:description" content="${esc(p.description)}"><meta name="twitter:image" content="${esc(socialImage)}"><link rel="icon" href="/favicon.ico" sizes="any"><link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest"><link rel="alternate" type="application/rss+xml" title="Macca Blog RSS" href="${BASE}/blog/feed.xml"><link rel="stylesheet" href="/blog/assets/blog.css"><link rel="stylesheet" href="/blog/assets/growth.css"><script defer src="/blog/assets/engagement.js"></script><script type="application/ld+json">${JSON.stringify(schema).replace(/</g,'\\u003c')}</script><link rel="stylesheet" href="/ads/ads.css"><script defer src="/ads/ads.js"></script><link rel="stylesheet" href="/skylet/widget.css?v=20260929.1"></head><body class="has-sticky-ads" data-macca-current-slug="${esc(p.slug)}" data-ad-context="${esc([p.category,...(p.tags||[])].join(' '))}"><header class="top"><a class="brand" href="/blog/">MACCA <b>BLOG</b></a><nav aria-label="Main navigation"><a href="/blog/">Blog</a><a href="/study/">Study</a><a href="/play/">Play</a></nav></header><main class="layout"><article><a class="back" href="/blog/">← All stories</a><figure class="article-hero"><img src="${esc(imagePath)}" alt="${esc(p.imageAlt||'Macca the Gator at sunset in Vice City')}" onerror="this.onerror=null;this.src='/images/macca-blog-banner.jpg'"><figcaption class="hero-copy"><p class="eyebrow">${esc(p.category)} · <time datetime="${esc(p.date)}">${esc(p.date)}</time></p><h1>${esc(p.title)}</h1><p class="hero-dek">${esc(p.description)}</p></figcaption></figure><div class="article-body">${body}${inlineImages}<h2>Sources and notes</h2><p>Claims, reports, leaks and rumors are attributed to their original sources. Unconfirmed information is labeled clearly and should not be read as established fact.</p><ul>${(p.sources||[]).map(s=>`<li><a rel="noopener noreferrer" href="${esc(s.url)}">${esc(s.title)}</a> <span>(${esc(s.publisher||new URL(s.url).hostname)})</span></li>`).join('')}</ul></div>${topicLinks}${videoCard}<div class="ad-slot" data-ad-slot="article-inline" aria-label="Advertisement">${adFallback('article-inline')}</div><section class="article-related" aria-labelledby="related-stories-title"><div class="section-heading"><span>DISCOVER MORE</span><h2 id="related-stories-title">Related stories</h2></div><div class="related-feature-grid">${relatedCards||'<p class="related-empty">More related coverage is coming soon.</p>'}</div></section>${continuousFeed}</article><aside>${sidebarTopMarkup()}<section class="side-section"><h2>Latest posts</h2><div class="post-list">${cards(latest)}</div></section>${sidebarBottomMarkup()}<section class="side-section"><h2>Related stories</h2><div class="post-list">${cards(related)}</div></section>${sidebarStickyMarkup()}</aside></main>${nextStory}${stickyDockMarkup()}${footerMarkup()}<script>document.addEventListener('click',function(e){const b=e.target.closest('.article-video-card button');if(!b)return;const box=b.closest('[data-youtube-video]');const id=box?.dataset.youtubeVideo;if(!id)return;const f=document.createElement('iframe');f.src='https://www.youtube-nocookie.com/embed/'+encodeURIComponent(id)+'?autoplay=1';f.title='Macca YouTube video';f.allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';f.allowFullscreen=true;box.replaceChildren(f);});</script><script defer src="/skylet/widget.js?v=20260929.1"></script></body></html>`;
 }
 
 async function build() {
   const posts=(await readJson(DATA_FILE,[])).sort((a,b)=>b.date.localeCompare(a.date));
   await refreshPerformanceFeedback(posts);
+  const youtubePublished=await readJson(path.join(ROOT,'blog','youtube-published.json'),[]);
+  const youtubeBySlug=new Map((Array.isArray(youtubePublished)?youtubePublished:[]).map(item=>[item.slug,item]));
   for(const p of posts) {
     p.image='/images/macca-blog-banner.jpg'; p.imageAlt='Macca the Gator at sunset in Vice City';
     const inlineImages=Array.isArray(p.inlineImages)?p.inlineImages:[];
@@ -322,13 +341,13 @@ async function build() {
       inlineImages.unshift({url:thumbnail,alt:p.thumbnailAlt||p.title,caption:'Image accompanying the source report',sourceUrl:p.sourceUrl||p.sources?.[0]?.url||'#'});
       p.inlineImages=inlineImages;
     }
-    await fs.mkdir(path.join(ROOT,'blog',p.slug),{recursive:true}); await fs.writeFile(path.join(ROOT,'blog',p.slug,'index.html'),articleHtml(p,posts));
+    await fs.mkdir(path.join(ROOT,'blog',p.slug),{recursive:true}); await fs.writeFile(path.join(ROOT,'blog',p.slug,'index.html'),articleHtml(p,posts,youtubeBySlug.get(p.slug)));
   }
   await writeJson(DATA_FILE,posts);
-  const card=p=>`<a class="feature" href="/blog/${encodeURIComponent(p.slug)}/"><span class="feature-cover"><img src="${esc(p.socialImage||p.thumbnail||'/images/macca-blog-banner.webp')}" alt="${esc(p.thumbnailAlt||p.title)}" loading="lazy" onerror="this.onerror=null;this.src='/images/macca-blog-banner.webp'"><span class="cover-label">MACCA BLOG | ${esc(p.category)}</span></span><small>${esc(p.category)} | ${esc(p.date)}</small><h2>${esc(p.title)}</h2><p>${esc(p.description)}</p></a>`;
+  const card=p=>`<a class="feature" href="/blog/${encodeURIComponent(p.slug)}/"><span class="feature-cover"><img src="${esc(p.discoverImage||p.socialImage||p.thumbnail||'/images/macca-blog-banner.webp')}" alt="${esc(p.thumbnailAlt||p.title)}" loading="lazy" onerror="this.onerror=null;this.src='/images/macca-blog-banner.webp'"><span class="cover-label">MACCA BLOG | ${esc(p.category)}</span></span><small>${esc(p.category)} | ${esc(p.date)}</small><h2>${esc(p.title)}</h2><p>${esc(p.description)}</p></a>`;
   const cats=[...new Set(posts.map(p=>p.category))].sort();
   const trending=[...posts].sort((a,b)=>topicScore(b)-topicScore(a)||b.date.localeCompare(a.date)).slice(0,4);
-  const html=`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Macca Blog | GTA News, History and Analysis</title><meta name="description" content="News, reports, rumors and analysis about Grand Theft Auto, with sources linked and unconfirmed claims clearly labeled."><meta name="robots" content="index, follow, max-image-preview:large"><link rel="canonical" href="${BASE}/blog/"><meta property="og:type" content="website"><meta property="og:site_name" content="Macca Blog"><meta property="og:title" content="Macca Blog | GTA News, History and Analysis"><meta property="og:description" content="News, reports, rumors and analysis about Grand Theft Auto."><meta property="og:url" content="${BASE}/blog/"><meta property="og:image" content="${BASE}/images/macca-blog-banner.jpg"><meta property="og:locale" content="en_US"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Macca Blog"><meta name="twitter:description" content="Sourced reporting and analysis from across the GTA community."><meta name="twitter:image" content="${BASE}/images/macca-blog-banner.jpg"><link rel="icon" href="/favicon.ico" sizes="any"><link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest"><link rel="alternate" type="application/rss+xml" title="Macca Blog RSS" href="${BASE}/blog/feed.xml"><link rel="stylesheet" href="/blog/assets/blog.css"><script type="application/ld+json">${JSON.stringify({'@context':'https://schema.org','@type':'Blog','name':'Macca Blog','url':`${BASE}/blog/`})}</script><link rel="stylesheet" href="/ads/ads.css"><script defer src="/ads/ads.js"></script><link rel="stylesheet" href="/skylet/widget.css?v=20260929.1">${ADSENSE_SCRIPT}</head><body class="has-sticky-ads" data-ad-context="GTA GTA 6 Rockstar Games gaming"><header class="top"><a class="brand" href="/blog/">MACCA <b>BLOG</b></a><nav aria-label="Main navigation"><a href="/blog/">Blog</a><a href="/study/">Study</a><a href="/play/">Play</a></nav></header><main class="home"><section class="intro"><p class="eyebrow">GRAND THEFT AUTO, REPORTED</p><h1>Stories behind the streets.</h1><p>News, reporting, rumors and analysis from across the GTA community. Every story links back to its sources.</p><div class="categories">${cats.map(c=>`<span>${esc(c)}</span>`).join('')}</div></section><div class="ad-slot" data-ad-slot="blog-top" aria-label="Advertisement">${adMarkup()}</div><section class="trending-section" aria-labelledby="trending-title"><div class="section-heading"><span>WHAT'S MOVING</span><h2 id="trending-title">Trending coverage</h2></div><div class="trending-grid">${trending.map(card).join('')}</div></section><section><h2>Latest stories</h2><div class="grid">${posts.length?posts.map(card).join(''):'<p>No stories published yet.</p>'}</div></section><section><h2>Featured</h2><div class="grid">${posts.filter(p=>p.featured).map(card).join('')||posts.slice(0,2).map(card).join('')}</div></section></main>${stickyDockMarkup()}${footerMarkup()}<script defer src="/skylet/widget.js?v=20260929.1"></script></body></html>`;
+  const html=`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Macca Blog | GTA News, History and Analysis</title><meta name="description" content="News, reports, rumors and analysis about Grand Theft Auto, with sources linked and unconfirmed claims clearly labeled."><meta name="robots" content="index, follow, max-image-preview:large"><link rel="canonical" href="${BASE}/blog/"><meta property="og:type" content="website"><meta property="og:site_name" content="Macca Blog"><meta property="og:title" content="Macca Blog | GTA News, History and Analysis"><meta property="og:description" content="News, reports, rumors and analysis about Grand Theft Auto."><meta property="og:url" content="${BASE}/blog/"><meta property="og:image" content="${BASE}/images/macca-blog-banner.jpg"><meta property="og:locale" content="en_US"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Macca Blog"><meta name="twitter:description" content="Sourced reporting and analysis from across the GTA community."><meta name="twitter:image" content="${BASE}/images/macca-blog-banner.jpg"><link rel="icon" href="/favicon.ico" sizes="any"><link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest"><link rel="alternate" type="application/rss+xml" title="Macca Blog RSS" href="${BASE}/blog/feed.xml"><link rel="stylesheet" href="/blog/assets/blog.css"><link rel="stylesheet" href="/blog/assets/growth.css"><script type="application/ld+json">${JSON.stringify({'@context':'https://schema.org','@type':'Blog','name':'Macca Blog','url':`${BASE}/blog/`})}</script><link rel="stylesheet" href="/ads/ads.css"><script defer src="/ads/ads.js"></script><link rel="stylesheet" href="/skylet/widget.css?v=20260929.1"></head><body class="has-sticky-ads" data-ad-context="GTA GTA 6 Rockstar Games gaming"><header class="top"><a class="brand" href="/blog/">MACCA <b>BLOG</b></a><nav aria-label="Main navigation"><a href="/blog/">Blog</a><a href="/study/">Study</a><a href="/play/">Play</a></nav></header><main class="home"><section class="intro"><p class="eyebrow">GRAND THEFT AUTO, REPORTED</p><h1>Stories behind the streets.</h1><p>News, reporting, rumors and analysis from across the GTA community. Every story links back to its sources.</p><div class="categories">${cats.map(c=>`<span>${esc(c)}</span>`).join('')}</div></section><div class="ad-slot" data-ad-slot="blog-top" aria-label="Advertisement">${adMarkup()}</div><section class="trending-section" aria-labelledby="trending-title"><div class="section-heading"><span>WHAT'S MOVING</span><h2 id="trending-title">Trending coverage</h2></div><div class="trending-grid">${trending.map(card).join('')}</div></section><section><h2>Latest stories</h2><div class="grid">${posts.length?posts.map(card).join(''):'<p>No stories published yet.</p>'}</div></section><section><h2>Featured</h2><div class="grid">${posts.filter(p=>p.featured).map(card).join('')||posts.slice(0,2).map(card).join('')}</div></section></main>${stickyDockMarkup()}${footerMarkup()}<script defer src="/skylet/widget.js?v=20260929.1"></script></body></html>`;
   await fs.writeFile(path.join(ROOT,'blog','index.html'),html);
   const urls=posts.map(p=>`  <url><loc>${BASE}/blog/${esc(p.slug)}/</loc><lastmod>${esc(p.date)}</lastmod></url>`).join('\n');
   await fs.writeFile(path.join(ROOT,'blog','sitemap.xml'),`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <url><loc>${BASE}/blog/</loc>${posts[0]?.date?`<lastmod>${esc(posts[0].date)}</lastmod>`:''}</url>\n${urls}\n</urlset>\n`);
@@ -350,6 +369,7 @@ async function build() {
     rootXml=`<?xml version="1.0" encoding="UTF-8"?>\n<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${locs.map(loc=>`  <sitemap><loc>${esc(loc)}</loc></sitemap>`).join('\n')}\n</sitemapindex>\n`;
   }
   await fs.writeFile(rootMap,rootXml);
+  await buildGrowthPages({root:ROOT,base:BASE,posts});
 }
 
 function sourceLinks(posts,history) {
@@ -398,7 +418,7 @@ async function queueSocialPublication(p) {
   if(process.env.INSTAGRAM_QUEUE_FILE) {
     const queue=await readJson(process.env.INSTAGRAM_QUEUE_FILE,[]);
     if(!queue.some(item=>item.slug===p.slug)) {
-      queue.push({slug:p.slug});
+      queue.push({slug:p.slug,socialScore:socialScore(p),queuedAt:new Date().toISOString()});
       await writeJson(process.env.INSTAGRAM_QUEUE_FILE,queue);
     }
   }
@@ -420,6 +440,7 @@ async function queueSocialPublication(p) {
           thumbnailAlt:p.thumbnailAlt||'',
           inlineImages:p.inlineImages||[],
           sources:p.sources||[],
+          socialScore:socialScore(p),
           queuedAt:new Date().toISOString()
         });
         await writeJson(process.env.YOUTUBE_QUEUE_FILE,queue);
@@ -584,6 +605,7 @@ function topicScore(item){
   else if(/reddit|x\.com|twitter/.test(source)) score-=0.75;
   if(item.date) score+=Math.max(0,3-(Date.now()-Date.parse(item.date))/86400000/10);
   score+=historicalPerformanceBonus(item);
+  score+=searchConsoleBonus(item,searchFeedback);
   return score;
 }
 
