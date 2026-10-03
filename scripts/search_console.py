@@ -44,10 +44,10 @@ def post_json(url: str, payload: dict, token: str) -> dict:
 def refresh_access_token() -> str:
     client_id = os.environ.get("SEARCH_CONSOLE_CLIENT_ID") or os.environ.get("YOUTUBE_CLIENT_ID")
     client_secret = os.environ.get("SEARCH_CONSOLE_CLIENT_SECRET") or os.environ.get("YOUTUBE_CLIENT_SECRET")
-    refresh_token = os.environ.get("SEARCH_CONSOLE_REFRESH_TOKEN")
+    refresh_token = os.environ.get("SEARCH_CONSOLE_REFRESH_TOKEN") or os.environ.get("YOUTUBE_ANALYTICS_REFRESH_TOKEN")
     if not (client_id and client_secret and refresh_token):
         raise RuntimeError(
-            "Search Console collection is disabled until SEARCH_CONSOLE_REFRESH_TOKEN is configured."
+            "Search Console collection is disabled until SEARCH_CONSOLE_REFRESH_TOKEN is configured (the existing YouTube Analytics token is also tried when it already includes this scope)."
         )
     response = post_form(
         "https://oauth2.googleapis.com/token",
