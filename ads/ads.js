@@ -192,15 +192,17 @@ async function mountAds(root = document) {
       .filter(slot => slot.dataset.adRuntimeMounted !== '1')
       .map(slot => {
         const name = slot.dataset.adSlot;
-        const source = name.startsWith('sidebar-pklavc')
-          ? config.slots?.['sidebar-pklavc']
-          : name.startsWith('sidebar-affiliate')
-            ? config.slots?.['sidebar-affiliate']
-            : name.startsWith('sticky-affiliate')
-              ? config.slots?.['sticky-affiliate']
-              : name.startsWith('article-inline')
-                ? [...(config.slots?.['article-inline'] || []), ...(config.slots?.['sidebar-affiliate'] || [])]
-                : config.slots?.[name];
+        const source = name === 'sidebar-smart'
+          ? [...(config.slots?.['sidebar-pklavc'] || []), ...(config.slots?.['sidebar-affiliate'] || [])]
+          : name.startsWith('sidebar-pklavc')
+            ? config.slots?.['sidebar-pklavc']
+            : name.startsWith('sidebar-affiliate')
+              ? config.slots?.['sidebar-affiliate']
+              : name.startsWith('sticky-affiliate')
+                ? config.slots?.['sticky-affiliate']
+                : name.startsWith('article-inline')
+                  ? [...(config.slots?.['article-inline'] || []), ...(config.slots?.['sidebar-affiliate'] || [])]
+                  : config.slots?.[name];
         return {slot, ads: (source || []).filter(ad => ad.enabled && ad.href && ad.image)};
       })
       .filter(placement => placement.ads.length);
