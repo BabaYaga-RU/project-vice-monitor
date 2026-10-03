@@ -35,6 +35,31 @@ def _write(path: Path, value) -> None:
     path.write_text(json.dumps(value, indent=2) + "\n", encoding="utf-8")
 
 
+def _published_last_24h(records) -> int:
+    cutoff = datetime.now(timezone.utc).timestamp() - 24 * 3600
+    if isinstance(records, dict):
+        values = records.values()
+    else:
+        values = records or []
+    total = 0
+    for record in values:
+        try:
+            stamp = datetime.fromisoformat(str(record.get("publishedAt", "")).replace("Z", "+00:00")).timestamp()
+        except (ValueError, AttributeError):
+            continue
+        if stamp >= cutoff:
+            total += 1
+    return total
+
+
+def _ranked(items):
+    return sorted(
+        items or [],
+        key=lambda item: (int(item.get("socialScore") or 0), str(item.get("queuedAt") or "")),
+        reverse=True,
+    )
+
+
 def _r2_configured() -> bool:
     names = (
         "CLOUDFLARE_R2_ACCOUNT_ID", "CLOUDFLARE_R2_ACCESS_KEY_ID",
@@ -59,12 +84,21 @@ def _r2_client():
 def main() -> None:
     ig_queue = _read(Path(os.environ.get("INSTAGRAM_QUEUE_FILE", ROOT / "blog" / "instagram-queue.json")), [])
     yt_queue = _read(Path(os.environ.get("YOUTUBE_QUEUE_FILE", ROOT / "blog" / "youtube-queue.json")), [])
+    ig_published = _read(ROOT / "blog" / "instagram-published.json", {})
+    yt_published = _read(ROOT / "blog" / "youtube-published.json", [])
+    ig_limit = max(1, min(8, int(os.environ.get("INSTAGRAM_DAILY_LIMIT", "4"))))
+    yt_limit = max(1, min(8, int(os.environ.get("YOUTUBE_DAILY_LIMIT", "4"))))
+    ig_slots = max(0, ig_limit - _published_last_24h(ig_published))
+    yt_slots = max(0, yt_limit - _published_last_24h(yt_published))
+    ig_queue = _ranked(ig_queue)[:ig_slots]
+    yt_queue = _ranked(yt_queue)[:yt_slots]
     if os.environ.get("INSTAGRAM_RETRY_ONLY_FIRST") == "true":
         ig_queue = ig_queue[:1]
         yt_queue = []
-        print("Instagram-only retry enabled; rendering only the first pending Instagram item.")
+        print("Instagram-only retry enabled; rendering only the highest-priority pending Instagram item.")
     posts = _read(ROOT / "blog" / "posts.json", [])
     slugs = list(dict.fromkeys(item.get("slug") for item in [*ig_queue, *yt_queue] if item.get("slug")))
+    print(f"Social render budget: {len(ig_queue)}/{ig_slots} Instagram and {len(yt_queue)}/{yt_slots} YouTube item(s) selected.")
     by_slug = {item.get("slug"): item for item in posts}
     VIDEO_DIR.mkdir(parents=True, exist_ok=True)
     manifest = {"schemaVersion": 1, "videos": {}}
@@ -119,7 +153,7 @@ def main() -> None:
                 objects_reserved_this_run += 1
                 entry.update({"r2ObjectKey": object_key, "attemptsReserved": attempts, "uploadStarted": False})
             else:
-                print(f"R2 blocked for {slug}: {reason} Instagram will use the square-image fallback.")
+                print(f"R2 blocked for {slug}: {reason} Instagram item remains queued for a future Reel retry.")
         manifest["videos"][slug] = entry
         _write(MANIFEST, manifest)
         print(f"Prepared shared vertical video for {slug} ({output.stat().st_size} bytes).")
@@ -132,7 +166,7 @@ def main() -> None:
 def upload_reel_objects() -> None:
     manifest = _read(MANIFEST, {"videos": {}})
     if not _r2_configured():
-        print("R2 is not configured; no video was sent. Instagram will use the image fallback.")
+        print("R2 is not configured; no video was sent. Instagram item remains queued for a future Reel retry.")
         return
     items = list(manifest.get("videos", {}).items())
     s3 = None
@@ -150,16 +184,16 @@ def upload_reel_objects() -> None:
         try:
             size = path.stat().st_size
         except OSError:
-            print(f"R2 blocked for {slug}: local MP4 is missing; Instagram will use the image fallback.")
+            print(f"R2 blocked for {slug}: local MP4 is missing; Instagram item remains queued for a future Reel retry.")
             continue
         if size > MAX_OBJECT_BYTES:
-            print(f"R2 blocked for {slug}: MP4 exceeds 25 MB; Instagram will use the image fallback.")
+            print(f"R2 blocked for {slug}: MP4 exceeds 25 MB; Instagram item remains queued for a future Reel retry.")
             continue
         if s3 is None:
             try:
                 s3 = _r2_client()
             except Exception as error:
-                print(f"R2 unavailable ({type(error).__name__}); Instagram will use the image fallback.")
+                print(f"R2 unavailable ({type(error).__name__}); Instagram item remains queued for a future Reel retry.")
                 return
         entry["uploadStarted"] = True
         _write(MANIFEST, manifest)
@@ -202,12 +236,12 @@ def upload_reel_objects() -> None:
                             reservation["publicVerifiedAt"] = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
                         print(f"R2 public URL verified: {url} (HTTP 200, video/mp4).")
                     else:
-                        print(f"Temporary R2 video is not publicly reachable as video/mp4 (HTTP {response.status}); image fallback selected.")
+                        print(f"Temporary R2 video is not publicly reachable as video/mp4 (HTTP {response.status}); the Reel will be retried later.")
             except Exception as error:
-                print(f"Temporary R2 video could not be verified ({type(error).__name__}); image fallback selected.")
+                print(f"Temporary R2 video could not be verified ({type(error).__name__}); the Reel will be retried later.")
             _write(USAGE_FILE, usage)
         if not entry.get("reelUrl"):
-            print(f"Reel staging unavailable for {slug}; Instagram will use the square-image fallback.")
+            print(f"Reel staging unavailable for {slug}; Instagram item remains queued for a future Reel retry.")
         _write(MANIFEST, manifest)
 
 
