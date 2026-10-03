@@ -45,7 +45,8 @@ async function collect() {
   const today = now.toISOString().slice(0, 10);
   let changes = 0;
 
-  for (const [articleUrl, record] of Object.entries(published || {})) {
+  for (const [publicationKey, record] of Object.entries(published || {})) {
+    const articleUrl = record?.articleUrl || publicationKey.split('::')[0];
     const mediaId = record?.mediaId;
     if (!mediaId || record?.mediaType !== 'REELS') continue;
     const entry = store.media[mediaId] ||= {
