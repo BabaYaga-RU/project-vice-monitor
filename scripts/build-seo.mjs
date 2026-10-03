@@ -7,7 +7,7 @@ const SITE=(process.env.SITE_URL||'https://macca-lab.onrender.com').replace(/\/$
 const SKIP=new Set(['.git','node_modules','blog','scripts','.github','coverage','dist','build']);
 const HOME_TITLE='Macca Lab | Independent Projects and Macca Blog';
 const HOME_DESCRIPTION='Macca Lab is an independent home for projects, experiments and editorial coverage of Grand Theft Auto, Rockstar Games and related stories on Macca Blog.';
-const ADSENSE_SCRIPT='<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7821352420515145" crossorigin="anonymous"></script>';
+const ADSENSE_SCRIPT=''; // ads.txt stays ready; AdSense script is disabled until approval.
 const GOOGLE_VERIFICATION_META='<meta name="google-site-verification" content="d6Rh9rH8TsBuT5o4NK7mKh25IQXbBOB0qLDCJgXgxBE">';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const decode=s=>String(s||'').replace(/&amp;/g,'&').replace(/&quot;/g,'"').replace(/&#39;|&apos;/g,"'").replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/Ã¡/g,'á').replace(/Ã©/g,'é').replace(/Ã­/g,'í').replace(/Ã³/g,'ó').replace(/Ãº/g,'ú').replace(/Ã£/g,'ã').replace(/Ãµ/g,'õ').replace(/Ã§/g,'ç').replace(/Ã‰/g,'É').replace(/Ã“/g,'Ó').replace(/Ã€/g,'À').replace(/Ã‚/g,'Â').replace(/Â(?=\s|[·…])/g,'');
