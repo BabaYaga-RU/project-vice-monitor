@@ -4,27 +4,47 @@ import assert from 'node:assert/strict';
 
 const read = path => fs.readFile(path, 'utf8');
 
-const [adsTxt, blog, seo, ads, engagement, instagram, queue, shorts, ytMetrics, ytWorkflow, igWorkflow, weeklyWorkflow, dailyWorkflow] = await Promise.all([
+const [
+  adsTxt, blog, seo, ads, engagement, instagram, instagramMetrics, queue, socialVideo,
+  shorts, ytMetrics, ytWorkflow, igWorkflow, weeklyWorkflow, dailyWorkflow,
+  growth, searchConsole, searchWorkflow, searchOptimizeWorkflow, indexNow, indexWorkflow,
+  worker, wrangler, webAnalyticsLoader, webAnalyticsWorkflow, covers
+] = await Promise.all([
   read('ads.txt'),
   read('scripts/blog.mjs'),
   read('scripts/build-seo.mjs'),
   read('ads/ads.js'),
   read('blog/assets/engagement.js'),
   read('scripts/instagram.mjs'),
+  read('scripts/instagram_metrics.mjs'),
   read('scripts/youtube_queue.py'),
+  read('scripts/social_video.py'),
   read('src/youtube/shorts.py'),
   read('scripts/youtube_metrics.py'),
   read('.github/workflows/youtube-metrics.yml'),
   read('.github/workflows/instagram-metrics.yml'),
   read('.github/workflows/youtube-weekly.yml'),
   read('.github/workflows/daily-analysis.yml'),
+  read('scripts/growth_v2.mjs'),
+  read('scripts/search_console.py'),
+  read('.github/workflows/search-console.yml'),
+  read('.github/workflows/search-optimize.yml'),
+  read('scripts/indexnow.mjs'),
+  read('.github/workflows/indexnow.yml'),
+  read('skylet/worker/src/index.js'),
+  read('skylet/worker/wrangler.toml'),
+  read('analytics/web-analytics.js'),
+  read('.github/workflows/web-analytics.yml'),
+  read('scripts/article_covers.py'),
 ]);
 
 assert.match(adsTxt, /google\.com, pub-7821352420515145, DIRECT, f08c47fec0942fa0/);
 for (const source of [blog, seo]) {
-  assert.match(source, /ca-pub-7821352420515145/);
   assert.doesNotMatch(source, /ca-pub-1038995366418919/);
+  assert.doesNotMatch(source, /pagead2\.googlesyndication\.com/);
 }
+assert.match(blog, /ADSENSE_SCRIPT = ''/);
+assert.match(seo, /ADSENSE_SCRIPT=''/);
 
 assert.match(blog, /youtubeTitle/);
 assert.match(blog, /socialHook/);
@@ -33,11 +53,32 @@ assert.match(blog, /seoTitle/);
 assert.match(blog, /seoDescription/);
 assert.match(blog, /NewsArticle/);
 assert.match(blog, /BreadcrumbList/);
+assert.match(blog, /VideoObject/);
+assert.match(blog, /youtube-nocookie\.com/);
 assert.match(blog, /news-sitemap\.xml/);
 assert.match(seo, /blog\/news-sitemap\.xml/);
 assert.match(blog, /observations\.length<20/);
 assert.match(blog, /historicalPerformanceBonus/);
+assert.match(blog, /searchConsoleBonus/);
 assert.match(blog, /data-ad-context/);
+assert.match(blog, /findUpdateTarget/);
+assert.match(blog, /status:'updated'/);
+assert.match(blog, /queueSocialPublication\(updated,\{update:true\}\)/);
+assert.match(blog, /openrouter\/free/);
+assert.doesNotMatch(blog, /openrouter\/auto/);
+assert.match(blog, /optimizeSearchMetadata/);
+assert.match(blog, /discoverImage/);
+
+assert.match(growth, /slug:'gta-6\/map'/);
+assert.match(growth, /slug:'rockstar-games'/);
+assert.match(growth, /buildGrowthPages/);
+assert.match(growth, /socialScore/);
+assert.match(growth, /utm_campaign','macca_social_hub'/);
+
+assert.match(covers, /render_discover/);
+assert.match(covers, /1280, 720/);
+assert.match(covers, /discoverImage/);
+assert.match(covers, /needs_refresh/);
 
 assert.match(ads, /contextText/);
 assert.match(ads, /affinity = ad/);
@@ -45,10 +86,36 @@ assert.match(ads, /contextualAd/);
 assert.match(ads, /AFFILIATE_SESSION_KEY/);
 assert.match(ads, /sessionStorage/);
 assert.match(ads, /recordAffiliateEvent/);
+assert.match(ads, /affiliateGlobalLift/);
+assert.match(ads, /analytics\/affiliate-scores/);
+assert.match(ads, /20000 \+ Math\.random\(\) \* 10000/);
+assert.match(ads, /document\.visibilityState === 'visible'/);
 assert.match(ads, /article-inline/);
 assert.match(ads, /adRuntimeMounted/);
 assert.match(ads, /macca:content-added/);
 assert.match(engagement, /macca:content-added/);
+
+assert.match(worker, /writeAffiliateAnalytics/);
+assert.match(worker, /affiliateScores/);
+assert.match(worker, /AFFILIATE_ANALYTICS/);
+assert.match(worker, /ANALYTICS_SQL/);
+assert.match(wrangler, /analytics_engine_datasets/);
+assert.match(wrangler, /dataset = "macca_affiliate"/);
+assert.match(wrangler, /\[analytics\]/);
+
+assert.match(webAnalyticsLoader, /static\.cloudflareinsights\.com\/beacon\.min\.js/);
+assert.match(webAnalyticsWorkflow, /rum\/site_info/);
+assert.match(blog, /analytics\/web-analytics\.js/);
+
+assert.match(searchConsole, /webmasters\.readonly/);
+assert.match(searchConsole, /"discover"/);
+assert.match(searchConsole, /"googleNews"/);
+assert.match(searchConsole, /topicSignals/);
+assert.match(searchWorkflow, /SEARCH_CONSOLE_REFRESH_TOKEN/);
+assert.match(searchOptimizeWorkflow, /search-optimize/);
+
+assert.match(indexNow, /api\.indexnow\.org\/indexnow/);
+assert.match(indexWorkflow, /Notify IndexNow/);
 
 assert.doesNotMatch(shorts, /Rockstar fans, here is the latest story/);
 assert.match(shorts, /Full story .*Macca Blog\. Link on profile\./);
@@ -57,11 +124,22 @@ assert.match(shorts, /def create_thumbnail/);
 assert.match(queue, /def youtube_title/);
 assert.match(queue, /def youtube_tags/);
 assert.match(queue, /set_thumbnail/);
-assert.match(queue, /#RockstarGames/);
+assert.match(queue, /DAILY_LIMIT/);
+assert.match(queue, /socialScore/);
+assert.match(queue, /publicationKey/);
+assert.match(queue, /utm_source=youtube/);
+
+assert.match(socialVideo, /INSTAGRAM_DAILY_LIMIT/);
+assert.match(socialVideo, /YOUTUBE_DAILY_LIMIT/);
+assert.match(socialVideo, /_ranked/);
 
 assert.match(instagram, /retaining the item in the Instagram queue for retry/);
 assert.doesNotMatch(instagram, /image_url:imageUrl/);
 assert.match(instagram, /share_to_feed:'false'/);
+assert.match(instagram, /DAILY_LIMIT/);
+assert.match(instagram, /publicationKey/);
+assert.match(instagram, /utm_source=instagram/);
+assert.match(instagramMetrics, /record\?\.articleUrl \|\| publicationKey\.split/);
 
 assert.match(ytMetrics, /dimensions="day"/);
 assert.match(ytMetrics, /elapsedVideoTimeRatio/);
@@ -72,7 +150,5 @@ assert.match(weeklyWorkflow, /Macca weekly YouTube recap/);
 assert.match(dailyWorkflow, /Macca daily deep analysis/);
 assert.match(blog, /generateDeepDive/);
 assert.match(blog, /contentType:'analysis'/);
-assert.match(blog, /socialImage\|\|x\.thumbnail/);
-assert.match(blog, /imagePath=String\(p\.socialImage/);
 
 console.log('Growth pipeline checks passed.');
