@@ -159,11 +159,16 @@ async function graphPost(host, resource, params) {
 }
 
 function caption(post) {
-  const firstParagraph = post.sections?.flatMap(section => section.paragraphs || []).find(Boolean) || '';
-  const secondParagraph = post.sections?.flatMap(section => section.paragraphs || []).filter(Boolean)[1] || '';
-  const summary = [post.title, post.description, firstParagraph, secondParagraph].filter(Boolean).join('\n\n').slice(0, 1500);
-  const hashtags = '#GTA6 #GrandTheftAuto #RockstarGames #GTAOnline #GTANews #MaccaTheGator';
-  return `${summary}\n\nFull story → link in bio.\n\n${hashtags}`.slice(0, 2200);
+  const hook = String(post.instagramCaptionLead || post.socialHook || post.title || '').replace(/\s+/g, ' ').trim();
+  const context = String(post.description || '').replace(/\s+/g, ' ').trim();
+  const text = `${post.title || ''} ${(post.tags || []).join(' ')}`.toLowerCase();
+  const hashtags = [
+    /gta\s*6|gta\s*vi|grand theft auto\s*(?:6|vi)/i.test(text) ? '#GTA6' : '#GTA',
+    '#RockstarGames',
+    '#MaccaTheGator',
+  ];
+  const summary = [hook, context && context !== hook ? context : ''].filter(Boolean).join('\n\n').slice(0, 850);
+  return `${summary}\n\nFull story → link in bio.\n\n${[...new Set(hashtags)].join(' ')}`.slice(0, 1400);
 }
 
 async function waitForPublicImage(url) {
@@ -245,12 +250,11 @@ async function publish() {
     // Meta's documented Reels Publishing request currently uses the Facebook
     // Login / Page-token flow. Do not send it through an Instagram Login host.
     const reelUrl = account.host === 'graph.facebook.com' ? (reelManifest.videos?.[slug]?.reelUrl || '') : '';
-    if (!reelUrl && reelManifest.videos?.[slug]?.reelUrl) {
-      console.log('Instagram Login token detected; retaining the existing image post because Meta documents this Reel flow for Facebook Login.');
+    if (!reelUrl) {
+      console.warn(`Reel video is unavailable for ${slug}; retaining the item in the Instagram queue for retry instead of falling back to an image post.`);
+      continue;
     }
-    const imageUrl = `${BASE}/blog/${encodeURIComponent(slug)}/instagram.jpg`;
-    if (reelUrl) await waitForPublicVideo(reelUrl);
-    else await waitForPublicImage(imageUrl);
+    await waitForPublicVideo(reelUrl);
     const existing = await findExisting(account.host, account.id, storyUrl, published, post.title);
     if (existing) {
       published[storyUrl] = {mediaId:existing.mediaId || existing.id, permalink:existing.permalink || '', publishedAt:existing.publishedAt || existing.timestamp || new Date().toISOString()};
@@ -261,21 +265,24 @@ async function publish() {
       queue.splice(0, queue.length, ...remaining);
       continue;
     }
-    const container = reelUrl
-      ? await graphPost(account.host, `${account.id}/media`, {media_type:'REELS', video_url:reelUrl, caption:caption(post), share_to_feed:'false'})
-      : await graphPost(account.host, `${account.id}/media`, {image_url:imageUrl, caption:caption(post), alt_text:post.title});
+    const container = await graphPost(account.host, `${account.id}/media`, {
+      media_type:'REELS',
+      video_url:reelUrl,
+      caption:caption(post),
+      share_to_feed:'false'
+    });
     if (!container.id) throw new Error('Meta did not return a media container ID.');
     await waitForContainer(account.host, container.id);
     const media = await graphPost(account.host, `${account.id}/media_publish`, {creation_id:container.id});
     if (!media.id) throw new Error('Meta did not return a published media ID.');
     let permalink = '';
     try { permalink = (await graphGet(account.host, media.id, 'permalink')).permalink || ''; } catch {}
-    published[storyUrl] = {mediaId:media.id, permalink, mediaType:reelUrl ? 'REELS' : 'IMAGE', publishedAt:new Date().toISOString()};
+    published[storyUrl] = {mediaId:media.id, permalink, mediaType:'REELS', publishedAt:new Date().toISOString()};
     await saveJson(PUBLISHED_FILE, published);
     const remaining = queue.filter(item => item.slug !== slug);
     await saveJson(QUEUE_FILE, remaining);
     queue.splice(0, queue.length, ...remaining);
-    console.log(`Published ${slug} to Instagram as ${reelUrl ? 'Reel' : 'image'} (${media.id})${permalink ? `: ${permalink}` : ''}`);
+    console.log(`Published ${slug} to Instagram as Reel (${media.id})${permalink ? `: ${permalink}` : ''}`);
   }
 }
 
