@@ -28,6 +28,7 @@ jobs:
           YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
           YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
           SEARCH_CONSOLE_REFRESH_TOKEN: ${{ secrets.SEARCH_CONSOLE_REFRESH_TOKEN }}
+          YOUTUBE_ANALYTICS_REFRESH_TOKEN: ${{ secrets.YOUTUBE_ANALYTICS_REFRESH_TOKEN }}
           SEARCH_CONSOLE_SITE_URL: https://macca-lab.onrender.com/
         run: python -m scripts.search_console
       - name: Save Search Console feedback
