@@ -21,3 +21,4 @@ Macca Blog links stories to their sources and labels rumors and unresolved repor
 - [XML sitemap index](https://macca-lab.onrender.com/sitemap.xml)
 - [Page sitemap](https://macca-lab.onrender.com/sitemap-pages.xml)
 - [Blog sitemap](https://macca-lab.onrender.com/blog/sitemap.xml)
+- [Google News sitemap](https://macca-lab.onrender.com/blog/news-sitemap.xml)

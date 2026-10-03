@@ -1,14 +1,16 @@
 {
   "schemaVersion": 1,
   "month": "2026-10",
-  "monthlyUploadAttempts": 10,
+  "monthlyUploadAttempts": 12,
   "recentUploadAttempts24h": [
     "2026-10-02T01:46:28.933584Z",
     "2026-10-02T01:46:28.933584Z",
     "2026-10-02T15:52:02.677733Z",
     "2026-10-02T15:52:02.677733Z",
     "2026-10-03T00:33:35.867858Z",
-    "2026-10-03T00:33:35.867858Z"
+    "2026-10-03T00:33:35.867858Z",
+    "2026-10-03T01:03:12.399805Z",
+    "2026-10-03T01:03:12.399805Z"
   ],
   "articles": {
     "gta-6-won-t-spoof-disney-world-says-rockstar-here-s-what-we-know": {
@@ -87,6 +89,14 @@
       "uploadedAt": "2026-10-03T00:33:49.289877Z",
       "publicVerifiedAt": "2026-10-03T00:33:49.469696Z",
       "deletedAt": "2026-10-03T00:34:29.294411Z"
+    },
+    "gta-6-x-miami-heat-vice-city-merchandise-announced": {
+      "objectKey": "instagram-reels/92067c1a94264202a44f54a18ad3ea5b-gta-6-x-miami-heat-vice-city-merchandise-announced.mp4",
+      "month": "2026-10",
+      "attemptsReserved": 2,
+      "attemptsConsumed": 0,
+      "reservedAt": "2026-10-03T01:03:12.399805Z",
+      "sizeBytes": 1031149
     }
   }
 }
