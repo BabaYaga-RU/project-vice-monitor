@@ -8,7 +8,7 @@ const [
   adsTxt, blog, seo, ads, engagement, instagram, instagramMetrics, queue, socialVideo,
   shorts, ytMetrics, ytWorkflow, igWorkflow, weeklyWorkflow, dailyWorkflow,
   growth, searchConsole, searchWorkflow, searchOptimizeWorkflow, indexNow, indexWorkflow,
-  worker, wrangler, webAnalyticsLoader, webAnalyticsWorkflow, covers
+  worker, wrangler, webAnalyticsLoader, webAnalyticsWorkflow, covers, renderStatic
 ] = await Promise.all([
   read('ads.txt'),
   read('scripts/blog.mjs'),
@@ -36,6 +36,7 @@ const [
   read('analytics/web-analytics.js'),
   read('.github/workflows/web-analytics.yml'),
   read('scripts/article_covers.py'),
+  read('render-static.yaml'),
 ]);
 
 assert.match(adsTxt, /google\.com, pub-7821352420515145, DIRECT, f08c47fec0942fa0/);
@@ -68,6 +69,7 @@ assert.match(blog, /openrouter\/free/);
 assert.doesNotMatch(blog, /openrouter\/auto/);
 assert.match(blog, /optimizeSearchMetadata/);
 assert.match(blog, /discoverImage/);
+assert.match(blog, /SOCIAL_MIN_SCORE\|\|50/);
 
 assert.match(growth, /slug:'gta-6\/map'/);
 assert.match(growth, /slug:'rockstar-games'/);
@@ -81,6 +83,7 @@ assert.match(covers, /discoverImage/);
 assert.match(covers, /needs_refresh/);
 
 assert.match(ads, /contextText/);
+assert.doesNotMatch(ads, /pagead2\.googlesyndication\.com/);
 assert.match(ads, /affinity = ad/);
 assert.match(ads, /contextualAd/);
 assert.match(ads, /AFFILIATE_SESSION_KEY/);
@@ -117,6 +120,11 @@ assert.match(searchOptimizeWorkflow, /search-optimize/);
 assert.match(indexNow, /api\.indexnow\.org\/indexnow/);
 assert.match(indexWorkflow, /Notify IndexNow/);
 
+assert.match(renderStatic, /runtime: static/);
+assert.match(renderStatic, /staticPublishPath: \./);
+assert.match(renderStatic, /buildFilter:/);
+assert.match(renderStatic, /blog\/youtube-metrics\.json/);
+
 assert.doesNotMatch(shorts, /Rockstar fans, here is the latest story/);
 assert.match(shorts, /Full story .*Macca Blog\. Link on profile\./);
 assert.match(shorts, /def create_thumbnail/);
@@ -137,6 +145,8 @@ assert.match(instagram, /retaining the item in the Instagram queue for retry/);
 assert.doesNotMatch(instagram, /image_url:imageUrl/);
 assert.match(instagram, /share_to_feed:'false'/);
 assert.match(instagram, /DAILY_LIMIT/);
+assert.match(instagram, /content_publishing_limit/);
+assert.match(instagram, /quota_usage,config/);
 assert.match(instagram, /publicationKey/);
 assert.match(instagram, /utm_source=instagram/);
 assert.match(instagramMetrics, /record\?\.articleUrl \|\| publicationKey\.split/);
