@@ -283,7 +283,7 @@ function articleHtml(p, all) {
   const url=`${BASE}/blog/${p.slug}/`;
   const seoTitle=String(p.seoTitle||p.title||'Macca Blog').trim();
   const seoDescription=String(p.seoDescription||p.description||'').trim();
-  const imagePath='/images/macca-blog-banner.webp';
+  const imagePath=String(p.socialImage||'').startsWith('/') ? String(p.socialImage) : '/images/macca-blog-banner.webp';
   const socialImage=String(p.socialImage||'').startsWith('/')
     ? new URL(p.socialImage,`${BASE}/`).href
     : /^https:\/\//i.test(String(p.socialImage||'')) ? String(p.socialImage)
@@ -298,7 +298,7 @@ function articleHtml(p, all) {
   const body=(p.sections||[]).map(s=>`<section><h2>${esc(s.heading)}</h2>${(s.paragraphs||[]).map(x=>`<p>${esc(x)}</p>`).join('')}</section>`).join('');
   const inlineImages=(p.inlineImages||[]).filter(x=>/^https:\/\//i.test(x.url||'')).map(x=>`<figure class="source-image"><a href="${esc(x.sourceUrl||p.sourceUrl||'#')}" target="_blank" rel="noopener noreferrer"><img src="${esc(x.url)}" alt="${esc(x.alt||'Image accompanying the source report')}" loading="lazy" referrerpolicy="no-referrer"></a>${x.caption?`<figcaption>${esc(x.caption)}</figcaption>`:''}</figure>`).join('');
   const cards=(items)=>items.length?items.map(x=>`<a class="post-card" href="/blog/${encodeURIComponent(x.slug)}/"><small>${esc(x.category)} · ${esc(x.date)}</small><strong>${esc(x.title)}</strong><span>${esc(x.description)}</span></a>`).join(''):'<p>More stories coming soon.</p>';
-  const relatedCards=related.slice(0,3).map(x=>`<a class="related-feature" href="/blog/${encodeURIComponent(x.slug)}/"><img src="${esc(x.thumbnail||'/images/macca-blog-banner.webp')}" alt="" loading="lazy" onerror="this.onerror=null;this.src='/images/macca-blog-banner.webp'"><span><small>${esc(x.category)} · ${esc(x.date)}</small><strong>${esc(x.title)}</strong></span></a>`).join('');
+  const relatedCards=related.slice(0,3).map(x=>`<a class="related-feature" href="/blog/${encodeURIComponent(x.slug)}/"><img src="${esc(x.socialImage||x.thumbnail||'/images/macca-blog-banner.webp')}" alt="" loading="lazy" onerror="this.onerror=null;this.src='/images/macca-blog-banner.webp'"><span><small>${esc(x.category)} · ${esc(x.date)}</small><strong>${esc(x.title)}</strong></span></a>`).join('');
   const nextStory=next?`<aside class="next-story-peek" data-next-story-peek aria-label="Next story"><button type="button" class="next-story-close" aria-label="Dismiss next story suggestion">×</button><span>Next story</span><a href="/blog/${encodeURIComponent(next.slug)}/">${esc(next.title)}</a></aside>`:'';
   const continuousFeed=next?`<section class="continuous-feed" id="continuous-feed" aria-label="Continue reading"><div class="continuous-feed-heading"><span>KEEP READING</span><strong>More from Macca Blog</strong></div><div data-continuous-items></div><div class="continuous-sentinel" data-continuous-sentinel><span>Scroll for the next story</span></div></section>`:'';
   const schema={"@context":"https://schema.org","@graph":[
@@ -325,7 +325,7 @@ async function build() {
     await fs.mkdir(path.join(ROOT,'blog',p.slug),{recursive:true}); await fs.writeFile(path.join(ROOT,'blog',p.slug,'index.html'),articleHtml(p,posts));
   }
   await writeJson(DATA_FILE,posts);
-  const card=p=>`<a class="feature" href="/blog/${encodeURIComponent(p.slug)}/"><span class="feature-cover"><img src="${esc(p.thumbnail||'/images/macca-blog-banner.webp')}" alt="${esc(p.thumbnailAlt||p.title)}" loading="lazy" onerror="this.onerror=null;this.src='/images/macca-blog-banner.webp'"><span class="cover-label">MACCA BLOG | ${esc(p.category)}</span></span><small>${esc(p.category)} | ${esc(p.date)}</small><h2>${esc(p.title)}</h2><p>${esc(p.description)}</p></a>`;
+  const card=p=>`<a class="feature" href="/blog/${encodeURIComponent(p.slug)}/"><span class="feature-cover"><img src="${esc(p.socialImage||p.thumbnail||'/images/macca-blog-banner.webp')}" alt="${esc(p.thumbnailAlt||p.title)}" loading="lazy" onerror="this.onerror=null;this.src='/images/macca-blog-banner.webp'"><span class="cover-label">MACCA BLOG | ${esc(p.category)}</span></span><small>${esc(p.category)} | ${esc(p.date)}</small><h2>${esc(p.title)}</h2><p>${esc(p.description)}</p></a>`;
   const cats=[...new Set(posts.map(p=>p.category))].sort();
   const trending=[...posts].sort((a,b)=>topicScore(b)-topicScore(a)||b.date.localeCompare(a.date)).slice(0,4);
   const html=`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Macca Blog | GTA News, History and Analysis</title><meta name="description" content="News, reports, rumors and analysis about Grand Theft Auto, with sources linked and unconfirmed claims clearly labeled."><meta name="robots" content="index, follow, max-image-preview:large"><link rel="canonical" href="${BASE}/blog/"><meta property="og:type" content="website"><meta property="og:site_name" content="Macca Blog"><meta property="og:title" content="Macca Blog | GTA News, History and Analysis"><meta property="og:description" content="News, reports, rumors and analysis about Grand Theft Auto."><meta property="og:url" content="${BASE}/blog/"><meta property="og:image" content="${BASE}/images/macca-blog-banner.jpg"><meta property="og:locale" content="en_US"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Macca Blog"><meta name="twitter:description" content="Sourced reporting and analysis from across the GTA community."><meta name="twitter:image" content="${BASE}/images/macca-blog-banner.jpg"><link rel="icon" href="/favicon.ico" sizes="any"><link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest"><link rel="alternate" type="application/rss+xml" title="Macca Blog RSS" href="${BASE}/blog/feed.xml"><link rel="stylesheet" href="/blog/assets/blog.css"><script type="application/ld+json">${JSON.stringify({'@context':'https://schema.org','@type':'Blog','name':'Macca Blog','url':`${BASE}/blog/`})}</script><link rel="stylesheet" href="/ads/ads.css"><script defer src="/ads/ads.js"></script><link rel="stylesheet" href="/skylet/widget.css?v=20260929.1">${ADSENSE_SCRIPT}</head><body class="has-sticky-ads" data-ad-context="GTA GTA 6 Rockstar Games gaming"><header class="top"><a class="brand" href="/blog/">MACCA <b>BLOG</b></a><nav aria-label="Main navigation"><a href="/blog/">Blog</a><a href="/study/">Study</a><a href="/play/">Play</a></nav></header><main class="home"><section class="intro"><p class="eyebrow">GRAND THEFT AUTO, REPORTED</p><h1>Stories behind the streets.</h1><p>News, reporting, rumors and analysis from across the GTA community. Every story links back to its sources.</p><div class="categories">${cats.map(c=>`<span>${esc(c)}</span>`).join('')}</div></section><div class="ad-slot" data-ad-slot="blog-top" aria-label="Advertisement">${adMarkup()}</div><section class="trending-section" aria-labelledby="trending-title"><div class="section-heading"><span>WHAT'S MOVING</span><h2 id="trending-title">Trending coverage</h2></div><div class="trending-grid">${trending.map(card).join('')}</div></section><section><h2>Latest stories</h2><div class="grid">${posts.length?posts.map(card).join(''):'<p>No stories published yet.</p>'}</div></section><section><h2>Featured</h2><div class="grid">${posts.filter(p=>p.featured).map(card).join('')||posts.slice(0,2).map(card).join('')}</div></section></main>${stickyDockMarkup()}${footerMarkup()}<script defer src="/skylet/widget.js?v=20260929.1"></script></body></html>`;
@@ -394,6 +394,123 @@ async function recordMonitorFailure() {
   console.log(`Stored a six-hour AI retry cooldown for ${candidate.title}.`);
 }
 
+async function queueSocialPublication(p) {
+  if(process.env.INSTAGRAM_QUEUE_FILE) {
+    const queue=await readJson(process.env.INSTAGRAM_QUEUE_FILE,[]);
+    if(!queue.some(item=>item.slug===p.slug)) {
+      queue.push({slug:p.slug});
+      await writeJson(process.env.INSTAGRAM_QUEUE_FILE,queue);
+    }
+  }
+  if(process.env.YOUTUBE_QUEUE_FILE) {
+    try {
+      const queue=await readJson(process.env.YOUTUBE_QUEUE_FILE,[]);
+      if(!queue.some(item=>item.slug===p.slug)) {
+        queue.push({
+          slug:p.slug,
+          articleUrl:`${BASE}/blog/${encodeURIComponent(p.slug)}/`,
+          sourceUrl:p.sourceUrl,
+          title:p.title,
+          description:p.description,
+          youtubeTitle:p.youtubeTitle||p.title,
+          socialHook:p.socialHook||p.description||p.title,
+          sections:p.sections||[],
+          tags:p.tags||[],
+          thumbnail:p.thumbnail||'',
+          thumbnailAlt:p.thumbnailAlt||'',
+          inlineImages:p.inlineImages||[],
+          sources:p.sources||[],
+          queuedAt:new Date().toISOString()
+        });
+        await writeJson(process.env.YOUTUBE_QUEUE_FILE,queue);
+        console.log(`Queued ${p.slug} for YouTube Shorts publication.`);
+      }
+    } catch(error) {
+      console.error(`Could not add ${p.slug} to the YouTube queue; blog publication will continue: ${error.message}`);
+    }
+  }
+}
+
+async function generateDeepDive() {
+  const posts=await readJson(DATA_FILE,[]);
+  const today=new Date().toISOString().slice(0,10);
+  if(posts.some(post=>post.contentType==='analysis' && post.date===today)) {
+    console.log('Daily analysis already exists; skipping.');
+    return;
+  }
+  const cutoff=Date.now()-7*24*60*60*1000;
+  const recent=posts.filter(post=>{
+    const stamp=Date.parse(`${post.date}T12:00:00Z`);
+    return Number.isFinite(stamp)&&stamp>=cutoff&&Array.isArray(post.sources)&&post.sources.length;
+  }).slice(0,12);
+  if(recent.length<3) {
+    console.log('Not enough sourced recent coverage for a daily analysis; skipping.');
+    return;
+  }
+
+  await refreshPerformanceFeedback(posts);
+  const selected=[...recent].sort((a,b)=>topicScore(b)-topicScore(a)).slice(0,6);
+  const sourceMap=new Map();
+  for(const post of selected) {
+    for(const source of post.sources||[]) if(source?.url) sourceMap.set(source.url,source);
+  }
+  const sourceList=[...sourceMap.values()].slice(0,12);
+  const prompt=`Write one deeper Macca Blog analysis using ONLY the already-published sourced material below. Do not invent facts or add outside claims. The goal is context, comparison, timeline, or synthesis rather than another quick news rewrite. Clearly distinguish confirmed information from reports, allegations, leaks, rumors, or community speculation. Return JSON only with: title, description, seoTitle (max 64 chars), seoDescription (120-158 chars), category set to "Analysis", tags array, featured true, youtubeTitle (max 78 chars), socialHook (one direct factual sentence), instagramCaptionLead (max 180 chars), sections (3-5 objects with heading and paragraphs), and sources (array chosen only from the supplied source URLs). Use at least 3 distinct source URLs. Keep the analysis useful even if the reader has not read the individual posts.
+
+RECENT MACCA COVERAGE:
+${selected.map((post,index)=>`${index+1}. ${post.title}
+Date: ${post.date}
+Summary: ${post.description}
+Category: ${post.category}
+Sections: ${(post.sections||[]).map(section=>`${section.heading}: ${(section.paragraphs||[]).join(' ')}`).join(' | ')}
+Sources: ${(post.sources||[]).map(source=>`${source.title} — ${source.url}`).join('; ')}`).join('\n\n')}
+
+ALLOWED SOURCE URLS:
+${sourceList.map(source=>`- ${source.title} — ${source.url}`).join('\n')}
+`;
+  const generated=parseModel(await ask(prompt));
+  if(generated.skip) {
+    console.log(`Daily analysis skipped by provider: ${generated.reason||'no reason'}`);
+    return;
+  }
+  if(!generated.title||!Array.isArray(generated.sections)||generated.sections.length<3) throw new Error('Provider returned incomplete daily analysis JSON.');
+  const allowed=new Set(sourceList.map(source=>source.url));
+  const cited=(Array.isArray(generated.sources)?generated.sources:[]).filter(source=>allowed.has(source.url));
+  if(new Set(cited.map(source=>source.url)).size<3) throw new Error('Daily analysis did not preserve at least three allowed source URLs.');
+  const title=String(generated.title).trim();
+  let slug=slugify(title);
+  if(posts.some(post=>post.slug===slug||similarity(post.title,title)>0.5)) slug=slugify(`${title}-analysis-${today}`);
+  const p={
+    ...generated,
+    title,
+    description:String(generated.description||title).trim().slice(0,300),
+    seoTitle:String(generated.seoTitle||title).trim().slice(0,64),
+    seoDescription:String(generated.seoDescription||generated.description||title).trim().slice(0,158),
+    category:'Analysis',
+    tags:normalizeTags(Array.isArray(generated.tags)?generated.tags:[],title,generated.description||''),
+    featured:true,
+    contentType:'analysis',
+    youtubeTitle:String(generated.youtubeTitle||title).trim().slice(0,78),
+    socialHook:String(generated.socialHook||generated.description||title).trim().slice(0,220),
+    instagramCaptionLead:String(generated.instagramCaptionLead||generated.socialHook||title).trim().slice(0,180),
+    thumbnail:'',
+    thumbnailAlt:title,
+    inlineImages:[],
+    date:today,
+    slug,
+    sourceUrl:cited[0]?.url||sourceList[0].url,
+    sources:cited
+  };
+  posts.unshift(p);
+  await writeJson(DATA_FILE,posts);
+  const history=await readJson(HISTORY_FILE,[]);
+  history.unshift({slug:p.slug,title:p.title,sourceUrl:p.sourceUrl,sourceUrls:p.sources.map(source=>source.url),date:p.date,status:'published-analysis',hash:crypto.createHash('sha256').update(`${p.title}|${p.date}`).digest('hex')});
+  await writeJson(HISTORY_FILE,history.slice(0,500));
+  await queueSocialPublication(p);
+  await build();
+  console.log(`Published daily analysis ${p.slug}`);
+}
+
 async function generate() {
   generate.rejected ||= 0;
   const dryRun=process.argv.includes('--dry-run');
@@ -450,22 +567,7 @@ Article excerpts: ${s.excerpt||'[No body available]'}`).join('\n\n')}
   const p={...generated,title,description:String(generated.description||mainSource.description||candidate.description||title).slice(0,300),seoTitle:String(generated.seoTitle||title).trim().slice(0,64),seoDescription:String(generated.seoDescription||generated.description||mainSource.description||candidate.description||title).trim().slice(0,158),category:normalizeCategory(generated.category,title,generated.description||mainSource.description||candidate.description||''),tags:normalizeTags(Array.isArray(generated.tags)?generated.tags:[],title,generated.description||mainSource.description||candidate.description||''),youtubeTitle:String(generated.youtubeTitle||title).trim().slice(0,78),socialHook:String(generated.socialHook||generated.description||title).trim().slice(0,220),instagramCaptionLead:String(generated.instagramCaptionLead||generated.socialHook||title).trim().slice(0,180),thumbnail:selectedThumbnail,thumbnailAlt:String(generated.thumbnailAlt||title).slice(0,180),inlineImages,date:new Date().toISOString().slice(0,10),slug:slugify(title),sourceUrl:mainSource.canonical||candidate.link,sources:[...new Map(cited.filter(s=>s.url).map(s=>[s.url,s])).values()]};
   if(posts.some(x=>x.slug===p.slug||similarity(x.title,p.title)>0.36)) { console.log(`Skipping near-duplicate generated title: ${p.title}`); history.unshift({sourceUrl:candidate.link,title:candidate.title,date:new Date().toISOString(),status:'near-duplicate',sourceUrls:relatedFeeds.map(s=>s.link)}); await writeJson(HISTORY_FILE,history.slice(0,500)); generate.rejected++; if(generate.rejected<3) return generate(); console.log('Reached per-run limit while skipping duplicates.'); return; }
   posts.unshift(p); await writeJson(DATA_FILE,posts); history.unshift({slug:p.slug,title:p.title,sourceUrl:p.sourceUrl,sourceUrls:relatedFeeds.map(s=>s.link),date:p.date,status:'published',hash:crypto.createHash('sha256').update(`${p.title}|${p.sourceUrl}`).digest('hex')}); await writeJson(HISTORY_FILE,history.slice(0,500));
-  if(process.env.INSTAGRAM_QUEUE_FILE) {
-    const queue=await readJson(process.env.INSTAGRAM_QUEUE_FILE,[]);
-    if(!queue.some(item=>item.slug===p.slug)) { queue.push({slug:p.slug}); await writeJson(process.env.INSTAGRAM_QUEUE_FILE,queue); }
-  }
-  if(process.env.YOUTUBE_QUEUE_FILE) {
-    try {
-      const queue=await readJson(process.env.YOUTUBE_QUEUE_FILE,[]);
-      if(!queue.some(item=>item.slug===p.slug)) {
-        queue.push({slug:p.slug,articleUrl:`${BASE}/blog/${encodeURIComponent(p.slug)}/`,sourceUrl:p.sourceUrl,title:p.title,description:p.description,sections:p.sections||[],tags:p.tags||[],thumbnail:p.thumbnail||'',thumbnailAlt:p.thumbnailAlt||'',inlineImages:p.inlineImages||[],sources:p.sources||[],queuedAt:new Date().toISOString()});
-        await writeJson(process.env.YOUTUBE_QUEUE_FILE,queue);
-        console.log(`Queued ${p.slug} for YouTube Shorts publication.`);
-      }
-    } catch(error) {
-      console.error(`Could not add ${p.slug} to the YouTube queue; blog publication will continue: ${error.message}`);
-    }
-  }
+  await queueSocialPublication(p);
   await build(); console.log(`Published ${p.slug}`);
 }
 function similarity(a,b){const words=x=>new Set(String(x).toLowerCase().split(/[^a-z0-9]+/).filter(w=>w.length>2));const x=words(a),y=words(b);if(!x.size||!y.size)return 0;return [...x].filter(v=>y.has(v)).length/new Set([...x,...y]).size;}
@@ -493,5 +595,6 @@ else if(cmd==='generate') {
   const count=Math.max(1,Math.min(BACKFILL?50:5,Number(process.argv.find(x=>x.startsWith('--count='))?.split('=')[1]||1)));
   for(let i=0;i<count;i++) { const before=(await readJson(DATA_FILE,[])).length; generate.rejected=0; await generate(); const after=(await readJson(DATA_FILE,[])).length; if(process.argv.includes('--dry-run')||after===before) break; }
 }
+else if(cmd==='deep-dive') await generateDeepDive();
 else if(cmd==='discover') { const items=await research(); console.log(JSON.stringify(items.slice(0,BACKFILL?200:40),null,2)); }
 else throw new Error(`Unknown command ${cmd}`);
