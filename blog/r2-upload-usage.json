@@ -81,9 +81,12 @@
       "objectKey": "instagram-reels/0a0297c65a81477db0f65a66302d6a1d-gta-6-had-a-really-busy-week.mp4",
       "month": "2026-10",
       "attemptsReserved": 2,
-      "attemptsConsumed": 0,
+      "attemptsConsumed": 1,
       "reservedAt": "2026-10-03T00:33:35.867858Z",
-      "sizeBytes": 600292
+      "sizeBytes": 600292,
+      "uploadedAt": "2026-10-03T00:33:49.289877Z",
+      "publicVerifiedAt": "2026-10-03T00:33:49.469696Z",
+      "deletedAt": "2026-10-03T00:34:29.294411Z"
     }
   }
 }
