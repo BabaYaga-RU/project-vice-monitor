@@ -130,7 +130,10 @@ export async function buildGrowthPages({root=process.cwd(),base='https://macca-l
   try{youtube=JSON.parse(await fs.readFile(path.join(root,'blog','youtube-published.json'),'utf8'));}catch{}
   try{instagram=JSON.parse(await fs.readFile(path.join(root,'blog','instagram-published.json'),'utf8'));}catch{}
   const youtubeBySlug=new Map((Array.isArray(youtube)?youtube:[]).map(item=>[item.slug,item]));
-  const instagramBySlug=new Map(Object.entries(instagram||{}).map(([articleUrl,item])=>[articleUrl.split('/').filter(Boolean).pop(),item]));
+  const instagramBySlug=new Map(Object.entries(instagram||{}).map(([recordKey,item])=>{
+    const articleUrl=String(item?.articleUrl||recordKey.split('::')[0]||'');
+    return [articleUrl.split('/').filter(Boolean).pop(),item];
+  }));
   const socialDir=path.join(root,'social');
   await fs.mkdir(socialDir,{recursive:true});
   const socialPosts=sorted.slice(0,12);
