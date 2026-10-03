@@ -555,6 +555,67 @@ ${sourceList.map(source=>`- ${source.title} — ${source.url}`).join('\n')}
   console.log(`Published daily analysis ${p.slug}`);
 }
 
+async function optimizeSearchMetadata() {
+  const feedback=await readJson(SEARCH_CONSOLE_FILE,{pageOpportunities:[]});
+  const posts=await readJson(DATA_FILE,[]);
+  const bySlug=new Map(posts.map(post=>[post.slug,post]));
+  const opportunities=(feedback.pageOpportunities||[])
+    .map(item=>{
+      let slug='';
+      try {
+        const url=new URL(item.page);
+        const parts=url.pathname.split('/').filter(Boolean);
+        if(parts[0]==='blog'&&parts.length>=2) slug=parts[1];
+      } catch {}
+      return {...item,slug,post:bySlug.get(slug)};
+    })
+    .filter(item=>item.post&&Number(item.impressions||0)>=40&&(Number(item.ctr||0)<0.03||Number(item.position||99)<=15))
+    .sort((a,b)=>Number(b.impressions||0)-Number(a.impressions||0))
+    .slice(0,3);
+
+  if(!opportunities.length) {
+    console.log('Search metadata optimizer: no qualified Search Console opportunity.');
+    return;
+  }
+
+  const prompt=`Improve search-result metadata for these existing Macca Blog articles using ONLY the supplied article facts and the real Search Console queries. Do not change factual meaning, invent claims, sensationalize, or imply confirmation that the article does not support. Important GTA/Rockstar search terms should appear naturally near the start. Return one JSON object only: {"updates":[{"slug":"...","seoTitle":"max 64 chars","seoDescription":"120-158 chars"}]}. Do not change article titles or body text.
+
+${opportunities.map((item,index)=>`${index+1}. slug: ${item.slug}
+Article title: ${item.post.title}
+Current SEO title: ${item.post.seoTitle||item.post.title}
+Description: ${item.post.description}
+Queries: ${(item.queries||[]).join(' | ')}
+Impressions: ${item.impressions}; CTR: ${item.ctr}; Position: ${item.position}`).join('\n\n')}`;
+  const generated=parseModel(await ask(prompt));
+  const updates=Array.isArray(generated.updates)?generated.updates:[];
+  let changed=0;
+  const now=new Date().toISOString();
+  for(const update of updates) {
+    const post=bySlug.get(String(update.slug||''));
+    if(!post) continue;
+    const seoTitle=String(update.seoTitle||'').trim().slice(0,64);
+    const seoDescription=String(update.seoDescription||'').trim().slice(0,158);
+    if(!seoTitle||seoTitle.length<15||!seoDescription||seoDescription.length<80) continue;
+    if(post.seoTitle===seoTitle&&post.seoDescription===seoDescription) continue;
+    post.seoTitle=seoTitle;
+    post.seoDescription=seoDescription;
+    post.seoUpdatedAt=now;
+    post.searchOptimization={
+      updatedAt:now,
+      impressions:Number(opportunities.find(item=>item.slug===post.slug)?.impressions||0),
+      queries:(opportunities.find(item=>item.slug===post.slug)?.queries||[]).slice(0,8)
+    };
+    changed+=1;
+  }
+  if(!changed) {
+    console.log('Search metadata optimizer returned no safe changes.');
+    return;
+  }
+  await writeJson(DATA_FILE,posts);
+  await build();
+  console.log(`Search metadata optimizer updated ${changed} article(s).`);
+}
+
 async function generate() {
   generate.rejected ||= 0;
   const dryRun=process.argv.includes('--dry-run');
@@ -681,5 +742,6 @@ else if(cmd==='generate') {
   for(let i=0;i<count;i++) { const before=(await readJson(DATA_FILE,[])).length; generate.rejected=0; await generate(); const after=(await readJson(DATA_FILE,[])).length; if(process.argv.includes('--dry-run')||after===before) break; }
 }
 else if(cmd==='deep-dive') await generateDeepDive();
+else if(cmd==='search-optimize') await optimizeSearchMetadata();
 else if(cmd==='discover') { const items=await research(); console.log(JSON.stringify(items.slice(0,BACKFILL?200:40),null,2)); }
 else throw new Error(`Unknown command ${cmd}`);
